@@ -12,6 +12,11 @@
 	],
 	"Plugins": [
 		{
+			"Name": "SimpleNetChannel",
+			"Enabled": true,
+			"MarketplaceURL": "https://renzhai.net/361.html"
+		},
+		{
 			"Name": "ModelingToolsEditorMode",
 			"Enabled": true,
 			"TargetAllowList": [
