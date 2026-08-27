@@ -15,7 +15,9 @@ public class StoneDefence : ModuleRules
 			"Engine",
 			"InputCore", 
 			"EnhancedInput",
-			"SimpleNetChannel"
+			"SimpleNetChannel",
+			"UMG",
+			"CommonUI"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
