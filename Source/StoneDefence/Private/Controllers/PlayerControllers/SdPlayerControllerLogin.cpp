@@ -11,7 +11,7 @@ ASdPlayerControllerLogin::ASdPlayerControllerLogin()
 	bShowMouseCursor = true;
 
 	static ConstructorHelpers::FClassFinder<USdWidgetLoginMenu> LoginMenu_BPClass(
-		TEXT("/Game/_Blueprints/Widgets/Login/BP_LoginMenu")
+		TEXT("/Game/_Blueprints/Widgets/Login/BP_Widget_LoginMenu")
 	);
 	LoginMenuClass = LoginMenu_BPClass.Class;
 }

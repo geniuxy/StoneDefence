@@ -16,5 +16,20 @@ class STONEDEFENCE_API USdCommonUserWidgetBase : public UCommonUserWidget
 	GENERATED_BODY()
 
 protected:
-	virtual void RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel) {}
+	virtual void RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
+	{
+	}
+
+	/**********************************************************************/
+	/*                           Parent Widget                            */
+	/**********************************************************************/
+protected:
+	UPROPERTY()
+	USdCommonUserWidgetBase* ParentWidget;
+
+public:
+	template <class T = USdCommonUserWidgetBase>
+	T* GetParentWidget() const { return Cast<T>(ParentWidget); }
+
+	void SetParentWidget(USdCommonUserWidgetBase* InWidget) { ParentWidget = InWidget; }
 };

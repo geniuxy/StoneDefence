@@ -7,6 +7,8 @@
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
 #include "SdWidgetLoginMenu.generated.h"
 
+class UCommonTextBlock;
+class USdWidgetLoginInfo;
 /**
  * 
  */
@@ -21,10 +23,21 @@ protected:
 
 	virtual void RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel) override;
 
+public:
+	void SignIn(FString InAccount, FString InPassword);
+	void Register();
+	void ShowServerLog(const FString& InMsg);
+
 private:
 	/** Binding Widgets */
 	UPROPERTY(meta=(BindWidget))
 	USdCommonUserWidgetBase* LinkWidget;
+
+	UPROPERTY(meta=(BindWidget))
+	USdWidgetLoginInfo* LoginInfo;
+
+	UPROPERTY(meta=(BindWidget))
+	UCommonTextBlock* MsgLog;
 	/********************/
 	
 	FDelegateHandle ClientRecvDelegate;

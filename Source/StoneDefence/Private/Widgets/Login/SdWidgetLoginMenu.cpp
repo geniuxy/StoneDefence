@@ -3,11 +3,15 @@
 
 #include "Widgets/Login/SdWidgetLoginMenu.h"
 
+#include "CommonTextBlock.h"
 #include "Frameworks/GameInstance/SdGameInstance.h"
+#include "Widgets/Login/SdWidgetLoginInfo.h"
 
 void USdWidgetLoginMenu::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	LoginInfo->SetParentWidget(this);
 
 	if (USdGameInstance* ClientGameInstance = GetGameInstance<USdGameInstance>())
 	{
@@ -38,6 +42,19 @@ void USdWidgetLoginMenu::NativeDestruct()
 
 void USdWidgetLoginMenu::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 {
+}
+
+void USdWidgetLoginMenu::SignIn(FString InAccount, FString InPassword)
+{
+}
+
+void USdWidgetLoginMenu::Register()
+{
+}
+
+void USdWidgetLoginMenu::ShowServerLog(const FString& InMsg)
+{
+	MsgLog->SetText(FText::FromString(InMsg));
 }
 
 void USdWidgetLoginMenu::BindClientRcv()
