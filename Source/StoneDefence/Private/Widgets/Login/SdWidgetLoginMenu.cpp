@@ -6,6 +6,8 @@
 #include "CommonTextBlock.h"
 #include "Frameworks/GameInstance/SdGameInstance.h"
 #include "Widgets/Login/SdWidgetLoginInfo.h"
+#include "Protocol/LoginProtocol.h"
+#include "SdTypes/SdMacros.h"
 
 void USdWidgetLoginMenu::NativeConstruct()
 {
@@ -19,7 +21,7 @@ void USdWidgetLoginMenu::NativeConstruct()
 		if (ClientGameInstance->GetClient())
 		{
 			ClientGameInstance->GetClient()->NetManageMsgDelegate.BindUObject(this, &ThisClass::ShowServerInfo);
-			
+
 			ClientGameInstance->LinkServer();
 
 			BindClientRcv();
@@ -42,10 +44,19 @@ void USdWidgetLoginMenu::NativeDestruct()
 
 void USdWidgetLoginMenu::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 {
+	switch (ProtocolNumber)
+	{
+	case SP_LoginRequests:
+		{
+			
+			break;
+		}
+	}
 }
 
 void USdWidgetLoginMenu::SignIn(FString InAccount, FString InPassword)
 {
+	SEND_DATA(SP_LoginRequests, InAccount, InPassword);
 }
 
 void USdWidgetLoginMenu::Register()

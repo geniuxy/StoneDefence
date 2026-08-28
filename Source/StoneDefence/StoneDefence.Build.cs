@@ -16,6 +16,7 @@ public class StoneDefence : ModuleRules
 			"InputCore", 
 			"EnhancedInput",
 			"SimpleNetChannel",
+			"StoneDefenceNetCommon",
 			"UMG",
 			"CommonUI"
 		});
