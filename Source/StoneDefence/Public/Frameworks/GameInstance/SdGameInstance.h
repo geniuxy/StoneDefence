@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "SimpleNetManage.h"
+#include "StoneDefenceNetCommonType.h"
 #include "SdGameInstance.generated.h"
 
 /**
@@ -26,7 +27,9 @@ public:
 	void LinkServer();
 	
 	FSimpleNetManage* GetClient() const;
+	FSdUserData& GetUserData();
 
 private:
 	FSimpleNetManage* Client;
+	FSdUserData UserData;
 };

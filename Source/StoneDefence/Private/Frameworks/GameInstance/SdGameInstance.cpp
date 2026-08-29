@@ -55,3 +55,8 @@ FSimpleNetManage* USdGameInstance::GetClient() const
 {
 	return Client;
 }
+
+FSdUserData& USdGameInstance::GetUserData()
+{
+	return UserData;
+}
