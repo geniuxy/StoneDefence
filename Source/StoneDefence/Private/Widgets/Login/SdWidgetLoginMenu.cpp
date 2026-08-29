@@ -28,6 +28,11 @@ void USdWidgetLoginMenu::NativeConstruct()
 			BindClientRcv();
 		}
 	}
+
+	if (!LoginInfo->DecryptionFromLocal(FPaths::ProjectDir() / TEXT("User")))
+	{
+		PrintLog(TEXT("读取密码失败..."));
+	}
 }
 
 void USdWidgetLoginMenu::NativeDestruct()
@@ -62,6 +67,15 @@ void USdWidgetLoginMenu::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Cha
 					{
 						NetDataAnalysis::StringToUserData(Msg, ClientGameInstance->GetUserData());
 					}
+
+					if (!LoginInfo->EncryptionToLocal(FPaths::ProjectDir() / TEXT("User")))
+					{
+						PrintLog(TEXT("存储密码失败..."));
+					}
+					else
+					{
+						PrintLog(TEXT("登录成功！！！"));
+					}
 					break;
 				}
 			case LOGIN_DB_SERVER_ERROR:
@@ -90,7 +104,12 @@ void USdWidgetLoginMenu::Register()
 
 void USdWidgetLoginMenu::PrintLog(const FString& InMsg)
 {
-	MsgLog->SetText(FText::FromString(InMsg));
+	PrintLog(FText::FromString(InMsg));
+}
+
+void USdWidgetLoginMenu::PrintLog(const FText& InMsg)
+{
+	MsgLog->SetText(InMsg);
 }
 
 void USdWidgetLoginMenu::BindClientRcv()

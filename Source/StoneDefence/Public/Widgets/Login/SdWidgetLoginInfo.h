@@ -37,4 +37,8 @@ private:
 
 	void SignIn();
 	void Register();
+
+public:
+	bool EncryptionToLocal(const FString& InPaths);
+	bool DecryptionFromLocal(const FString& InPaths);
 };
