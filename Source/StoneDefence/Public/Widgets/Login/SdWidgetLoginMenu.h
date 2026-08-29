@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SimpleNetChannelType.h"
+#include "StoneDefenceNetCommonType.h"
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
 #include "SdWidgetLoginMenu.generated.h"
 
@@ -44,4 +45,7 @@ private:
 	void BindClientRcv();
 
 	void ShowServerInfo(ESimpleNetErrorType InType, const FString& InMsg);
+
+private:
+	FSdGateStatus CachedGateStatus;
 };

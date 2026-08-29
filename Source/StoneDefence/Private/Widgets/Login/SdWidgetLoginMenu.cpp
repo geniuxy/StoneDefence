@@ -52,11 +52,18 @@ void USdWidgetLoginMenu::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Cha
 			FString Msg;
 			ELoginType Type = LOGIN_DB_SERVER_ERROR;
 
-			SIMPLE_PROTOCOLS_RECEIVE(SP_LoginResponses, Type, Msg);
+			SIMPLE_PROTOCOLS_RECEIVE(SP_LoginResponses, Type, Msg, CachedGateStatus);
 
-			switch (Type) {
+			switch (Type)
+			{
 			case LOGIN_SUCCESS:
-				break;
+				{
+					if (USdGameInstance* ClientGameInstance = GetGameInstance<USdGameInstance>())
+					{
+						NetDataAnalysis::StringToUserData(Msg, ClientGameInstance->GetUserData());
+					}
+					break;
+				}
 			case LOGIN_DB_SERVER_ERROR:
 				PrintLog(TEXT("服务器错误..."));
 				break;
