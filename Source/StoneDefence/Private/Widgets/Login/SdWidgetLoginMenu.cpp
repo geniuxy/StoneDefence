@@ -8,6 +8,7 @@
 #include "Widgets/Login/SdWidgetLoginInfo.h"
 #include "Protocol/LoginProtocol.h"
 #include "SdTypes/SdMacros.h"
+#include "StoneDefenceNetCommonType.h"
 
 void USdWidgetLoginMenu::NativeConstruct()
 {
@@ -46,9 +47,26 @@ void USdWidgetLoginMenu::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Cha
 {
 	switch (ProtocolNumber)
 	{
-	case SP_LoginRequests:
+	case SP_LoginResponses:
 		{
-			
+			FString Msg;
+			ELoginType Type = LOGIN_DB_SERVER_ERROR;
+
+			SIMPLE_PROTOCOLS_RECEIVE(SP_LoginResponses, Type, Msg);
+
+			switch (Type) {
+			case LOGIN_SUCCESS:
+				break;
+			case LOGIN_DB_SERVER_ERROR:
+				PrintLog(TEXT("服务器错误..."));
+				break;
+			case LOGIN_ACCOUNT_WRONG:
+				PrintLog(TEXT("账号为空..."));
+				break;
+			case LOGIN_WRONG_PASSWORD:
+				PrintLog(TEXT("密码错误..."));
+				break;
+			}
 			break;
 		}
 	}
@@ -63,7 +81,7 @@ void USdWidgetLoginMenu::Register()
 {
 }
 
-void USdWidgetLoginMenu::ShowServerLog(const FString& InMsg)
+void USdWidgetLoginMenu::PrintLog(const FString& InMsg)
 {
 	MsgLog->SetText(FText::FromString(InMsg));
 }

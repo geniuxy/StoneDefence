@@ -26,7 +26,7 @@ protected:
 public:
 	void SignIn(FString InAccount, FString InPassword);
 	void Register();
-	void ShowServerLog(const FString& InMsg);
+	void PrintLog(const FString& InMsg);
 
 private:
 	/** Binding Widgets */
