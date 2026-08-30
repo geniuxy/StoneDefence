@@ -9,10 +9,13 @@
 #include "Protocol/LoginProtocol.h"
 #include "SdTypes/SdMacros.h"
 #include "StoneDefenceNetCommonType.h"
+#include "Widgets/Common/SdWidgetPrintMsg.h"
 
 void USdWidgetLoginMenu::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	PlayAnimation(LoginInfoFadeIn);
 
 	LoginInfo->SetParentWidget(this);
 
@@ -76,6 +79,8 @@ void USdWidgetLoginMenu::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Cha
 					{
 						PrintLog(TEXT("登录成功！！！"));
 					}
+
+					PlayAnimation(LoginInfoFadeOut);
 					break;
 				}
 			case LOGIN_DB_SERVER_ERROR:
@@ -90,6 +95,8 @@ void USdWidgetLoginMenu::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Cha
 			}
 			break;
 		}
+	default:
+		break;
 	}
 }
 
@@ -109,7 +116,8 @@ void USdWidgetLoginMenu::PrintLog(const FString& InMsg)
 
 void USdWidgetLoginMenu::PrintLog(const FText& InMsg)
 {
-	MsgLog->SetText(InMsg);
+	MsgLogWidget->PlayShowMsgAnim();
+	MsgLogWidget->SetLogText(InMsg);
 }
 
 void USdWidgetLoginMenu::BindClientRcv()

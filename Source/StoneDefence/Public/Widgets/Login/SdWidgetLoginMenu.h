@@ -8,7 +8,7 @@
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
 #include "SdWidgetLoginMenu.generated.h"
 
-class UCommonTextBlock;
+class USdWidgetPrintMsg;
 class USdWidgetLoginInfo;
 /**
  * 
@@ -40,7 +40,13 @@ private:
 	USdWidgetLoginInfo* LoginInfo;
 
 	UPROPERTY(meta=(BindWidget))
-	UCommonTextBlock* MsgLog;
+	USdWidgetPrintMsg* MsgLogWidget;
+
+	UPROPERTY(Transient, meta=(BindWidgetAnim))
+	UWidgetAnimation* LoginInfoFadeIn;
+
+	UPROPERTY(Transient, meta=(BindWidgetAnim))
+	UWidgetAnimation* LoginInfoFadeOut;
 	/********************/
 	
 	FDelegateHandle ClientRecvDelegate;
