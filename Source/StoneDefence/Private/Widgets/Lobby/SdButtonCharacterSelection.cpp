@@ -4,12 +4,20 @@
 #include "Widgets/Lobby/SdButtonCharacterSelection.h"
 
 #include "CommonListView.h"
+#include "Components/VerticalBox.h"
 
 void USdButtonCharacterSelection::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	Super::NativeOnListItemObjectSet(ListItemObject);
 
 	CharacterSelectionData = Cast<UCharacterSelectionData>(ListItemObject);
+}
+
+void USdButtonCharacterSelection::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	CharacterSlotBox->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void USdButtonCharacterSelection::NativeOnClicked()

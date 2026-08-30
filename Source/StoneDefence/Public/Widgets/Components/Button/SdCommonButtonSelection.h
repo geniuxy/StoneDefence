@@ -17,11 +17,12 @@ class STONEDEFENCE_API USdCommonButtonSelection : public USdCommonButtonImage, p
 	GENERATED_BODY()
 
 protected:
-	//~Begin IUserObjectListEntry Interface
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
+	// 滚动列表时，也会触发NativeOnItemSelectionChanged和NativeOnEntryReleased
+	// SetSelectedItem后，会触发NativeOnItemSelectionChanged
+	// 只在EntryReleased（滚动列表等销毁动作）后，NativeOnEntryReleased将设置项置为Unhovered状态
 	virtual void NativeOnItemSelectionChanged(bool bIsSelected) override;
-	virtual void NativeOnEntryReleased() override; // 只用于EntryReleased（滚动列表等销毁动作）后，将设置项置为Unhovered状态
-	//~End IUserObjectListEntry Interface
+	virtual void NativeOnEntryReleased() override;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI Button")

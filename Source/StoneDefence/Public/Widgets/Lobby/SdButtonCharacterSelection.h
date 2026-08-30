@@ -6,6 +6,8 @@
 #include "Widgets/Components/Button/SdCommonButtonSelection.h"
 #include "SdButtonCharacterSelection.generated.h"
 
+class UVerticalBox;
+
 UCLASS()
 class STONEDEFENCE_API UCharacterSelectionData : public UObject
 {
@@ -24,13 +26,28 @@ class STONEDEFENCE_API USdButtonCharacterSelection : public USdCommonButtonSelec
 	GENERATED_BODY()
 
 protected:
-	//~Begin IUserObjectListEntry Interface
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
-	//~End IUserObjectListEntry Interface
-
+	virtual void NativeConstruct() override;
 	virtual void NativeOnClicked() override;
 
 private:
+	/** Binding Widgets */
+	UPROPERTY(meta = (BindWidget))
+	UCommonLazyImage* Icon_CreateNew;
+
+	UPROPERTY(meta = (BindWidget))
+	UVerticalBox* CharacterSlotBox;
+
+	UPROPERTY(meta = (BindWidget))
+	UCommonLazyImage* CharacterIcon;
+
+	UPROPERTY(meta = (BindWidget))
+	UCommonTextBlock* CharacterName;
+
+	UPROPERTY(meta = (BindWidget))
+	UCommonTextBlock* DateText;
+	/********************/
+
 	UPROPERTY()
 	UCharacterSelectionData* CharacterSelectionData;
 };
