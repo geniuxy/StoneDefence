@@ -22,6 +22,14 @@ void USdCommonButtonImage::SetButtonDisplayImage(UTexture2D* InTexture)
 	}
 }
 
+void USdCommonButtonImage::SetButtonDisplayImage(const TSoftObjectPtr<UTexture2D>& InTexture)
+{
+	if (CommonLazyImage_ButtonImage)
+	{
+		CommonLazyImage_ButtonImage->SetBrushFromLazyTexture(InTexture);
+	}
+}
+
 void USdCommonButtonImage::ToggleHighlightState(bool bShouldHighlight)
 {
 	if (!CommonLazyImage_ButtonImage) return;
@@ -69,6 +77,11 @@ void USdCommonButtonImage::NativeOnHovered()
 	if (bShouldToggleStateWhenHovered)
 	{
 		ToggleHighlightState(true);
+
+		if (HoveredSoftButtonImage.ToSoftObjectPath().IsValid())
+		{
+			SetButtonDisplayImage(HoveredSoftButtonImage);
+		}
 	}
 }
 
@@ -79,5 +92,10 @@ void USdCommonButtonImage::NativeOnUnhovered()
 	if (bShouldToggleStateWhenHovered)
 	{
 		ToggleHighlightState(false);
+
+		if (HoveredSoftButtonImage.ToSoftObjectPath().IsValid() && SoftButtonImage.ToSoftObjectPath().IsValid())
+		{
+			SetButtonDisplayImage(SoftButtonImage);
+		}
 	}
 }

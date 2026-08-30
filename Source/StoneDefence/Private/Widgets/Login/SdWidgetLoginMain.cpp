@@ -21,7 +21,10 @@ void USdWidgetLoginMain::NativeConstruct()
 	PlayAnimation(LoginInfoFadeIn);
 
 	LoginInfo->SetParentWidget(this);
-	RegisterInfo->SetParentWidget(this);
+	if (RegisterInfo)
+	{
+		RegisterInfo->SetParentWidget(this);
+	}
 
 	if (USdGameInstance* ClientGameInstance = GetGameInstance<USdGameInstance>())
 	{

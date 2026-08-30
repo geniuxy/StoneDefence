@@ -18,7 +18,8 @@ public class StoneDefence : ModuleRules
 			"SimpleNetChannel",
 			"StoneDefenceNetCommon",
 			"UMG",
-			"CommonUI"
+			"CommonUI",
+			"DeveloperSettings"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

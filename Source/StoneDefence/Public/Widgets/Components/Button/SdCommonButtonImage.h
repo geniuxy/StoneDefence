@@ -17,8 +17,8 @@ class STONEDEFENCE_API USdCommonButtonImage : public USdCommonButtonBase
 
 public:
 	void SetButtonDisplayImage(const FSlateBrush& InBrush);
-
 	void SetButtonDisplayImage(UTexture2D* InTexture);
+	void SetButtonDisplayImage(const TSoftObjectPtr<UTexture2D>& InTexture);
 
 	UFUNCTION(BlueprintCallable)
 	void ToggleHighlightState(bool bShouldHighlight);
@@ -47,6 +47,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI Button")
 	TSoftObjectPtr<UTexture2D> PreviewSoftButtonImage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI Button")
+	TSoftObjectPtr<UTexture2D> HoveredSoftButtonImage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI Button")
 	float ButtonImageSize = 50.f;

@@ -40,7 +40,7 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	USdWidgetLoginInfo* LoginInfo;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(meta = (BindWidgetOptional))
 	USdWidgetRegisterInfo* RegisterInfo;
 
 	UPROPERTY(meta=(BindWidget))
