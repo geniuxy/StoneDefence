@@ -38,7 +38,24 @@ private:
 	void SignIn();
 	void Register();
 
+	UFUNCTION()
+	void OnAccountChanged(const FText& InText);
+
+	UFUNCTION()
+	void OnPasswordChanged(const FText& InText);
+
 public:
 	bool EncryptionToLocal(const FString& InPaths);
 	bool DecryptionFromLocal(const FString& InPaths);
+
+public:
+	void ShowLoginWarnings();
+
+	void ClearAccountPassword();
+	
+protected:
+	bool CheckText(const FString& InString, int32 InMin, int32 InMax);
+
+private:
+	TMap<FString, FString> OutMap;
 };

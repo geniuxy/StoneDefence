@@ -7,6 +7,7 @@
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
 #include "SdWidgetLoginMain.generated.h"
 
+class USdWidgetRegisterInfo;
 class USdWidgetPrintMsg;
 class USdWidgetLoginInfo;
 /**
@@ -39,6 +40,9 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	USdWidgetLoginInfo* LoginInfo;
 
+	UPROPERTY(meta = (BindWidget))
+	USdWidgetRegisterInfo* RegisterInfo;
+
 	UPROPERTY(meta=(BindWidget))
 	USdWidgetPrintMsg* MsgLogWidget;
 
@@ -55,4 +59,5 @@ private:
 	void ShowServerLinkingInfo(ESimpleNetErrorType InType, const FString& InMsg);
 
 	void HandleLoginResponses(FSimpleChannel* Channel);
+	void HandleRegisterResponses(FSimpleChannel* Channel);
 };

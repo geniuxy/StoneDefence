@@ -8,12 +8,17 @@
 #include "Widgets/Components/Button/SdCommonButtonImage.h"
 #include "Widgets/Login/SdWidgetLoginMain.h"
 
+#define LOCTEXT_NAMESPACE "USdWidgetLoginInfo"
+
 void USdWidgetLoginInfo::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	Button_Enter->OnReleased().AddUObject(this, &ThisClass::SignIn);
 	Button_Register->OnReleased().AddUObject(this, &ThisClass::Register);
+
+	EditableText_Account->OnTextChanged.AddDynamic(this, &ThisClass::OnAccountChanged);
+	EditableText_Password->OnTextChanged.AddDynamic(this, &ThisClass::OnPasswordChanged);
 }
 
 void USdWidgetLoginInfo::NativeDestruct()
@@ -36,6 +41,27 @@ void USdWidgetLoginInfo::Register()
 	if (USdWidgetLoginMain* LoginMenu = GetParentWidget<USdWidgetLoginMain>())
 	{
 		LoginMenu->Register();
+	}
+}
+
+void USdWidgetLoginInfo::OnAccountChanged(const FText& InText)
+{
+	FString AccountString = InText.ToString();
+	if (CheckText(AccountString, 0, 0))
+	{
+		EditableText_Account->SetText(InText);
+	}
+
+	// 账号修改时，密码清空     
+	EditableText_Password->SetText(FText());
+}
+
+void USdWidgetLoginInfo::OnPasswordChanged(const FText& InText)
+{
+	FString PasswordString = InText.ToString();
+	if (CheckText(PasswordString, 0, 0))
+	{
+		EditableText_Password->SetText(InText);
 	}
 }
 
@@ -144,3 +170,25 @@ bool USdWidgetLoginInfo::DecryptionFromLocal(const FString& InPaths)
 	
 	return false;
 }
+
+void USdWidgetLoginInfo::ShowLoginWarnings()
+{
+}
+
+void USdWidgetLoginInfo::ClearAccountPassword()
+{
+	EditableText_Account->SetText(FText());
+	EditableText_Password->SetText(FText());
+}
+
+bool USdWidgetLoginInfo::CheckText(const FString& InString, int32 InMin, int32 InMax)
+{
+	if (InString.Len() >= InMin && InString.Len() < InMax)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+#undef LOCTEXT_NAMESPACE

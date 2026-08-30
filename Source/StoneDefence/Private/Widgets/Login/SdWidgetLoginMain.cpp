@@ -3,7 +3,6 @@
 
 #include "Widgets/Login/SdWidgetLoginMain.h"
 
-#include "CommonTextBlock.h"
 #include "Frameworks/GameInstance/SdGameInstance.h"
 #include "Widgets/Login/SdWidgetLoginInfo.h"
 #include "Protocol/LoginProtocol.h"
@@ -11,6 +10,9 @@
 #include "StoneDefenceNetCommonType.h"
 #include "Kismet/GameplayStatics.h"
 #include "Widgets/Common/SdWidgetPrintMsg.h"
+#include "Widgets/Login/SdWidgetRegisterInfo.h"
+
+#define LOCTEXT_NAMESPACE "USdWidgetLoginMain"
 
 void USdWidgetLoginMain::NativeConstruct()
 {
@@ -19,6 +21,7 @@ void USdWidgetLoginMain::NativeConstruct()
 	PlayAnimation(LoginInfoFadeIn);
 
 	LoginInfo->SetParentWidget(this);
+	RegisterInfo->SetParentWidget(this);
 
 	if (USdGameInstance* ClientGameInstance = GetGameInstance<USdGameInstance>())
 	{
@@ -61,6 +64,11 @@ void USdWidgetLoginMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Cha
 			HandleLoginResponses(Channel);
 			break;
 		}
+	case SP_RegisterResponses:
+		{
+			HandleRegisterResponses(Channel);
+			break;
+		}
 	default:
 		break;
 	}
@@ -73,7 +81,7 @@ void USdWidgetLoginMain::SignIn(FString InAccount, FString InPassword)
 
 void USdWidgetLoginMain::Register()
 {
-	
+	RegisterInfo->RegisterIn();
 }
 
 void USdWidgetLoginMain::Register(FString InRegisterInfo)
@@ -175,14 +183,61 @@ void USdWidgetLoginMain::HandleLoginResponses(FSimpleChannel* Channel)
 			break;
 		}
 	case LOGIN_DB_SERVER_ERROR:
+		LoginInfo->ShowLoginWarnings();
 		PrintLog(TEXT("服务器错误..."));
 		break;
 	case LOGIN_ACCOUNT_WRONG:
+		LoginInfo->ShowLoginWarnings();
 		PrintLog(TEXT("账号为空..."));
 		break;
 	case LOGIN_WRONG_PASSWORD:
+		LoginInfo->ShowLoginWarnings();
 		PrintLog(TEXT("密码错误..."));
 		break;
 	}
 }
 
+void USdWidgetLoginMain::HandleRegisterResponses(FSimpleChannel* Channel)
+{
+	ERegistrationType Type = SERVER_BUG_WRONG;
+
+	//拿到客户端发送的账号
+	SIMPLE_PROTOCOLS_RECEIVE(SP_RegisterResponses, Type);
+
+	switch (Type)
+	{
+	case ACCOUNT_AND_EMAIL_REPETITION_ERROR:
+		{
+			PrintLog(LOCTEXT("ACCOUNT_AND_EMAIL_REPETITION_ERROR", "Duplicate account or email."));
+
+			FTimerHandle TmpTimeHandle;
+			GetWorld()->GetTimerManager().SetTimer(TmpTimeHandle, FTimerDelegate::CreateLambda([this]()
+			{
+				Register();
+
+				//显示重复警告
+				RegisterInfo->ShowDuplicateWarnings();
+				RegisterInfo->ShowFailedRegisterWarnings();
+			}), 0.8f, false);
+
+			break;
+		}
+	case PLAYER_REGISTRATION_SUCCESS:
+		{
+			PrintLog(LOCTEXT("REGISTRATION_SUCCESS", "Registration was successful."));
+
+			//清除原来账户信息
+			LoginInfo->ClearAccountPassword();
+			break;
+		}
+	case SERVER_BUG_WRONG:
+		{
+			PrintLog(LOCTEXT("SERVER_BUG_WRONG", "Server unknown error."));
+			break;
+		}
+	default:
+		break;
+	}
+}
+
+#undef LOCTEXT_NAMESPACE
