@@ -4,26 +4,26 @@
 
 #include "CoreMinimal.h"
 #include "SdPlayerControllerBase.h"
-#include "SdPlayerControllerLogin.generated.h"
+#include "SdPlayerControllerLobby.generated.h"
 
-class USdWidgetLoginMain;
+class USdWidgetLobbyMain;
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API ASdPlayerControllerLogin : public ASdPlayerControllerBase
+class STONEDEFENCE_API ASdPlayerControllerLobby : public ASdPlayerControllerBase
 {
 	GENERATED_BODY()
 
 public:
-	ASdPlayerControllerLogin();
+	ASdPlayerControllerLobby();
 
 protected:
 	virtual void BeginPlay() override;
 
 private:
 	UPROPERTY()
-	TSubclassOf<USdWidgetLoginMain> LoginMainClass;
+	TSubclassOf<USdWidgetLobbyMain> LobbyMainClass;
 	UPROPERTY()
-	USdWidgetLoginMain* LoginMain = nullptr;
+	USdWidgetLobbyMain* LobbyMain = nullptr;
 };

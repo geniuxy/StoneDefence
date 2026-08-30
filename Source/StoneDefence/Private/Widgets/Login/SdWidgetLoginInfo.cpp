@@ -6,7 +6,7 @@
 #include "Components/EditableTextBox.h"
 #include "Stream/SimpleIOStream.h"
 #include "Widgets/Components/Button/SdCommonButtonImage.h"
-#include "Widgets/Login/SdWidgetLoginMenu.h"
+#include "Widgets/Login/SdWidgetLoginMain.h"
 
 void USdWidgetLoginInfo::NativeConstruct()
 {
@@ -23,7 +23,7 @@ void USdWidgetLoginInfo::NativeDestruct()
 
 void USdWidgetLoginInfo::SignIn()
 {
-	if (USdWidgetLoginMenu* LoginMenu = GetParentWidget<USdWidgetLoginMenu>())
+	if (USdWidgetLoginMain* LoginMenu = GetParentWidget<USdWidgetLoginMain>())
 	{
 		FString AccountStr = EditableText_Account->GetText().ToString();
 		FString PasswordStr = EditableText_Password->GetText().ToString();
@@ -33,7 +33,7 @@ void USdWidgetLoginInfo::SignIn()
 
 void USdWidgetLoginInfo::Register()
 {
-	if (USdWidgetLoginMenu* LoginMenu = GetParentWidget<USdWidgetLoginMenu>())
+	if (USdWidgetLoginMain* LoginMenu = GetParentWidget<USdWidgetLoginMain>())
 	{
 		LoginMenu->Register();
 	}

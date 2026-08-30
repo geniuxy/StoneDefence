@@ -15,7 +15,7 @@ UCLASS()
 class STONEDEFENCE_API USdGameInstance : public UGameInstance, public FTickableGameObject
 {
 	GENERATED_BODY()
-	
+
 public:
 	virtual void Init() override;
 	virtual void Tick(float DeltaTime) override;
@@ -25,11 +25,14 @@ public:
 public:
 	void CreateClient();
 	void LinkServer();
-	
+
 	FSimpleNetManage* GetClient() const;
 	FSdUserData& GetUserData();
+	FSdGateStatus GetGateStatus() const { return CachedGateStatus; }
+	void SetGateStatus(const FSdGateStatus& InGateStatus) { CachedGateStatus = InGateStatus; }
 
 private:
 	FSimpleNetManage* Client;
 	FSdUserData UserData;
+	FSdGateStatus CachedGateStatus;
 };

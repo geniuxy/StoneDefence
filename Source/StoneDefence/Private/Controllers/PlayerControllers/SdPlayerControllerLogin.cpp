@@ -4,25 +4,25 @@
 #include "Controllers/PlayerControllers/SdPlayerControllerLogin.h"
 
 #include "Blueprint/UserWidget.h"
-#include "Widgets/Login/SdWidgetLoginMenu.h"
+#include "Widgets/Login/SdWidgetLoginMain.h"
 
 ASdPlayerControllerLogin::ASdPlayerControllerLogin()
 {
 	bShowMouseCursor = true;
 
-	static ConstructorHelpers::FClassFinder<USdWidgetLoginMenu> LoginMenu_BPClass(
-		TEXT("/Game/_Blueprints/Widgets/Login/BP_Widget_LoginMenu")
+	static ConstructorHelpers::FClassFinder<USdWidgetLoginMain> LoginMain_BPClass(
+		TEXT("/Game/_Blueprints/Widgets/Login/BP_Widget_LoginMain")
 	);
-	LoginMenuClass = LoginMenu_BPClass.Class;
+	LoginMainClass = LoginMain_BPClass.Class;
 }
 
 void ASdPlayerControllerLogin::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (LoginMenuClass)
+	if (LoginMainClass)
 	{
-		LoginMenu = CreateWidget<USdWidgetLoginMenu>(this, LoginMenuClass);
-		LoginMenu->AddToViewport();
+		LoginMain = CreateWidget<USdWidgetLoginMain>(this, LoginMainClass);
+		LoginMain->AddToViewport();
 	}
 }

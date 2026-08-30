@@ -4,9 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "SimpleNetChannelType.h"
-#include "StoneDefenceNetCommonType.h"
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
-#include "SdWidgetLoginMenu.generated.h"
+#include "SdWidgetLoginMain.generated.h"
 
 class USdWidgetPrintMsg;
 class USdWidgetLoginInfo;
@@ -14,7 +13,7 @@ class USdWidgetLoginInfo;
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetLoginMenu : public USdCommonUserWidgetBase
+class STONEDEFENCE_API USdWidgetLoginMain : public USdCommonUserWidgetBase
 {
 	GENERATED_BODY()
 
@@ -27,6 +26,7 @@ protected:
 public:
 	void SignIn(FString InAccount, FString InPassword);
 	void Register();
+	void Register(FString InRegisterInfo);
 
 	void PrintLog(const FString& InMsg);
 	void PrintLog(const FText& InMsg);
@@ -52,8 +52,7 @@ private:
 	FDelegateHandle ClientRecvDelegate;
 	void BindClientRcv();
 
-	void ShowServerInfo(ESimpleNetErrorType InType, const FString& InMsg);
+	void ShowServerLinkingInfo(ESimpleNetErrorType InType, const FString& InMsg);
 
-private:
-	FSdGateStatus CachedGateStatus;
+	void HandleLoginResponses(FSimpleChannel* Channel);
 };
