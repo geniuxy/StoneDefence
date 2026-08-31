@@ -6,6 +6,7 @@
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
 #include "SdWidgetCharacterSelectionPanel.generated.h"
 
+class ASdActorLobbyDisplay;
 class UCommonListView;
 /**
  * 
@@ -24,4 +25,16 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	UCommonListView* SelectionListView;
 	/********************/
+
+	void InitSelectionListView();
+
+	void CharacterSelected(UObject* SelectedUObject);
+
+	void SpawnCharacterDisplay();
+
+	UPROPERTY()
+	ASdActorLobbyDisplay* ActorLobbyDisplay;
+
+	UPROPERTY(EditDefaultsOnly, Category="Character Display")
+	TSubclassOf<ASdActorLobbyDisplay> ActorLobbyDisplayClass;
 };

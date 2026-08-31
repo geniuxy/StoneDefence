@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "StoneDefence/StoneDefence.h"
 #include "Widgets/Components/Button/SdCommonButtonSelection.h"
 #include "SdButtonCharacterSelection.generated.h"
 
+class UPA_CharacterDefinition;
 class UVerticalBox;
 
 UCLASS()
@@ -13,10 +15,18 @@ class STONEDEFENCE_API UCharacterSelectionData : public UObject
 {
 	GENERATED_BODY()
 
-public:
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY()
 	int32 Id;
+
+	UPROPERTY()
+	UPA_CharacterDefinition* CharacterDefinition;
+
+public:
+	void SetSelectionId(int32 InId) { Id = InId; }
+
+	DATA_ACCESSOR(UPA_CharacterDefinition*, CharacterDefinition)
 };
+
 /**
  * 
  */
@@ -27,6 +37,7 @@ class STONEDEFENCE_API USdButtonCharacterSelection : public USdCommonButtonSelec
 
 protected:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
+
 	virtual void NativeConstruct() override;
 	virtual void NativeOnClicked() override;
 
