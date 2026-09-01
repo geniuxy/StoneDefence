@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SdPlayerStateBase.h"
+#include "StoneDefenceNetCommonType.h"
 #include "SdPlayerStateLobby.generated.h"
 
 class UPA_CharacterDefinition;
@@ -17,4 +18,10 @@ class STONEDEFENCE_API ASdPlayerStateLobby : public ASdPlayerStateBase
 
 public:
 	void SetSelectedCharacterDefinition(const UPA_CharacterDefinition* NewDefinition);
+
+private:
+	FSdCharacterAppearances CachedCharacterAppearances;
+
+public:
+	FSdCharacterAppearances& GetCachedCharacterAppearances() { return CachedCharacterAppearances; }
 };

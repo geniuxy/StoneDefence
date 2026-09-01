@@ -46,4 +46,5 @@ private:
 	FDelegateHandle ClientRecvDelegate;
 
 	void BindClientRcv();
+	void HandleServerLinkInfo(ESimpleNetErrorType InType, const FString& InMsg);
 };

@@ -4,9 +4,12 @@
 #include "Widgets/Lobby/SdWidgetLobbyMain.h"
 
 #include "Frameworks/GameInstance/SdGameInstance.h"
+#include "Frameworks/PlayerStates/SdPlayerStateLobby.h"
 #include "Widgets/Common/SdWidgetPrintMsg.h"
 #include "Widgets/Lobby/SdWidgetCharacterSelectionPanel.h"
 #include "Widgets/Lobby/SdWidgetCreateCharacterPanel.h"
+#include "Protocol/LobbyProtocol.h"
+#include "SdTypes/SdMacros.h"
 
 
 void USdWidgetLobbyMain::NativeConstruct()
@@ -21,6 +24,7 @@ void USdWidgetLobbyMain::NativeConstruct()
 	{
 		if (ClientGameInstance->GetClient())
 		{
+			ClientGameInstance->GetClient()->NetManageMsgDelegate.BindUObject(this, &ThisClass::HandleServerLinkInfo);
 			// 这一步连接到GateServer
 			ClientGameInstance->GetClient()->Init(ClientGameInstance->GetGateStatus().GateServerAddrInfo.Addr);
 
@@ -44,7 +48,29 @@ void USdWidgetLobbyMain::NativeDestruct()
 
 void USdWidgetLobbyMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 {
-	Super::RecvProtocol(ProtocolNumber, Channel);
+	switch (ProtocolNumber)
+	{
+	case SP_CharacterAppearanceResponses:
+		{
+			FString CharacterJson;
+
+			SIMPLE_PROTOCOLS_RECEIVE(SP_CharacterAppearanceResponses, CharacterJson);
+
+			if (!CharacterJson.IsEmpty())
+			{
+				if (ASdPlayerStateLobby* PlayerState = GetOwningPlayerState<ASdPlayerStateLobby>())
+				{
+					NetDataAnalysis::StringToCharacterAppearances(
+						CharacterJson, PlayerState->GetCachedCharacterAppearances()
+					);
+				}
+			}
+
+			break;
+		}
+	default:
+		break;
+	}
 }
 
 void USdWidgetLobbyMain::PrintLog(const FString& InMsg)
@@ -96,5 +122,13 @@ void USdWidgetLobbyMain::BindClientRcv()
 	else
 	{
 		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::BindClientRcv);
+	}
+}
+
+void USdWidgetLobbyMain::HandleServerLinkInfo(ESimpleNetErrorType InType, const FString& InMsg)
+{
+	if (InType == HAND_SHAKE_SUCCESS)
+	{
+		SEND_DATA(SP_CharacterAppearanceRequests, ClientGameInstance->GetUserData().Id)
 	}
 }
