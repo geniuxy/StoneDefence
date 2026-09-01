@@ -4,6 +4,9 @@
 #include "Widgets/Lobby/SdButtonCharacterSelection.h"
 
 #include "CommonListView.h"
+#include "CommonTextBlock.h"
+#include "CommonVisibilitySwitcher.h"
+#include "Components/SizeBox.h"
 #include "Components/VerticalBox.h"
 
 void USdButtonCharacterSelection::NativeOnListItemObjectSet(UObject* ListItemObject)
@@ -11,13 +14,12 @@ void USdButtonCharacterSelection::NativeOnListItemObjectSet(UObject* ListItemObj
 	Super::NativeOnListItemObjectSet(ListItemObject);
 
 	CharacterSelectionData = Cast<UCharacterSelectionData>(ListItemObject);
+	UpdateButtonInfo();
 }
 
 void USdButtonCharacterSelection::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	CharacterSlotBox->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void USdButtonCharacterSelection::NativeOnClicked()
@@ -27,5 +29,24 @@ void USdButtonCharacterSelection::NativeOnClicked()
 	if (IsValid(OwnerListView) && IsValid(CharacterSelectionData))
 	{
 		OwnerListView->SetSelectedItem(CharacterSelectionData);
+	}
+}
+
+void USdButtonCharacterSelection::OnDataChanged()
+{
+	UpdateButtonInfo();
+}
+
+void USdButtonCharacterSelection::UpdateButtonInfo()
+{
+	if (!CharacterSelectionData || CharacterSelectionData->IsSlotEmpty())
+	{
+		Switcher->SetActiveWidget(SizeBox_CreateNew);
+	}
+	else
+	{
+		Switcher->SetActiveWidget(CharacterSlotBox);
+		CharacterName->SetText(FText::FromString(CharacterSelectionData->GetCharacterName()));
+		DateText->SetText(FText::FromString(CharacterSelectionData->GetLastLoginTimeStr()));
 	}
 }

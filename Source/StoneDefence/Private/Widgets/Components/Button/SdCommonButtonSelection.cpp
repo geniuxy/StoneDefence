@@ -4,12 +4,18 @@
 #include "Widgets/Components/Button/SdCommonButtonSelection.h"
 
 #include "CommonListView.h"
+#include "SdTypes/ListEntryDataObjects/SdListEntryDataObjectBase.h"
 
 void USdCommonButtonSelection::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
 
 	OwnerListView = Cast<UCommonListView>(GetOwningListView());
+	USdListEntryDataObjectBase* EntryDataObject = Cast<USdListEntryDataObjectBase>(ListItemObject);
+	if (EntryDataObject)
+	{
+		EntryDataObject->OnDataChanged.AddUObject(this, &ThisClass::OnDataChanged);
+	}
 }
 
 void USdCommonButtonSelection::NativeOnItemSelectionChanged(bool bIsSelected)

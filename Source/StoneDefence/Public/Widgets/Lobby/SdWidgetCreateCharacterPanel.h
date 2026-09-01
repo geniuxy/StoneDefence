@@ -44,4 +44,5 @@ private:
 
 public:
 	void PanelFadeIn();
+	void HidePanel();
 };

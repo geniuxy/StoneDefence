@@ -30,4 +30,8 @@ protected:
 
 	UPROPERTY()
 	UCommonListView* OwnerListView;
+
+	virtual void OnDataChanged()
+	{
+	}
 };

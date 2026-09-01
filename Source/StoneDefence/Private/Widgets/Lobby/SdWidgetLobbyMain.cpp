@@ -5,11 +5,13 @@
 
 #include "Frameworks/GameInstance/SdGameInstance.h"
 #include "Frameworks/PlayerStates/SdPlayerStateLobby.h"
+#include "Kismet/GameplayStatics.h"
 #include "Widgets/Common/SdWidgetPrintMsg.h"
 #include "Widgets/Lobby/SdWidgetCharacterSelectionPanel.h"
 #include "Widgets/Lobby/SdWidgetCreateCharacterPanel.h"
 #include "Protocol/LobbyProtocol.h"
 #include "SdTypes/SdMacros.h"
+#include "Widgets/Components/Button/SdCommonButtonImage.h"
 
 
 void USdWidgetLobbyMain::NativeConstruct()
@@ -18,7 +20,7 @@ void USdWidgetLobbyMain::NativeConstruct()
 
 	CharacterSelectionPanel->SetParentWidget(this);
 	CreateCharacterPanel->SetParentWidget(this);
-	CreateCharacterPanel->SetRenderOpacity(0.f);
+	CreateCharacterPanel->HidePanel();
 
 	if (USdGameInstance* ClientGameInstance = GetGameInstance<USdGameInstance>())
 	{
@@ -31,6 +33,8 @@ void USdWidgetLobbyMain::NativeConstruct()
 			BindClientRcv();
 		}
 	}
+
+	Button_BeginGame->OnReleased().AddUObject(this, &ThisClass::BeginGame);
 }
 
 void USdWidgetLobbyMain::NativeDestruct()
@@ -63,6 +67,10 @@ void USdWidgetLobbyMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Cha
 					NetDataAnalysis::StringToCharacterAppearances(
 						CharacterJson, PlayerState->GetCachedCharacterAppearances()
 					);
+
+					CharacterSelectionPanel->UpdateCharacterAppearances();
+
+					CharacterSelectionPanel->SelectRecentCharacter();
 				}
 			}
 
@@ -89,15 +97,22 @@ void USdWidgetLobbyMain::BackToCharacterSelectionPanel()
 	CharacterSelectionPanel->BackToCharacterSelectionPanel();
 }
 
-void USdWidgetLobbyMain::ShowCreateCharacterPanel(bool bIsVisible)
+void USdWidgetLobbyMain::SelectRecentCharacter()
 {
-	if (bIsVisible)
+	CharacterSelectionPanel->SelectRecentCharacter();
+}
+
+void USdWidgetLobbyMain::HandleSelectCharacterSlot(bool bCreateCharacter)
+{
+	if (bCreateCharacter)
 	{
 		CreateCharacterPanel->PanelFadeIn();
+		Button_BeginGame->SetVisibility(ESlateVisibility::Hidden);
 	}
 	else
 	{
-		CreateCharacterPanel->SetRenderOpacity(0.f);
+		CreateCharacterPanel->HidePanel();
+		Button_BeginGame->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 
@@ -131,4 +146,9 @@ void USdWidgetLobbyMain::HandleServerLinkInfo(ESimpleNetErrorType InType, const 
 	{
 		SEND_DATA(SP_CharacterAppearanceRequests, ClientGameInstance->GetUserData().Id)
 	}
+}
+
+void USdWidgetLobbyMain::BeginGame()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("GameMap"));
 }

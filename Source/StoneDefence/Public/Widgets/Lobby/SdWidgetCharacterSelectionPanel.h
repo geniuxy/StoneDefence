@@ -48,4 +48,11 @@ private:
 
 public:
 	void BackToCharacterSelectionPanel();
+
+	void UpdateCharacterAppearances();
+	void SelectRecentCharacter();
+
+private:
+	bool bInitCharacterDefinitions = false;
+	bool bPendingUpdateAppearances = false;
 };

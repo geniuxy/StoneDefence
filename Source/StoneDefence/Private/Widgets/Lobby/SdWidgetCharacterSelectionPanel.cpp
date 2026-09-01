@@ -42,7 +42,7 @@ void USdWidgetCharacterSelectionPanel::InitSelectionListView()
 	UPA_CharacterDefinition* TubakiDef =
 		USdAssetManager::Get().GetCharacterDefinition(FName("PA_CharacterDefinition_Tubaki"));
 	if (!TubakiDef) return;
-	
+
 	if (const USdDataDeveloperSetting* DataDeveloperSettings = GetDefault<USdDataDeveloperSetting>())
 	{
 		for (int i = 0; i < DataDeveloperSettings->MaxCharacterSelectionNum; ++i)
@@ -54,6 +54,12 @@ void USdWidgetCharacterSelectionPanel::InitSelectionListView()
 			SelectionListView->AddItem(CharacterSelectionData);
 		}
 	}
+	
+	if (bPendingUpdateAppearances)
+	{
+		UpdateCharacterAppearances();
+	}
+	bInitCharacterDefinitions = true;
 }
 
 void USdWidgetCharacterSelectionPanel::CharacterSelected(UObject* SelectedUObject)
@@ -74,7 +80,7 @@ void USdWidgetCharacterSelectionPanel::CharacterSelected(UObject* SelectedUObjec
 			Switcher->SetActiveWidget(FaceSculptingWidget);
 			if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
 			{
-				LobbyMain->ShowCreateCharacterPanel(true);
+				LobbyMain->HandleSelectCharacterSlot(true);
 			}
 		}
 		else
@@ -82,7 +88,7 @@ void USdWidgetCharacterSelectionPanel::CharacterSelected(UObject* SelectedUObjec
 			Switcher->SetActiveWidget(SelectionListView);
 			if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
 			{
-				LobbyMain->ShowCreateCharacterPanel(false);
+				LobbyMain->HandleSelectCharacterSlot(false);
 			}
 		}
 	}
@@ -113,5 +119,70 @@ void USdWidgetCharacterSelectionPanel::BackToCharacterSelectionPanel()
 	if (ActorLobbyDisplay)
 	{
 		ActorLobbyDisplay->ClearCharacterDefinition();
+	}
+}
+
+void USdWidgetCharacterSelectionPanel::UpdateCharacterAppearances()
+{
+	ASdPlayerStateLobby* PlayerState = GetOwningPlayerState<ASdPlayerStateLobby>();
+	if (!PlayerState) return;
+
+	if (!bInitCharacterDefinitions)
+	{
+		bPendingUpdateAppearances = true;
+		return;
+	}
+	bPendingUpdateAppearances = false;
+
+	for (UObject* Item : SelectionListView->GetListItems())
+	{
+		UCharacterSelectionData* CharacterSelectionData = Cast<UCharacterSelectionData>(Item);
+		if (!CharacterSelectionData) continue;
+
+		FSdCharacterAppearance* CharacterAppearance = PlayerState->GetCachedCharacterAppearances().FindByPredicate(
+			[&](FSdCharacterAppearance InCharacterAppearance)
+			{
+				return InCharacterAppearance.SlotIndex == CharacterSelectionData->GetSlotIndex();
+			}
+		);
+
+		if (CharacterAppearance)
+		{
+			CharacterSelectionData->SetSlotIsEmpty(CharacterAppearance->IsEmpty());
+			CharacterSelectionData->SetCharacterName(CharacterAppearance->Name);
+			CharacterSelectionData->SetLastLoginTimeStr(CharacterAppearance->LastLoginTime);
+			UPA_CharacterDefinition* DisplayCharacterDefinition =
+				USdAssetManager::Get().GetCharacterDefinition(FName(CharacterAppearance->DisplayAssetName));
+			if (DisplayCharacterDefinition)
+			{
+				CharacterSelectionData->SetCharacterDefinition(DisplayCharacterDefinition);
+			}
+
+			CharacterSelectionData->OnDataChanged.Broadcast();
+		}
+	}
+}
+
+void USdWidgetCharacterSelectionPanel::SelectRecentCharacter()
+{
+	FDateTime RecentlyDate;
+	int32 RecentlyIndex = INDEX_NONE;
+	for (UObject* Item : SelectionListView->GetListItems())
+	{
+		UCharacterSelectionData* CharacterSelectionData = Cast<UCharacterSelectionData>(Item);
+		if (!CharacterSelectionData) continue;
+
+		FDateTime CurDate;
+		FDateTime::Parse(CharacterSelectionData->GetLastLoginTimeStr(), CurDate);
+		if (CurDate > RecentlyDate)
+		{
+			RecentlyDate = CurDate;
+			RecentlyIndex = SelectionListView->GetIndexForItem(Item);
+		}
+	}
+
+	if (RecentlyIndex != INDEX_NONE)
+	{
+		SelectionListView->SetSelectedIndex(RecentlyIndex);
 	}
 }

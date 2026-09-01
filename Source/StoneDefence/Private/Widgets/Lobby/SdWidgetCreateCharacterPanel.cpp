@@ -21,19 +21,26 @@ void USdWidgetCreateCharacterPanel::ButtonVerifyNameClicked()
 
 void USdWidgetCreateCharacterPanel::ButtonCreateClicked()
 {
-	SetRenderOpacity(0.f);
+	HidePanel();
 }
 
 void USdWidgetCreateCharacterPanel::ButtonCancelClicked()
 {
-	SetRenderOpacity(0.f);
+	HidePanel();
 	if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
 	{
 		LobbyMain->BackToCharacterSelectionPanel();
+		LobbyMain->SelectRecentCharacter();
 	}
 }
 
 void USdWidgetCreateCharacterPanel::PanelFadeIn()
 {
 	PlayAnimation(FadeIn);
+}
+
+void USdWidgetCreateCharacterPanel::HidePanel()
+{
+	SetRenderOpacity(0.f);
+	SetVisibility(ESlateVisibility::HitTestInvisible);
 }

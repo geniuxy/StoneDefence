@@ -7,6 +7,7 @@
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
 #include "SdWidgetLobbyMain.generated.h"
 
+class USdCommonButtonImage;
 class USdWidgetCreateCharacterPanel;
 class USdWidgetCharacterSelectionPanel;
 class USdWidgetPrintMsg;
@@ -29,7 +30,8 @@ public:
 	void PrintLog(const FText& InMsg);
 
 	void BackToCharacterSelectionPanel();
-	void ShowCreateCharacterPanel(bool bIsVisible);
+	void SelectRecentCharacter();
+	void HandleSelectCharacterSlot(bool bCreateCharacter);
 
 private:
 	/** Binding Widgets */
@@ -41,10 +43,15 @@ private:
 
 	UPROPERTY(meta=(BindWidget))
 	USdWidgetCreateCharacterPanel* CreateCharacterPanel;
+
+	UPROPERTY(meta=(BindWidget))
+	USdCommonButtonImage* Button_BeginGame;
 	/********************/
 	
 	FDelegateHandle ClientRecvDelegate;
 
 	void BindClientRcv();
 	void HandleServerLinkInfo(ESimpleNetErrorType InType, const FString& InMsg);
+	
+	void BeginGame();
 };
