@@ -6,8 +6,10 @@
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
 #include "SdWidgetCharacterSelectionPanel.generated.h"
 
+class USdWidgetFaceSculpting;
 class ASdActorLobbyDisplay;
 class UCommonListView;
+class UCommonVisibilitySwitcher;
 /**
  * 
  */
@@ -23,7 +25,13 @@ protected:
 private:
 	/** Binding Widgets */
 	UPROPERTY(meta = (BindWidget))
+	UCommonVisibilitySwitcher* Switcher;
+	
+	UPROPERTY(meta = (BindWidget))
 	UCommonListView* SelectionListView;
+	
+	UPROPERTY(meta = (BindWidget))
+	USdWidgetFaceSculpting* FaceSculptingWidget;
 	/********************/
 
 	void InitSelectionListView();
@@ -37,4 +45,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category="Character Display")
 	TSubclassOf<ASdActorLobbyDisplay> ActorLobbyDisplayClass;
+
+public:
+	void BackToCharacterSelectionPanel();
 };

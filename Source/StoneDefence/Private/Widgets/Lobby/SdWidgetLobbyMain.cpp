@@ -5,11 +5,17 @@
 
 #include "Frameworks/GameInstance/SdGameInstance.h"
 #include "Widgets/Common/SdWidgetPrintMsg.h"
+#include "Widgets/Lobby/SdWidgetCharacterSelectionPanel.h"
+#include "Widgets/Lobby/SdWidgetCreateCharacterPanel.h"
 
 
 void USdWidgetLobbyMain::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	CharacterSelectionPanel->SetParentWidget(this);
+	CreateCharacterPanel->SetParentWidget(this);
+	CreateCharacterPanel->SetRenderOpacity(0.f);
 
 	if (USdGameInstance* ClientGameInstance = GetGameInstance<USdGameInstance>())
 	{
@@ -26,7 +32,7 @@ void USdWidgetLobbyMain::NativeConstruct()
 void USdWidgetLobbyMain::NativeDestruct()
 {
 	Super::NativeDestruct();
-	
+
 	if (USdGameInstance* ClientGameInstance = GetGameInstance<USdGameInstance>())
 	{
 		if (ClientGameInstance->GetClient() && ClientGameInstance->GetClient()->GetController())
@@ -50,6 +56,23 @@ void USdWidgetLobbyMain::PrintLog(const FText& InMsg)
 {
 	MsgLogWidget->PlayShowMsgAnim();
 	MsgLogWidget->SetLogText(InMsg);
+}
+
+void USdWidgetLobbyMain::BackToCharacterSelectionPanel()
+{
+	CharacterSelectionPanel->BackToCharacterSelectionPanel();
+}
+
+void USdWidgetLobbyMain::ShowCreateCharacterPanel(bool bIsVisible)
+{
+	if (bIsVisible)
+	{
+		CreateCharacterPanel->PanelFadeIn();
+	}
+	else
+	{
+		CreateCharacterPanel->SetRenderOpacity(0.f);
+	}
 }
 
 void USdWidgetLobbyMain::BindClientRcv()

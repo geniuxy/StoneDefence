@@ -16,15 +16,19 @@ class STONEDEFENCE_API UCharacterSelectionData : public UObject
 	GENERATED_BODY()
 
 	UPROPERTY()
-	int32 Id;
+	int32 SlotIndex;
 
 	UPROPERTY()
 	UPA_CharacterDefinition* CharacterDefinition;
 
-public:
-	void SetSelectionId(int32 InId) { Id = InId; }
+	UPROPERTY()
+	bool bIsEmpty;
 
+public:
+	DATA_ACCESSOR(int32, SlotIndex)
 	DATA_ACCESSOR(UPA_CharacterDefinition*, CharacterDefinition)
+	FORCEINLINE bool IsSlotEmpty() const { return bIsEmpty; }
+	void SetSlotIsEmpty(bool bInIsEmpty) { bIsEmpty = bInIsEmpty; }
 };
 
 /**

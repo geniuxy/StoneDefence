@@ -7,6 +7,7 @@
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
 #include "SdWidgetLobbyMain.generated.h"
 
+class USdWidgetCreateCharacterPanel;
 class USdWidgetCharacterSelectionPanel;
 class USdWidgetPrintMsg;
 /**
@@ -27,6 +28,9 @@ public:
 	void PrintLog(const FString& InMsg);
 	void PrintLog(const FText& InMsg);
 
+	void BackToCharacterSelectionPanel();
+	void ShowCreateCharacterPanel(bool bIsVisible);
+
 private:
 	/** Binding Widgets */
 	UPROPERTY(meta=(BindWidget))
@@ -34,6 +38,9 @@ private:
 	
 	UPROPERTY(meta=(BindWidget))
 	USdWidgetCharacterSelectionPanel* CharacterSelectionPanel;
+
+	UPROPERTY(meta=(BindWidget))
+	USdWidgetCreateCharacterPanel* CreateCharacterPanel;
 	/********************/
 	
 	FDelegateHandle ClientRecvDelegate;

@@ -18,6 +18,7 @@ public:
 	ASdActorLobbyDisplay();
 
 	void ConfigureWithCharacterDefinition(const UPA_CharacterDefinition* CharacterDefinition);
+	void ClearCharacterDefinition();
 
 private:
 	UPROPERTY(VisibleDefaultsOnly, Category="Character Display")

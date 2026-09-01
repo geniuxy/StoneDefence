@@ -29,3 +29,9 @@ void ASdActorLobbyDisplay::ConfigureWithCharacterDefinition(const UPA_CharacterD
 	MeshComponent->SetAnimClass(CharacterDefinition->LoadDisplayAnimationBP());
 }
 
+void ASdActorLobbyDisplay::ClearCharacterDefinition()
+{
+	MeshComponent->SetSkeletalMesh(nullptr);
+	MeshComponent->SetAnimClass(nullptr);
+}
+

@@ -4,6 +4,7 @@
 #include "Widgets/Lobby/SdWidgetCharacterSelectionPanel.h"
 
 #include "CommonListView.h"
+#include "CommonVisibilitySwitcher.h"
 #include "Actors/Lobby/SdActorLobbyDisplay.h"
 #include "Engine/StreamableManager.h"
 #include "Frameworks/SdAssetManager.h"
@@ -12,6 +13,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Settings/DeveloperSettings/SdDataDeveloperSetting.h"
 #include "Widgets/Lobby/SdButtonCharacterSelection.h"
+#include "Widgets/Lobby/SdWidgetFaceSculpting.h"
+#include "Widgets/Lobby/SdWidgetLobbyMain.h"
 
 void USdWidgetCharacterSelectionPanel::NativeConstruct()
 {
@@ -45,8 +48,9 @@ void USdWidgetCharacterSelectionPanel::InitSelectionListView()
 		for (int i = 0; i < DataDeveloperSettings->MaxCharacterSelectionNum; ++i)
 		{
 			UCharacterSelectionData* CharacterSelectionData = NewObject<UCharacterSelectionData>();
-			CharacterSelectionData->SetSelectionId(i);
+			CharacterSelectionData->SetSlotIndex(i);
 			CharacterSelectionData->SetCharacterDefinition(TubakiDef);
+			CharacterSelectionData->SetSlotIsEmpty(true);
 			SelectionListView->AddItem(CharacterSelectionData);
 		}
 	}
@@ -63,6 +67,23 @@ void USdWidgetCharacterSelectionPanel::CharacterSelected(UObject* SelectedUObjec
 		if (ActorLobbyDisplay)
 		{
 			ActorLobbyDisplay->ConfigureWithCharacterDefinition(CharacterSelectionData->GetCharacterDefinition());
+		}
+
+		if (CharacterSelectionData->IsSlotEmpty())
+		{
+			Switcher->SetActiveWidget(FaceSculptingWidget);
+			if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
+			{
+				LobbyMain->ShowCreateCharacterPanel(true);
+			}
+		}
+		else
+		{
+			Switcher->SetActiveWidget(SelectionListView);
+			if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
+			{
+				LobbyMain->ShowCreateCharacterPanel(false);
+			}
 		}
 	}
 }
@@ -83,4 +104,14 @@ void USdWidgetCharacterSelectionPanel::SpawnCharacterDisplay()
 	ActorLobbyDisplay =
 		GetWorld()->SpawnActor<ASdActorLobbyDisplay>(ActorLobbyDisplayClass, CharacterDisplayTransform, SpawnParams);
 	GetOwningPlayer()->SetViewTarget(ActorLobbyDisplay);
+}
+
+void USdWidgetCharacterSelectionPanel::BackToCharacterSelectionPanel()
+{
+	Switcher->SetActiveWidget(SelectionListView);
+	SelectionListView->ClearSelection();
+	if (ActorLobbyDisplay)
+	{
+		ActorLobbyDisplay->ClearCharacterDefinition();
+	}
 }
