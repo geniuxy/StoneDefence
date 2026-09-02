@@ -15,17 +15,14 @@ namespace SimpleActorAction
 	public:
 		SimpleZoom();
 
-		void Configure(AActor* InActor, UCameraComponent* InCameraComp, int32 InLength);
+		void Configure(AActor* InActor, UCameraComponent* InCameraComp, int32 InMinDistance, int32 InMaxDistance);
 
 		void Zoom(float InValue);
 
 	protected:
 		TWeakObjectPtr<AActor> TargetActor;
 		TWeakObjectPtr<UCameraComponent> TargetCamera;
-		int32 IntervalLength;
-		FVector CameraLocation;
-		FVector DirToTargetActor;
-		FVector NearestCameraLocation;
-		FVector FarthestCameraLocation;
+		int32 MinDistance;
+		int32 MaxDistance;
 	};
 }

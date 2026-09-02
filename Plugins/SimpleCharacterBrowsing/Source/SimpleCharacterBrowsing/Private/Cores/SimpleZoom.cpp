@@ -7,47 +7,44 @@
 
 namespace SimpleActorAction
 {
-	SimpleZoom::SimpleZoom(): IntervalLength(0)
+	SimpleZoom::SimpleZoom(): MinDistance(0.f), MaxDistance(0.f)
 	{
 	}
 
-	void SimpleZoom::Configure(AActor* InActor, UCameraComponent* InCameraComp, int32 InLength)
+	void SimpleZoom::Configure(
+		AActor* InActor, UCameraComponent* InCameraComp, int32 InMinDistance, int32 InMaxDistance)
 	{
 		TargetActor = InActor;
-		IntervalLength = InLength;
 		TargetCamera = InCameraComp;
 
-		if (!TargetActor.IsValid() || !TargetCamera.IsValid())
-		{
-			return;
-		}
-
-		CameraLocation = TargetCamera->GetComponentLocation();
-		DirToTargetActor = (TargetActor->GetActorLocation() - CameraLocation).GetSafeNormal();
-
-		NearestCameraLocation = CameraLocation + DirToTargetActor * IntervalLength / 2.f;
-		FarthestCameraLocation = CameraLocation - DirToTargetActor * IntervalLength / 2.f;
+		MinDistance = InMinDistance;
+		MaxDistance = InMaxDistance;
 	}
 
 	void SimpleZoom::Zoom(float InValue)
 	{
 		if (!TargetActor.IsValid() || !TargetCamera.IsValid()) return;
 
-		// 沿着朝向目标方向偏移相机
-		FVector NewCameraLocation = TargetCamera->GetComponentLocation() + InValue * DirToTargetActor;
+		const FVector ActorLoc = TargetActor->GetActorLocation();
+		const FVector CamLoc = TargetCamera->GetComponentLocation();
 
-		// 把NewCameraLocation投影到DirToTargetActor射线上，再限制在最近最远两点之间
-		const float ProjNear  = FVector::DotProduct(NearestCameraLocation, DirToTargetActor);
-		const float ProjFar   = FVector::DotProduct(FarthestCameraLocation, DirToTargetActor);
-		const float ProjNew   = FVector::DotProduct(NewCameraLocation, DirToTargetActor);
+		// 当前相机指向目标的方向
+		FVector DirToTarget = (ActorLoc - CamLoc).GetSafeNormal();
+		if (DirToTarget.IsZero())
+			return;
 
-		const float ClampedProj = FMath::Clamp(ProjNew, ProjFar, ProjNear);
+		// InValue：滚轮增量；沿着朝向目标方向偏移
+		FVector DesiredCamLoc = CamLoc + DirToTarget * InValue;
 
-		// 还原回世界坐标位置
-		FVector ClampedLocation = (ClampedProj * DirToTargetActor) + (TargetActor->GetActorLocation() - DirToTargetActor
-			* FVector::DotProduct(TargetActor->GetActorLocation(), DirToTargetActor));
+		// 计算期望位置到目标的距离
+		float DesiredDistance = FVector::Dist(DesiredCamLoc, ActorLoc);
 
-		// 设置相机组件位置
-		TargetCamera->SetWorldLocation(ClampedLocation);
+		// 钳位距离
+		float ClampedDistance = FMath::Clamp(DesiredDistance, MinDistance, MaxDistance);
+
+		// 从目标反向，生成最终相机位置
+		FVector FinalCamLoc = ActorLoc - DirToTarget * ClampedDistance;
+
+		TargetCamera->SetWorldLocation(FinalCamLoc);
 	}
 }

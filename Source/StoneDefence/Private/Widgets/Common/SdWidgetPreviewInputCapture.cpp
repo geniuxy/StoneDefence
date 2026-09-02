@@ -10,6 +10,7 @@ USdWidgetPreviewInputCapture::USdWidgetPreviewInputCapture()
 {
 	SimpleRotate = new SimpleActorAction::SimpleRotate();
 	SimpleZoom = new SimpleActorAction::SimpleZoom();
+	SimpleMove = new SimpleActorAction::SimpleMove();
 }
 
 void USdWidgetPreviewInputCapture::ConfigurePreviewInputCaptureWidget(AActor* InTargetActor)
@@ -20,7 +21,8 @@ void USdWidgetPreviewInputCapture::ConfigurePreviewInputCaptureWidget(AActor* In
 	{
 		UCameraComponent* CameraComp = TargetPreviewActor->FindComponentByClass<UCameraComponent>();
 		SimpleRotate->Configure(TargetPreviewActor, CachedPlayerController);
-		SimpleZoom->Configure(TargetPreviewActor, CameraComp, 200.f);
+		SimpleZoom->Configure(TargetPreviewActor, CameraComp, 100.f, 350.f);
+		SimpleMove->Configure(TargetPreviewActor, CachedPlayerController, CameraComp, 100.f, MoveSpeed);
 	}
 }
 
@@ -29,6 +31,7 @@ void USdWidgetPreviewInputCapture::NativeOnMouseLeave(const FPointerEvent& InMou
 	Super::NativeOnMouseLeave(InMouseEvent);
 
 	SimpleRotate->EndRotate();
+	SimpleMove->EndMove();
 }
 
 FReply USdWidgetPreviewInputCapture::NativeOnMouseButtonDown(
@@ -40,7 +43,7 @@ FReply USdWidgetPreviewInputCapture::NativeOnMouseButtonDown(
 	}
 	else if (InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
 	{
-		
+		SimpleMove->BeginMove();
 	}
 	return FReply::Handled();
 }
@@ -48,14 +51,15 @@ FReply USdWidgetPreviewInputCapture::NativeOnMouseButtonDown(
 FReply USdWidgetPreviewInputCapture::NativeOnMouseButtonUp(
 	const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
+	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
 	{
 		SimpleRotate->EndRotate();
 	}
-	else if (InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
+	else if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
 	{
-		
+		SimpleMove->EndMove();
 	}
+
 	return FReply::Handled();
 }
 

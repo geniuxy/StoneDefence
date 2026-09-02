@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Cores/SimpleMove.h"
 #include "Cores/SimpleRotate.h"
 #include "Cores/SimpleZoom.h"
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
@@ -31,7 +32,11 @@ protected:
 private:
 	SimpleActorAction::SimpleRotate* SimpleRotate;
 	SimpleActorAction::SimpleZoom* SimpleZoom;
+	SimpleActorAction::SimpleMove* SimpleMove;
 
 	UPROPERTY(EditDefaultsOnly, Category="Zoom")
 	float ZoomSpeed = 10.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Move")
+	float MoveSpeed = 0.2f;
 };
