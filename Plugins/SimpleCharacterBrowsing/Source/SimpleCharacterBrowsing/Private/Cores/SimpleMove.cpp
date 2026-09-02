@@ -4,6 +4,7 @@
 #include "Cores/SimpleMove.h"
 
 #include "Camera/CameraComponent.h"
+#include "Cores/CameraUtils.h"
 
 namespace SimpleActorAction
 {
@@ -23,36 +24,20 @@ namespace SimpleActorAction
 			Controller->GetMousePosition(NewMousePos.X, NewMousePos.Y);
 
 			float DeltaMouseX = NewMousePos.X - MousePos.X;
-			float DeltaMouseY = NewMousePos.Y - MousePos.Y; // UE屏幕中，向上Y减小;向下Y增大
+			float DeltaMouseY = NewMousePos.Y - MousePos.Y; // UE中鼠标往上，Y减小，反之，Y增大
 
-			// 第一步：把鼠标屏幕差值转为世界位移（需要构建垂直固定射线的正交基底）
 			FVector Right = FVector::CrossProduct(RayDir, FVector::UpVector).GetSafeNormal();
 			FVector PlaneUp = FVector::CrossProduct(Right, RayDir).GetSafeNormal();
 
 			FVector DeltaWorld = Right * (DeltaMouseX * MoveSpeed) + PlaneUp * (DeltaMouseY * MoveSpeed);
 			FVector DesiredCamLoc = CurrentCamLoc + DeltaWorld;
 
-			// ========== 点到射线分解 ==========
-			// V：从射线原点指向期望相机位置
-			FVector V = DesiredCamLoc - RayOrigin;
-
-			// 平行于射线的投影（沿着射线方向，保留不动）
-			float ProjParallel = FVector::DotProduct(V, RayDir);
-			FVector ParallelComponent = RayDir * ProjParallel;
-
-			// 垂直射线的分量（这就是相机偏离射线的偏移，要限制它的长度）
-			FVector PerpendicularComponent = V - ParallelComponent;
-
-			const float HalfRange = IntervalLength / 2.f;
-			// 钳位垂直分量的长度，不能超过HalfRange
-			if (PerpendicularComponent.SizeSquared() > HalfRange * HalfRange)
+			FVector FinalCamLoc = DesiredCamLoc;
+			if (bRayValid)
 			{
-				PerpendicularComponent = PerpendicularComponent.GetSafeNormal() * HalfRange;
+				const float HalfRange = IntervalLength / 2.f;
+				FinalCamLoc = CameraUtil::ClampMaxVerticalDistanceToRay(FinalCamLoc, RayOrigin, RayDir, HalfRange);
 			}
-
-			// 重组最终相机位置
-			// 射线原点 + 平行分量(沿射线) + 钳位后的垂直分量
-			FVector FinalCamLoc = RayOrigin + ParallelComponent + PerpendicularComponent;
 
 			TargetCamera->SetWorldLocation(FinalCamLoc);
 			MousePos = NewMousePos;
@@ -78,10 +63,8 @@ namespace SimpleActorAction
 		MoveSpeed = InMoveSpeed;
 
 		bRayValid = false;
-		if (!InActor || !InTargetCamera)
-			return;
+		if (!InActor || !InTargetCamera) return;
 
-		// 快照：Configure时刻的射线
 		RayOrigin = InActor->GetActorLocation();
 		RayDir = (RayOrigin - InTargetCamera->GetComponentLocation()).GetSafeNormal();
 		if (!RayDir.IsZero())

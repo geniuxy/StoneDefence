@@ -4,21 +4,39 @@
 #include "Cores/SimpleZoom.h"
 
 #include "Camera/CameraComponent.h"
+#include "Cores/CameraUtils.h"
 
 namespace SimpleActorAction
 {
-	SimpleZoom::SimpleZoom(): MinDistance(0.f), MaxDistance(0.f)
+	SimpleZoom::SimpleZoom(): IntervalLength(0.f), MinDistance(0.f), MaxDistance(0.f)
 	{
 	}
 
 	void SimpleZoom::Configure(
-		AActor* InActor, UCameraComponent* InCameraComp, int32 InMinDistance, int32 InMaxDistance)
+		AActor* InActor,
+		UCameraComponent* InCameraComp,
+		float InLength,
+		float InMinDistance,
+		float InMaxDistance)
 	{
 		TargetActor = InActor;
 		TargetCamera = InCameraComp;
-
+		IntervalLength = InLength;
 		MinDistance = InMinDistance;
 		MaxDistance = InMaxDistance;
+
+		bRayValid = false;
+		RayOrigin = FVector::ZeroVector;
+		RayDir = FVector::ZeroVector;
+
+		if (!InActor || !InCameraComp) return;
+
+		RayOrigin = InActor->GetActorLocation();
+		RayDir = (RayOrigin - InCameraComp->GetComponentLocation()).GetSafeNormal();
+		if (!RayDir.IsZero())
+		{
+			bRayValid = true;
+		}
 	}
 
 	void SimpleZoom::Zoom(float InValue)
@@ -28,22 +46,26 @@ namespace SimpleActorAction
 		const FVector ActorLoc = TargetActor->GetActorLocation();
 		const FVector CamLoc = TargetCamera->GetComponentLocation();
 
-		// 当前相机指向目标的方向
-		FVector DirToTarget = (ActorLoc - CamLoc).GetSafeNormal();
-		if (DirToTarget.IsZero())
-			return;
+		FVector DirToCamera = (CamLoc - ActorLoc).GetSafeNormal();
+		if (DirToCamera.IsZero()) return;
 
-		// InValue：滚轮增量；沿着朝向目标方向偏移
-		FVector DesiredCamLoc = CamLoc + DirToTarget * InValue;
+		FVector Offset = CamLoc - ActorLoc;
 
-		// 计算期望位置到目标的距离
-		float DesiredDistance = FVector::Dist(DesiredCamLoc, ActorLoc);
+		float ProjParallel = FVector::DotProduct(Offset, DirToCamera);
+		FVector Parallel = DirToCamera * ProjParallel;
+		FVector Vertical = Offset - Parallel;
 
-		// 钳位距离
-		float ClampedDistance = FMath::Clamp(DesiredDistance, MinDistance, MaxDistance);
+		float NewParallelLen = ProjParallel - InValue;
+		float ClampedLen = FMath::Clamp(NewParallelLen, MinDistance, MaxDistance);
+		FVector NewParallel = DirToCamera * ClampedLen;
 
-		// 从目标反向，生成最终相机位置
-		FVector FinalCamLoc = ActorLoc - DirToTarget * ClampedDistance;
+		FVector FinalCamLoc = ActorLoc + NewParallel + Vertical;
+
+		if (bRayValid)
+		{
+			const float HalfRange = IntervalLength / 2.f;
+			FinalCamLoc = CameraUtil::ClampMaxVerticalDistanceToRay(FinalCamLoc, RayOrigin, RayDir, HalfRange);
+		}
 
 		TargetCamera->SetWorldLocation(FinalCamLoc);
 	}

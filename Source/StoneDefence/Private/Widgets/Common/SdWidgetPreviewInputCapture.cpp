@@ -11,6 +11,9 @@ USdWidgetPreviewInputCapture::USdWidgetPreviewInputCapture()
 	SimpleRotate = new SimpleActorAction::SimpleRotate();
 	SimpleZoom = new SimpleActorAction::SimpleZoom();
 	SimpleMove = new SimpleActorAction::SimpleMove();
+
+	// 这是为了不需要左键、右键点一下才可以预览(Zoom、Move)人物
+	SetIsFocusable(true);
 }
 
 void USdWidgetPreviewInputCapture::ConfigurePreviewInputCaptureWidget(AActor* InTargetActor)
@@ -21,7 +24,7 @@ void USdWidgetPreviewInputCapture::ConfigurePreviewInputCaptureWidget(AActor* In
 	{
 		UCameraComponent* CameraComp = TargetPreviewActor->FindComponentByClass<UCameraComponent>();
 		SimpleRotate->Configure(TargetPreviewActor, CachedPlayerController);
-		SimpleZoom->Configure(TargetPreviewActor, CameraComp, 100.f, 350.f);
+		SimpleZoom->Configure(TargetPreviewActor, CameraComp, 100.f, 100.f, 350.f);
 		SimpleMove->Configure(TargetPreviewActor, CachedPlayerController, CameraComp, 100.f, MoveSpeed);
 	}
 }
