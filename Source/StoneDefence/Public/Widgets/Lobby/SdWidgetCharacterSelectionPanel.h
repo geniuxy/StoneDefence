@@ -21,6 +21,8 @@ class STONEDEFENCE_API USdWidgetCharacterSelectionPanel : public USdCommonUserWi
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativePreConstruct() override;
+
+	virtual void OnSetParentWidget() override;
 	
 private:
 	/** Binding Widgets */

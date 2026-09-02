@@ -11,6 +11,7 @@
 #include "Widgets/Lobby/SdWidgetCreateCharacterPanel.h"
 #include "Protocol/LobbyProtocol.h"
 #include "SdTypes/SdMacros.h"
+#include "Widgets/Common/SdWidgetPreviewInputCapture.h"
 #include "Widgets/Components/Button/SdCommonButtonImage.h"
 
 
@@ -20,6 +21,7 @@ void USdWidgetLobbyMain::NativeConstruct()
 
 	CharacterSelectionPanel->SetParentWidget(this);
 	CreateCharacterPanel->SetParentWidget(this);
+	PreviewInputCaptureWidget->SetParentWidget(this);
 	CreateCharacterPanel->HidePanel();
 
 	if (USdGameInstance* ClientGameInstance = GetGameInstance<USdGameInstance>())
@@ -113,6 +115,14 @@ void USdWidgetLobbyMain::HandleSelectCharacterSlot(bool bCreateCharacter)
 	{
 		CreateCharacterPanel->HidePanel();
 		Button_BeginGame->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void USdWidgetLobbyMain::ConfigurePreviewInputCapture(AActor* InDisplayActor)
+{
+	if (PreviewInputCaptureWidget)
+	{
+		PreviewInputCaptureWidget->ConfigurePreviewInputCaptureWidget(InDisplayActor);
 	}
 }
 

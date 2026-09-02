@@ -24,6 +24,7 @@ void ASdActorLobbyDisplay::ConfigureWithCharacterDefinition(const UPA_CharacterD
 {
 	if (!CharacterDefinition) return;
 
+	MeshComponent->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 	MeshComponent->SetSkeletalMesh(CharacterDefinition->LoadDisplayMesh());
 	MeshComponent->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	MeshComponent->SetAnimClass(CharacterDefinition->LoadDisplayAnimationBP());

@@ -2,3 +2,9 @@
 
 
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
+
+void USdCommonUserWidgetBase::SetParentWidget(USdCommonUserWidgetBase* InWidget)
+{
+	ParentWidget = InWidget;
+	OnSetParentWidget();
+}

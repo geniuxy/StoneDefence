@@ -37,6 +37,14 @@ void USdWidgetCharacterSelectionPanel::NativePreConstruct()
 	SelectionListView->SetScrollbarVisibility(ESlateVisibility::Collapsed);
 }
 
+void USdWidgetCharacterSelectionPanel::OnSetParentWidget()
+{
+	if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
+	{
+		LobbyMain->ConfigurePreviewInputCapture(ActorLobbyDisplay);
+	}
+}
+
 void USdWidgetCharacterSelectionPanel::InitSelectionListView()
 {
 	UPA_CharacterDefinition* TubakiDef =
@@ -54,7 +62,7 @@ void USdWidgetCharacterSelectionPanel::InitSelectionListView()
 			SelectionListView->AddItem(CharacterSelectionData);
 		}
 	}
-	
+
 	if (bPendingUpdateAppearances)
 	{
 		UpdateCharacterAppearances();
@@ -109,7 +117,10 @@ void USdWidgetCharacterSelectionPanel::SpawnCharacterDisplay()
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	ActorLobbyDisplay =
 		GetWorld()->SpawnActor<ASdActorLobbyDisplay>(ActorLobbyDisplayClass, CharacterDisplayTransform, SpawnParams);
-	GetOwningPlayer()->SetViewTarget(ActorLobbyDisplay);
+	if (ActorLobbyDisplay)
+	{
+		GetOwningPlayer()->SetViewTarget(ActorLobbyDisplay);
+	}
 }
 
 void USdWidgetCharacterSelectionPanel::BackToCharacterSelectionPanel()

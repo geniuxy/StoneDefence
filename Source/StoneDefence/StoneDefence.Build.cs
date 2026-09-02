@@ -19,7 +19,8 @@ public class StoneDefence : ModuleRules
 			"StoneDefenceNetCommon",
 			"UMG",
 			"CommonUI",
-			"DeveloperSettings"
+			"DeveloperSettings",
+			"SimpleCharacterBrowsing"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

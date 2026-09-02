@@ -7,6 +7,7 @@
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
 #include "SdWidgetLobbyMain.generated.h"
 
+class USdWidgetPreviewInputCapture;
 class USdCommonButtonImage;
 class USdWidgetCreateCharacterPanel;
 class USdWidgetCharacterSelectionPanel;
@@ -33,6 +34,8 @@ public:
 	void SelectRecentCharacter();
 	void HandleSelectCharacterSlot(bool bCreateCharacter);
 
+	void ConfigurePreviewInputCapture(AActor* InDisplayActor);
+
 private:
 	/** Binding Widgets */
 	UPROPERTY(meta=(BindWidget))
@@ -46,6 +49,9 @@ private:
 
 	UPROPERTY(meta=(BindWidget))
 	USdCommonButtonImage* Button_BeginGame;
+	
+	UPROPERTY(meta=(BindWidget))
+	USdWidgetPreviewInputCapture* PreviewInputCaptureWidget;
 	/********************/
 	
 	FDelegateHandle ClientRecvDelegate;

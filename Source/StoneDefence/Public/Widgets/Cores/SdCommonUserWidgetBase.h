@@ -31,5 +31,8 @@ public:
 	template <class T = USdCommonUserWidgetBase>
 	T* GetParentWidget() const { return Cast<T>(ParentWidget); }
 
-	void SetParentWidget(USdCommonUserWidgetBase* InWidget) { ParentWidget = InWidget; }
+	void SetParentWidget(USdCommonUserWidgetBase* InWidget);
+
+protected:
+	virtual void OnSetParentWidget() {}
 };
