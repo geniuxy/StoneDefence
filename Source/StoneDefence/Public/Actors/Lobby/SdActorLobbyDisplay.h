@@ -26,4 +26,7 @@ private:
 	
 	UPROPERTY(VisibleDefaultsOnly, Category="Character Display")
 	UCameraComponent* ViewCameraComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category="Camera")
+	FVector CameraRelativeLocation = FVector(200.f, 72.f, 73.f);
 };

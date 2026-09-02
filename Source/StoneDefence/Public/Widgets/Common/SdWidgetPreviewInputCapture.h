@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Cores/SimpleRotate.h"
+#include "Cores/SimpleZoom.h"
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
 #include "SdWidgetPreviewInputCapture.generated.h"
 
@@ -18,7 +19,7 @@ class STONEDEFENCE_API USdWidgetPreviewInputCapture : public USdCommonUserWidget
 
 public:
 	USdWidgetPreviewInputCapture();
-	
+
 	void ConfigurePreviewInputCaptureWidget(AActor* InTargetActor);
 
 protected:
@@ -29,4 +30,8 @@ protected:
 
 private:
 	SimpleActorAction::SimpleRotate* SimpleRotate;
+	SimpleActorAction::SimpleZoom* SimpleZoom;
+
+	UPROPERTY(EditDefaultsOnly, Category="Zoom")
+	float ZoomSpeed = 10.f;
 };

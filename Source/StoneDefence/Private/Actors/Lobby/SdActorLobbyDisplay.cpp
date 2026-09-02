@@ -28,6 +28,8 @@ void ASdActorLobbyDisplay::ConfigureWithCharacterDefinition(const UPA_CharacterD
 	MeshComponent->SetSkeletalMesh(CharacterDefinition->LoadDisplayMesh());
 	MeshComponent->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	MeshComponent->SetAnimClass(CharacterDefinition->LoadDisplayAnimationBP());
+
+	ViewCameraComponent->SetRelativeLocation(CameraRelativeLocation);
 }
 
 void ASdActorLobbyDisplay::ClearCharacterDefinition()
