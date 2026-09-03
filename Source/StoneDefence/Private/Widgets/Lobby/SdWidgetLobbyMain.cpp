@@ -14,6 +14,7 @@
 #include "Widgets/Common/SdWidgetPreviewInputCapture.h"
 #include "Widgets/Components/Button/SdCommonButtonImage.h"
 
+#define LOCTEXT_NAMESPACE "USdWidgetLobbyMain"
 
 void USdWidgetLobbyMain::NativeConstruct()
 {
@@ -58,28 +59,82 @@ void USdWidgetLobbyMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Cha
 	{
 	case SP_CharacterAppearanceResponses:
 		{
-			FString CharacterJson;
-
-			SIMPLE_PROTOCOLS_RECEIVE(SP_CharacterAppearanceResponses, CharacterJson);
-
-			if (!CharacterJson.IsEmpty())
-			{
-				if (ASdPlayerStateLobby* PlayerState = GetOwningPlayerState<ASdPlayerStateLobby>())
-				{
-					NetDataAnalysis::StringToCharacterAppearances(
-						CharacterJson, PlayerState->GetCachedCharacterAppearances()
-					);
-
-					CharacterSelectionPanel->UpdateCharacterAppearances();
-
-					CharacterSelectionPanel->SelectRecentCharacter();
-				}
-			}
-
+			HandleCharacterAppearanceResponses(Channel);
+			break;
+		}
+	case SP_CheckCharacterNameResponses:
+		{
+			HandleCheckCharacterNameResponses(Channel);
+			break;
+		}
+	case SP_CreateCharacterResponses:
+		{
+			HandleCreateCharacterResponses(Channel);
 			break;
 		}
 	default:
 		break;
+	}
+}
+
+void USdWidgetLobbyMain::HandleCharacterAppearanceResponses(FSimpleChannel* Channel)
+{
+	FString CharacterJson;
+
+	SIMPLE_PROTOCOLS_RECEIVE(SP_CharacterAppearanceResponses, CharacterJson);
+
+	if (!CharacterJson.IsEmpty())
+	{
+		if (ASdPlayerStateLobby* PlayerState = GetOwningPlayerState<ASdPlayerStateLobby>())
+		{
+			NetDataAnalysis::StringToCharacterAppearances(
+				CharacterJson, PlayerState->GetCachedCharacterAppearances()
+			);
+
+			CharacterSelectionPanel->UpdateCharacterAppearances();
+
+			CharacterSelectionPanel->SelectRecentCharacter();
+		}
+	}
+}
+
+void USdWidgetLobbyMain::HandleCheckCharacterNameResponses(FSimpleChannel* Channel)
+{
+	ECheckNameType CheckNameType = UNKNOWN_ERROR;
+	SIMPLE_PROTOCOLS_RECEIVE(SP_CheckCharacterNameResponses, CheckNameType);
+
+	PrintLogByCheckName(CheckNameType);
+}
+
+void USdWidgetLobbyMain::HandleCreateCharacterResponses(FSimpleChannel* Channel)
+{
+	ECheckNameType CheckNameType = UNKNOWN_ERROR;
+	bool bCharacterCreated = false;
+	FString CAJson;
+	SIMPLE_PROTOCOLS_RECEIVE(SP_CreateCharacterResponses, CheckNameType, bCharacterCreated, CAJson);
+
+	if (bCharacterCreated)
+	{
+		PrintLog(LOCTEXT("CREATE_CHARACTER_RESPONSES_SUCCESSFULLY", "角色创建成功"));
+		FSdCharacterAppearance InCA;
+		NetDataAnalysis::StringToCharacterAppearance(CAJson, InCA);
+		if (ASdPlayerStateLobby* InPlayerState = GetOwningPlayerState<ASdPlayerStateLobby>())
+		{
+			InPlayerState->UpdateCharacterAppearances(InCA);
+
+			CharacterSelectionPanel->UpdateCharacterAppearances();
+
+			CharacterSelectionPanel->SelectRecentCharacter();
+		}
+	}
+	else
+	{
+		PrintLog(LOCTEXT("CREATE_CHARACTER_RESPONSES_FAIL", "角色创建失败"));
+		FTimerHandle TmpTimeHandle;
+		GetWorld()->GetTimerManager().SetTimer(TmpTimeHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			PrintLogByCheckName(CheckNameType);
+		}), 1.5f, false);
 	}
 }
 
@@ -94,6 +149,25 @@ void USdWidgetLobbyMain::PrintLog(const FText& InMsg)
 	MsgLogWidget->SetLogText(InMsg);
 }
 
+void USdWidgetLobbyMain::PrintLogByCheckName(ECheckNameType InCheckNameType)
+{
+	switch (InCheckNameType)
+	{
+	case UNKNOWN_ERROR:
+		PrintLog(LOCTEXT("CHECK_NAME_UNKNOWN_ERROR", "验证角色名字时发生未知错误"));
+		break;
+	case NAME_NOT_EXIST:
+		PrintLog(LOCTEXT("CHECK_NAME_NAME_NOT_EXIST", "当前角色名字可创建！"));
+		break;
+	case SERVER_NOT_EXIST:
+		PrintLog(LOCTEXT("CHECK_NAME_SERVER_NOT_EXIST", "访问服务器时发生错误"));
+		break;
+	case NAME_EXIST:
+		PrintLog(LOCTEXT("CHECK_NAME_NAME_EXIST", "角色名字已存在"));
+		break;
+	}
+}
+
 void USdWidgetLobbyMain::BackToCharacterSelectionPanel()
 {
 	CharacterSelectionPanel->BackToCharacterSelectionPanel();
@@ -104,7 +178,7 @@ void USdWidgetLobbyMain::SelectRecentCharacter()
 	CharacterSelectionPanel->SelectRecentCharacter();
 }
 
-void USdWidgetLobbyMain::HandleSelectCharacterSlot(bool bCreateCharacter)
+void USdWidgetLobbyMain::HandleSelectCharacterSlot(bool bCreateCharacter, int32 Index)
 {
 	if (bCreateCharacter)
 	{
@@ -116,6 +190,7 @@ void USdWidgetLobbyMain::HandleSelectCharacterSlot(bool bCreateCharacter)
 		CreateCharacterPanel->HidePanel();
 		Button_BeginGame->SetVisibility(ESlateVisibility::Visible);
 	}
+	CreateCharacterPanel->SetSlotIndex(Index);
 }
 
 void USdWidgetLobbyMain::ConfigurePreviewInputCapture(AActor* InDisplayActor)
@@ -123,6 +198,28 @@ void USdWidgetLobbyMain::ConfigurePreviewInputCapture(AActor* InDisplayActor)
 	if (PreviewInputCaptureWidget)
 	{
 		PreviewInputCaptureWidget->ConfigurePreviewInputCaptureWidget(InDisplayActor);
+	}
+}
+
+void USdWidgetLobbyMain::CheckNewName(FString NewCharacterName)
+{
+	if (USdGameInstance* InGameInstance = GetGameInstance<USdGameInstance>())
+	{
+		int32 UserId = InGameInstance->GetUserData().Id;
+		SEND_DATA(SP_CheckCharacterNameRequests, UserId, NewCharacterName);
+	}
+}
+
+void USdWidgetLobbyMain::CreateCharacter(const FSdCharacterAppearance& InCA)
+{
+	if (USdGameInstance* InGameInstance = GetGameInstance<USdGameInstance>())
+	{
+		FString CAJson;
+
+		NetDataAnalysis::CharacterAppearanceToString(InCA, CAJson);
+		int32 UserId = InGameInstance->GetUserData().Id;
+
+		SEND_DATA(SP_CreateCharacterRequests, UserId, CAJson);
 	}
 }
 
@@ -162,3 +259,5 @@ void USdWidgetLobbyMain::BeginGame()
 {
 	UGameplayStatics::OpenLevel(GetWorld(), TEXT("GameMap"));
 }
+
+#undef LOCTEXT_NAMESPACE

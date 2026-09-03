@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SimpleNetChannelType.h"
+#include "StoneDefenceNetCommonType.h"
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
 #include "SdWidgetLobbyMain.generated.h"
 
@@ -26,15 +27,24 @@ protected:
 
 	virtual void RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel) override;
 
+private:
+	void HandleCharacterAppearanceResponses(FSimpleChannel* Channel);
+	void HandleCheckCharacterNameResponses(FSimpleChannel* Channel);
+	void HandleCreateCharacterResponses(FSimpleChannel* Channel);
+
 public:
 	void PrintLog(const FString& InMsg);
 	void PrintLog(const FText& InMsg);
+	void PrintLogByCheckName(ECheckNameType InCheckNameType);
 
 	void BackToCharacterSelectionPanel();
 	void SelectRecentCharacter();
-	void HandleSelectCharacterSlot(bool bCreateCharacter);
+	void HandleSelectCharacterSlot(bool bCreateCharacter, int32 Index = INDEX_NONE);
 
 	void ConfigurePreviewInputCapture(AActor* InDisplayActor);
+
+	void CheckNewName(FString NewCharacterName);
+	void CreateCharacter(const FSdCharacterAppearance& InCA);
 
 private:
 	/** Binding Widgets */

@@ -23,7 +23,7 @@ private:
 	/** Binding Widgets */
 	UPROPERTY(meta=(BindWidget))
 	UEditableTextBox* EditBox_NewName;
-	
+
 	UPROPERTY(meta=(BindWidget))
 	USdCommonButtonImage* VerifyName;
 
@@ -32,10 +32,12 @@ private:
 
 	UPROPERTY(meta=(BindWidget))
 	USdCommonButtonImage* Button_Cancel;
-	
+
 	UPROPERTY(Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* FadeIn;
 	/********************/
+
+	int32 CurSlotIndex = INDEX_NONE;
 
 private:
 	void ButtonVerifyNameClicked();
@@ -44,5 +46,7 @@ private:
 
 public:
 	void PanelFadeIn();
+	void SetSlotIndex(int32 InSlotIndex) { CurSlotIndex = InSlotIndex; }
+
 	void HidePanel();
 };

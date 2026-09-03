@@ -88,7 +88,7 @@ void USdWidgetCharacterSelectionPanel::CharacterSelected(UObject* SelectedUObjec
 			Switcher->SetActiveWidget(FaceSculptingWidget);
 			if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
 			{
-				LobbyMain->HandleSelectCharacterSlot(true);
+				LobbyMain->HandleSelectCharacterSlot(true, CharacterSelectionData->GetSlotIndex());
 			}
 		}
 		else

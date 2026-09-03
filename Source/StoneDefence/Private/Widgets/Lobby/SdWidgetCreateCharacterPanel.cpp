@@ -3,6 +3,7 @@
 
 #include "Widgets/Lobby/SdWidgetCreateCharacterPanel.h"
 
+#include "Components/EditableTextBox.h"
 #include "Widgets/Components/Button/SdCommonButtonImage.h"
 #include "Widgets/Lobby/SdWidgetLobbyMain.h"
 
@@ -17,11 +18,35 @@ void USdWidgetCreateCharacterPanel::NativeConstruct()
 
 void USdWidgetCreateCharacterPanel::ButtonVerifyNameClicked()
 {
+	if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
+	{
+		FString NewNameStr = EditBox_NewName->GetText().ToString();
+		LobbyMain->CheckNewName(NewNameStr);
+	}
 }
 
 void USdWidgetCreateCharacterPanel::ButtonCreateClicked()
 {
-	HidePanel();
+	if (CurSlotIndex == INDEX_NONE) return;
+
+	if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
+	{
+		if (EditBox_NewName->GetText().IsEmpty())
+		{
+			LobbyMain->PrintLog(TEXT("名字不能为空..."));
+		}
+		else
+		{
+			FSdCharacterAppearance TmpCreateCharacter = FSdCharacterAppearance();
+			TmpCreateCharacter.Name = EditBox_NewName->GetText().ToString();
+			TmpCreateCharacter.DisplayAssetName = TEXT("PA_CharacterDefinition_Tubaki");
+			TmpCreateCharacter.LastLoginTime = FDateTime::Now().ToString();
+			TmpCreateCharacter.Level = 1;
+			TmpCreateCharacter.SlotIndex = CurSlotIndex;
+
+			LobbyMain->CreateCharacter(TmpCreateCharacter);
+		}
+	}
 }
 
 void USdWidgetCreateCharacterPanel::ButtonCancelClicked()

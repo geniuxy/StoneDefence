@@ -19,6 +19,8 @@ class STONEDEFENCE_API ASdPlayerStateLobby : public ASdPlayerStateBase
 public:
 	void SetSelectedCharacterDefinition(const UPA_CharacterDefinition* NewDefinition);
 
+	void UpdateCharacterAppearances(const FSdCharacterAppearance& InCA);
+
 private:
 	FSdCharacterAppearances CachedCharacterAppearances;
 
