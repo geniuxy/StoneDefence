@@ -156,6 +156,9 @@ void USdWidgetLobbyMain::PrintLogByCheckName(ECheckNameType InCheckNameType)
 	case UNKNOWN_ERROR:
 		PrintLog(LOCTEXT("CHECK_NAME_UNKNOWN_ERROR", "验证角色名字时发生未知错误"));
 		break;
+	case NAME_EMPTY:
+		PrintLog(LOCTEXT("CHECK_NAME_NAME_EMPTY", "角色名字不能为空"));
+		break;
 	case NAME_NOT_EXIST:
 		PrintLog(LOCTEXT("CHECK_NAME_NAME_NOT_EXIST", "当前角色名字可创建！"));
 		break;
