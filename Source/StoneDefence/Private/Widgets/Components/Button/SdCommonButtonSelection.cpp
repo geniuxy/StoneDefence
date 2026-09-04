@@ -4,7 +4,7 @@
 #include "Widgets/Components/Button/SdCommonButtonSelection.h"
 
 #include "CommonListView.h"
-#include "SdTypes/ListEntryDataObjects/SdListEntryDataObjectBase.h"
+#include "Widgets/Components/ListEntryDataObjects/SdListEntryDataObjectBase.h"
 
 void USdCommonButtonSelection::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
@@ -39,7 +39,7 @@ void USdCommonButtonSelection::NativeOnItemSelectionChanged(bool bIsSelected)
 void USdCommonButtonSelection::NativeOnEntryReleased()
 {
 	IUserObjectListEntry::NativeOnEntryReleased();
-	
+
 	if (SelectedSoftButtonImage.ToSoftObjectPath().IsValid() && SoftButtonImage.ToSoftObjectPath().IsValid())
 	{
 		SetButtonDisplayImage(SoftButtonImage);

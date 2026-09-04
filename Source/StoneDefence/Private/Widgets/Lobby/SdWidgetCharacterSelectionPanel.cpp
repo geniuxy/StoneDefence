@@ -4,6 +4,7 @@
 #include "Widgets/Lobby/SdWidgetCharacterSelectionPanel.h"
 
 #include "CommonListView.h"
+#include "CommonTextBlock.h"
 #include "CommonVisibilitySwitcher.h"
 #include "Actors/SdActorPreview.h"
 #include "Engine/StreamableManager.h"
@@ -89,10 +90,12 @@ void USdWidgetCharacterSelectionPanel::CharacterSelected(UObject* SelectedUObjec
 		if (CharacterSelectionData->IsSlotEmpty())
 		{
 			Switcher->SetActiveWidget(FaceSculptingWidget);
+			PanelTitle->SetText(FText::FromString(TEXT("角色创建")));
 		}
 		else
 		{
 			Switcher->SetActiveWidget(SelectionListView);
+			PanelTitle->SetText(FText::FromString(TEXT("角色选择")));
 		}
 
 		if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
@@ -128,6 +131,7 @@ void USdWidgetCharacterSelectionPanel::SpawnCharacterPreview()
 void USdWidgetCharacterSelectionPanel::BackToCharacterSelectionPanel()
 {
 	Switcher->SetActiveWidget(SelectionListView);
+	PanelTitle->SetText(FText::FromString(TEXT("角色选择")));
 	SelectionListView->ClearSelection();
 	if (ActorLobbyPreview)
 	{

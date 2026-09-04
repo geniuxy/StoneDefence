@@ -31,6 +31,9 @@ private:
 	UCommonVisibilitySwitcher* Switcher;
 	
 	UPROPERTY(meta = (BindWidget))
+	UCommonTextBlock* PanelTitle;
+	
+	UPROPERTY(meta = (BindWidget))
 	UCommonListView* SelectionListView;
 	
 	UPROPERTY(meta = (BindWidget))

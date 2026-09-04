@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SdTypes/ListEntryDataObjects/SdListEntryDataObjectBase.h"
+#include "Widgets/Components/ListEntryDataObjects/SdListEntryDataObjectBase.h"
 #include "StoneDefence/StoneDefence.h"
 #include "Widgets/Components/Button/SdCommonButtonSelection.h"
 #include "SdButtonFaceSculptType.generated.h"

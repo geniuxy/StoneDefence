@@ -2,3 +2,9 @@
 
 
 #include "Widgets/Lobby/FaceSculpt/SdWidgetFaceSculptingPageFigure.h"
+
+void USdWidgetFaceSculptingPageFigure::NativeConstruct()
+{
+	Super::NativeConstruct();
+	
+}
