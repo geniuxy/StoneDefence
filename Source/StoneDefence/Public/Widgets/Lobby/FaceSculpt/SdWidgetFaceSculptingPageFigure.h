@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
-#include "SdWidgetFaceSculpting.generated.h"
+#include "SdWidgetFaceSculptingPageFigure.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetFaceSculpting : public USdCommonUserWidgetBase
+class STONEDEFENCE_API USdWidgetFaceSculptingPageFigure : public USdCommonUserWidgetBase
 {
 	GENERATED_BODY()
 };

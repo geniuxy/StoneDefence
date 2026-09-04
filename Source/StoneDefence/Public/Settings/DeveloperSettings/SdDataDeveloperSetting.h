@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettings.h"
+#include "Widgets/Lobby/FaceSculpt/SdButtonFaceSculptType.h"
 #include "SdDataDeveloperSetting.generated.h"
 
 /**
@@ -17,4 +18,7 @@ class STONEDEFENCE_API USdDataDeveloperSetting : public UDeveloperSettings
 public:
 	UPROPERTY(Config, EditAnywhere, Category = "Lobby")
 	int32 MaxCharacterSelectionNum;
+	
+	UPROPERTY(Config, EditAnywhere, Category = "Lobby")
+	TArray<FFaceSculptPageDataInfo> FaceSculptPageDataInfoList;
 };

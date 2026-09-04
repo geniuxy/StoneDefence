@@ -26,4 +26,6 @@ private:
 
 public:
 	FSdCharacterAppearances& GetCachedCharacterAppearances() { return CachedCharacterAppearances; }
+	TOptional<FSdCharacterAppearance> GetCachedCharacterAppearance(int32 InSlotIndex) const;
+	TOptional<FSdCharacterAppearance> GetCurSelectedCharacterAppearance() const;
 };

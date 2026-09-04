@@ -7,6 +7,15 @@
 #include "PA_CharacterDefinition.generated.h"
 
 class ASdCharacterBase;
+
+UENUM()
+enum class ESdFigureType : uint8
+{
+	FT_LEG UMETA(DisplayName = "腿"),
+	FT_WAIST UMETA(DisplayName = "腰"),
+	FT_ARM UMETA(DisplayName = "手臂"),
+	FT_NUM
+};
 /**
  * 
  */
@@ -38,6 +47,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="Character")
 	TSoftClassPtr<UAnimInstance> DisplayAnimBP;
 
+	UPROPERTY(EditDefaultsOnly, Category="Character")
+	TMap<ESdFigureType, float> DefaultFigureSettings; 
+
 public:
 	FORCEINLINE FString GetCharacterDisplayName() const { return CharacterName; }
+	FORCEINLINE TMap<ESdFigureType, float> GetDefaultFigureSettings() const { return DefaultFigureSettings; }
 };

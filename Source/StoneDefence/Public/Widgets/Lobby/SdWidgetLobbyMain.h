@@ -39,9 +39,9 @@ public:
 
 	void BackToCharacterSelectionPanel();
 	void SelectRecentCharacter();
-	void HandleSelectCharacterSlot(bool bCreateCharacter, int32 Index = INDEX_NONE);
+	void HandleSelectCharacterSlot(bool bCreateCharacter);
 
-	void ConfigurePreviewInputCapture(AActor* InDisplayActor);
+	void ConfigurePreviewInputCapture(AActor* InPreviewActor);
 
 	void CheckNewName(FString NewCharacterName);
 	void CreateCharacter(const FSdCharacterAppearance& InCA);

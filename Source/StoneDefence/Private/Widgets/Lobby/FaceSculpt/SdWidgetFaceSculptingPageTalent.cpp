@@ -1,4 +1,4 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Widgets/Lobby/SdWidgetFaceSculpting.h"
+#include "Widgets/Lobby/FaceSculpt/SdWidgetFaceSculptingPageTalent.h"

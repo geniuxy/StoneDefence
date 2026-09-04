@@ -4,8 +4,12 @@
 #include "Widgets/Lobby/SdWidgetCreateCharacterPanel.h"
 
 #include "Components/EditableTextBox.h"
+#include "Frameworks/PlayerStates/SdPlayerStateLobby.h"
+#include "Subsystems/GameInstanceSubsytems/SdGISubsystemLobby.h"
 #include "Widgets/Components/Button/SdCommonButtonImage.h"
 #include "Widgets/Lobby/SdWidgetLobbyMain.h"
+
+class ASdPlayerStateLobby;
 
 void USdWidgetCreateCharacterPanel::NativeConstruct()
 {
@@ -27,7 +31,10 @@ void USdWidgetCreateCharacterPanel::ButtonVerifyNameClicked()
 
 void USdWidgetCreateCharacterPanel::ButtonCreateClicked()
 {
-	if (CurSlotIndex == INDEX_NONE) return;
+	ASdPlayerStateLobby* PlayerState = GetOwningPlayerState<ASdPlayerStateLobby>();
+	if (!PlayerState) return;
+	if (!PlayerState->GetCurSelectedCharacterAppearance().IsSet()) return;
+	if (!PlayerState->GetCurSelectedCharacterAppearance().GetValue().IsEmpty()) return;
 
 	if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
 	{
@@ -42,7 +49,7 @@ void USdWidgetCreateCharacterPanel::ButtonCreateClicked()
 			TmpCreateCharacter.DisplayAssetName = TEXT("PA_CharacterDefinition_Tubaki");
 			TmpCreateCharacter.LastLoginTime = FDateTime::Now().ToString();
 			TmpCreateCharacter.Level = 1;
-			TmpCreateCharacter.SlotIndex = CurSlotIndex;
+			TmpCreateCharacter.SlotIndex = USdGISubsystemLobby::Get(this)->GetCurSelectedSlotIndex();
 
 			LobbyMain->CreateCharacter(TmpCreateCharacter);
 		}

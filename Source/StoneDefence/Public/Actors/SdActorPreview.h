@@ -4,18 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "Actors/SdActorBase.h"
-#include "SdActorLobbyDisplay.generated.h"
+#include "StoneDefence/StoneDefence.h"
+#include "SdActorPreview.generated.h"
 
 class UCameraComponent;
 class UPA_CharacterDefinition;
 
 UCLASS()
-class STONEDEFENCE_API ASdActorLobbyDisplay : public ASdActorBase
+class STONEDEFENCE_API ASdActorPreview : public ASdActorBase
 {
 	GENERATED_BODY()
 
 public:
-	ASdActorLobbyDisplay();
+	ASdActorPreview();
 
 	void ConfigureWithCharacterDefinition(const UPA_CharacterDefinition* CharacterDefinition);
 	void ClearCharacterDefinition();
@@ -29,4 +30,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category="Camera")
 	FVector CameraRelativeLocation = FVector(200.f, 72.f, 73.f);
+
+	bool IsModifying = false;
+
+public:
+	DATA_ACCESSOR(bool, IsModifying)
 };

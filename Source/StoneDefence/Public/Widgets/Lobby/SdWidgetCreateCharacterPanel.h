@@ -37,8 +37,6 @@ private:
 	UWidgetAnimation* FadeIn;
 	/********************/
 
-	int32 CurSlotIndex = INDEX_NONE;
-
 private:
 	void ButtonVerifyNameClicked();
 	void ButtonCreateClicked();
@@ -46,7 +44,5 @@ private:
 
 public:
 	void PanelFadeIn();
-	void SetSlotIndex(int32 InSlotIndex) { CurSlotIndex = InSlotIndex; }
-
 	void HidePanel();
 };

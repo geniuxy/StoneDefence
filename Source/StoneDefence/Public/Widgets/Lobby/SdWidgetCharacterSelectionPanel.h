@@ -6,8 +6,9 @@
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
 #include "SdWidgetCharacterSelectionPanel.generated.h"
 
+class UCommonTextBlock;
 class USdWidgetFaceSculpting;
-class ASdActorLobbyDisplay;
+class ASdActorPreview;
 class UCommonListView;
 class UCommonVisibilitySwitcher;
 /**
@@ -40,19 +41,21 @@ private:
 
 	void CharacterSelected(UObject* SelectedUObject);
 
-	void SpawnCharacterDisplay();
+	void SpawnCharacterPreview();
 
 	UPROPERTY()
-	ASdActorLobbyDisplay* ActorLobbyDisplay;
+	ASdActorPreview* ActorLobbyPreview;
 
-	UPROPERTY(EditDefaultsOnly, Category="Character Display")
-	TSubclassOf<ASdActorLobbyDisplay> ActorLobbyDisplayClass;
+	UPROPERTY(EditDefaultsOnly, Category="Character Preview")
+	TSubclassOf<ASdActorPreview> ActorLobbyPreviewClass;
 
 public:
 	void BackToCharacterSelectionPanel();
 
 	void UpdateCharacterAppearances();
 	void SelectRecentCharacter();
+
+	void SetPreviewActorIsModifying(bool bIsModifying);
 
 private:
 	bool bInitCharacterDefinitions = false;

@@ -181,7 +181,7 @@ void USdWidgetLobbyMain::SelectRecentCharacter()
 	CharacterSelectionPanel->SelectRecentCharacter();
 }
 
-void USdWidgetLobbyMain::HandleSelectCharacterSlot(bool bCreateCharacter, int32 Index)
+void USdWidgetLobbyMain::HandleSelectCharacterSlot(bool bCreateCharacter)
 {
 	if (bCreateCharacter)
 	{
@@ -193,14 +193,13 @@ void USdWidgetLobbyMain::HandleSelectCharacterSlot(bool bCreateCharacter, int32 
 		CreateCharacterPanel->HidePanel();
 		Button_BeginGame->SetVisibility(ESlateVisibility::Visible);
 	}
-	CreateCharacterPanel->SetSlotIndex(Index);
 }
 
-void USdWidgetLobbyMain::ConfigurePreviewInputCapture(AActor* InDisplayActor)
+void USdWidgetLobbyMain::ConfigurePreviewInputCapture(AActor* InPreviewActor)
 {
 	if (PreviewInputCaptureWidget)
 	{
-		PreviewInputCaptureWidget->ConfigurePreviewInputCaptureWidget(InDisplayActor);
+		PreviewInputCaptureWidget->ConfigurePreviewInputCaptureWidget(InPreviewActor);
 	}
 }
 

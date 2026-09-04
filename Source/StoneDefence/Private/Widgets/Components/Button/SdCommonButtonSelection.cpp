@@ -11,8 +11,7 @@ void USdCommonButtonSelection::NativeOnListItemObjectSet(UObject* ListItemObject
 	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
 
 	OwnerListView = Cast<UCommonListView>(GetOwningListView());
-	USdListEntryDataObjectBase* EntryDataObject = Cast<USdListEntryDataObjectBase>(ListItemObject);
-	if (EntryDataObject)
+	if (USdListEntryDataObjectBase* EntryDataObject = Cast<USdListEntryDataObjectBase>(ListItemObject))
 	{
 		EntryDataObject->OnDataChanged.AddUObject(this, &ThisClass::OnDataChanged);
 	}

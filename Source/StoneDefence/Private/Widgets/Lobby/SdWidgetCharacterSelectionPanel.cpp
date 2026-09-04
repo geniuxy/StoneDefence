@@ -5,20 +5,23 @@
 
 #include "CommonListView.h"
 #include "CommonVisibilitySwitcher.h"
-#include "Actors/Lobby/SdActorLobbyDisplay.h"
+#include "Actors/SdActorPreview.h"
 #include "Engine/StreamableManager.h"
 #include "Frameworks/SdAssetManager.h"
 #include "Frameworks/PlayerStates/SdPlayerStateLobby.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
 #include "Settings/DeveloperSettings/SdDataDeveloperSetting.h"
+#include "Subsystems/GameInstanceSubsytems/SdGISubsystemLobby.h"
 #include "Widgets/Lobby/SdButtonCharacterSelection.h"
-#include "Widgets/Lobby/SdWidgetFaceSculpting.h"
 #include "Widgets/Lobby/SdWidgetLobbyMain.h"
+#include "Widgets/Lobby/FaceSculpt/SdWidgetFaceSculpting.h"
 
 void USdWidgetCharacterSelectionPanel::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	FaceSculptingWidget->SetParentWidget(this);
 
 	USdAssetManager::Get().LoadCharacterDefinitions(
 		FStreamableDelegate::CreateUObject(this, &ThisClass::InitSelectionListView)
@@ -27,7 +30,7 @@ void USdWidgetCharacterSelectionPanel::NativeConstruct()
 	// OnItemSelectionChanged()在取消选择时，不会做任何反应
 	SelectionListView->OnItemSelectionChanged().AddUObject(this, &ThisClass::CharacterSelected);
 
-	SpawnCharacterDisplay();
+	SpawnCharacterPreview();
 }
 
 void USdWidgetCharacterSelectionPanel::NativePreConstruct()
@@ -41,7 +44,7 @@ void USdWidgetCharacterSelectionPanel::OnSetParentWidget()
 {
 	if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
 	{
-		LobbyMain->ConfigurePreviewInputCapture(ActorLobbyDisplay);
+		LobbyMain->ConfigurePreviewInputCapture(ActorLobbyPreview);
 	}
 }
 
@@ -78,34 +81,33 @@ void USdWidgetCharacterSelectionPanel::CharacterSelected(UObject* SelectedUObjec
 	if (const UCharacterSelectionData* CharacterSelectionData = Cast<UCharacterSelectionData>(SelectedUObject))
 	{
 		PlayerState->SetSelectedCharacterDefinition(CharacterSelectionData->GetCharacterDefinition());
-		if (ActorLobbyDisplay)
+		if (ActorLobbyPreview)
 		{
-			ActorLobbyDisplay->ConfigureWithCharacterDefinition(CharacterSelectionData->GetCharacterDefinition());
+			ActorLobbyPreview->ConfigureWithCharacterDefinition(CharacterSelectionData->GetCharacterDefinition());
 		}
 
 		if (CharacterSelectionData->IsSlotEmpty())
 		{
 			Switcher->SetActiveWidget(FaceSculptingWidget);
-			if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
-			{
-				LobbyMain->HandleSelectCharacterSlot(true, CharacterSelectionData->GetSlotIndex());
-			}
 		}
 		else
 		{
 			Switcher->SetActiveWidget(SelectionListView);
-			if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
-			{
-				LobbyMain->HandleSelectCharacterSlot(false);
-			}
 		}
+
+		if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
+		{
+			LobbyMain->HandleSelectCharacterSlot(CharacterSelectionData->IsSlotEmpty());
+		}
+
+		USdGISubsystemLobby::Get(this)->SetCurSelectedSlotIndex(CharacterSelectionData->GetSlotIndex());
 	}
 }
 
-void USdWidgetCharacterSelectionPanel::SpawnCharacterDisplay()
+void USdWidgetCharacterSelectionPanel::SpawnCharacterPreview()
 {
-	if (ActorLobbyDisplay) return;
-	if (!ActorLobbyDisplayClass) return;
+	if (ActorLobbyPreview) return;
+	if (!ActorLobbyPreviewClass) return;
 
 	FTransform CharacterDisplayTransform = FTransform::Identity;
 	if (AActor* PlayerStart = UGameplayStatics::GetActorOfClass(GetWorld(), APlayerStart::StaticClass()))
@@ -115,11 +117,11 @@ void USdWidgetCharacterSelectionPanel::SpawnCharacterDisplay()
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	ActorLobbyDisplay =
-		GetWorld()->SpawnActor<ASdActorLobbyDisplay>(ActorLobbyDisplayClass, CharacterDisplayTransform, SpawnParams);
-	if (ActorLobbyDisplay)
+	ActorLobbyPreview =
+		GetWorld()->SpawnActor<ASdActorPreview>(ActorLobbyPreviewClass, CharacterDisplayTransform, SpawnParams);
+	if (ActorLobbyPreview)
 	{
-		GetOwningPlayer()->SetViewTarget(ActorLobbyDisplay);
+		GetOwningPlayer()->SetViewTarget(ActorLobbyPreview);
 	}
 }
 
@@ -127,9 +129,9 @@ void USdWidgetCharacterSelectionPanel::BackToCharacterSelectionPanel()
 {
 	Switcher->SetActiveWidget(SelectionListView);
 	SelectionListView->ClearSelection();
-	if (ActorLobbyDisplay)
+	if (ActorLobbyPreview)
 	{
-		ActorLobbyDisplay->ClearCharacterDefinition();
+		ActorLobbyPreview->ClearCharacterDefinition();
 	}
 }
 
@@ -195,5 +197,13 @@ void USdWidgetCharacterSelectionPanel::SelectRecentCharacter()
 	if (RecentlyIndex != INDEX_NONE)
 	{
 		SelectionListView->SetSelectedIndex(RecentlyIndex);
+	}
+}
+
+void USdWidgetCharacterSelectionPanel::SetPreviewActorIsModifying(bool bIsModifying)
+{
+	if (ActorLobbyPreview)
+	{
+		ActorLobbyPreview->SetIsModifying(bIsModifying);
 	}
 }
