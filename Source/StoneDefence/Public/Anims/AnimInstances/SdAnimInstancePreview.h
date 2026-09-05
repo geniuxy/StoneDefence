@@ -22,6 +22,10 @@ public:
 	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
 	FORCEINLINE bool GetIsModifying() const { return bIsModifying; }
 
+protected:
+	UPROPERTY(EditDefaultsOnly, Category="Start Anim")
+	UAnimMontage* EnterAnim;
+
 private:
 	UPROPERTY()
 	ASdActorPreview* OwnerPreviewActor;

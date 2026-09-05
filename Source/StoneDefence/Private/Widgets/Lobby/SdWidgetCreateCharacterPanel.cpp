@@ -34,7 +34,9 @@ void USdWidgetCreateCharacterPanel::ButtonCreateClicked()
 	ASdPlayerStateLobby* PlayerState = GetOwningPlayerState<ASdPlayerStateLobby>();
 	if (!PlayerState) return;
 	if (!PlayerState->GetCurSelectedCharacterAppearance().IsSet()) return;
+	// 服务器上对应槽位目前是空内容，才能发送创建请求
 	if (!PlayerState->GetCurSelectedCharacterAppearance().GetValue().IsEmpty()) return;
+	if (!USdGISubsystemLobby::Get(this)) return;
 
 	if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
 	{
@@ -64,6 +66,9 @@ void USdWidgetCreateCharacterPanel::ButtonCancelClicked()
 		LobbyMain->BackToCharacterSelectionPanel();
 		LobbyMain->SelectRecentCharacter();
 	}
+
+	USdGISubsystemLobby::Get(this)->SetCurSelectedSlotIndex(INDEX_NONE);
+	USdGISubsystemLobby::Get(this)->SetCurSelectedCharacterDefinition(nullptr);
 }
 
 void USdWidgetCreateCharacterPanel::PanelFadeIn()

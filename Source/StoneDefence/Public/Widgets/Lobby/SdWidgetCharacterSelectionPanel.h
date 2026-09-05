@@ -3,19 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Widgets/Cores/SdCommonUserWidgetBase.h"
+#include "Widgets/Cores/SdCommonActivatableWidgetBase.h"
 #include "SdWidgetCharacterSelectionPanel.generated.h"
 
+class UCommonVisibilitySwitcher;
+class UCommonActivatableWidgetSwitcher;
 class UCommonTextBlock;
 class USdWidgetFaceSculpting;
 class ASdActorPreview;
 class UCommonListView;
-class UCommonVisibilitySwitcher;
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetCharacterSelectionPanel : public USdCommonUserWidgetBase
+class STONEDEFENCE_API USdWidgetCharacterSelectionPanel : public USdCommonActivatableWidgetBase
 {
 	GENERATED_BODY()
 
@@ -28,6 +29,7 @@ protected:
 private:
 	/** Binding Widgets */
 	UPROPERTY(meta = (BindWidget))
+	// UCommonActivatableWidgetSwitcher* Switcher;
 	UCommonVisibilitySwitcher* Switcher;
 	
 	UPROPERTY(meta = (BindWidget))

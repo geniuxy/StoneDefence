@@ -3,22 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CommonUserWidget.h"
-#include "SdCommonUserWidgetBase.generated.h"
+#include "CommonActivatableWidget.h"
+#include "SdCommonActivatableWidgetBase.generated.h"
 
-class FSimpleChannel;
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdCommonUserWidgetBase : public UCommonUserWidget
+class STONEDEFENCE_API USdCommonActivatableWidgetBase : public UCommonActivatableWidget
 {
 	GENERATED_BODY()
-
-protected:
-	virtual void RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
-	{
-	}
 
 	/**********************************************************************/
 	/*                           Parent Widget                            */
@@ -34,5 +28,7 @@ public:
 	void SetParentWidget(UCommonUserWidget* InWidget);
 
 protected:
-	virtual void OnSetParentWidget() {}
+	virtual void OnSetParentWidget()
+	{
+	}
 };

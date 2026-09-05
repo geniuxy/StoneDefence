@@ -3,6 +3,7 @@
 
 #include "Widgets/Lobby/SdWidgetCharacterSelectionPanel.h"
 
+#include "CommonActivatableWidgetSwitcher.h"
 #include "CommonListView.h"
 #include "CommonTextBlock.h"
 #include "CommonVisibilitySwitcher.h"
@@ -76,12 +77,14 @@ void USdWidgetCharacterSelectionPanel::InitSelectionListView()
 
 void USdWidgetCharacterSelectionPanel::CharacterSelected(UObject* SelectedUObject)
 {
-	ASdPlayerStateLobby* PlayerState = GetOwningPlayerState<ASdPlayerStateLobby>();
-	if (!PlayerState) return;
-
 	if (const UCharacterSelectionData* CharacterSelectionData = Cast<UCharacterSelectionData>(SelectedUObject))
 	{
-		PlayerState->SetSelectedCharacterDefinition(CharacterSelectionData->GetCharacterDefinition());
+		if (USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this))
+		{
+			LobbySubsystem->SetCurSelectedCharacterDefinition(CharacterSelectionData->GetCharacterDefinition());
+			LobbySubsystem->SetCurSelectedSlotIndex(CharacterSelectionData->GetSlotIndex());
+		}
+
 		if (ActorLobbyPreview)
 		{
 			ActorLobbyPreview->ConfigureWithCharacterDefinition(CharacterSelectionData->GetCharacterDefinition());
@@ -102,8 +105,6 @@ void USdWidgetCharacterSelectionPanel::CharacterSelected(UObject* SelectedUObjec
 		{
 			LobbyMain->HandleSelectCharacterSlot(CharacterSelectionData->IsSlotEmpty());
 		}
-
-		USdGISubsystemLobby::Get(this)->SetCurSelectedSlotIndex(CharacterSelectionData->GetSlotIndex());
 	}
 }
 

@@ -5,10 +5,6 @@
 
 #include "Subsystems/GameInstanceSubsytems/SdGISubsystemLobby.h"
 
-void ASdPlayerStateLobby::SetSelectedCharacterDefinition(const UPA_CharacterDefinition* NewDefinition)
-{
-}
-
 void ASdPlayerStateLobby::UpdateCharacterAppearances(const FSdCharacterAppearance& InCA)
 {
 	FSdCharacterAppearance* CurCharacterAppearance = CachedCharacterAppearances.FindByPredicate(

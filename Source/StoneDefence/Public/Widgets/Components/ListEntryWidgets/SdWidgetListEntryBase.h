@@ -7,6 +7,7 @@
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
 #include "SdWidgetListEntryBase.generated.h"
 
+class UCommonListView;
 /**
  * 
  */
@@ -14,4 +15,15 @@ UCLASS()
 class STONEDEFENCE_API USdWidgetListEntryBase : public USdCommonUserWidgetBase, public IUserObjectListEntry
 {
 	GENERATED_BODY()
+
+protected:
+	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
+
+protected:
+	UPROPERTY()
+	UCommonListView* OwnerListView;
+
+	virtual void OnDataChanged()
+	{
+	}
 };

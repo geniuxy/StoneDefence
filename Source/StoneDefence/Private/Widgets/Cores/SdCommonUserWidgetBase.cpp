@@ -3,7 +3,7 @@
 
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
 
-void USdCommonUserWidgetBase::SetParentWidget(USdCommonUserWidgetBase* InWidget)
+void USdCommonUserWidgetBase::SetParentWidget(UCommonUserWidget* InWidget)
 {
 	ParentWidget = InWidget;
 	OnSetParentWidget();

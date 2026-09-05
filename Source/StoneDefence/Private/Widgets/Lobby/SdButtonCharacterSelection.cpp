@@ -39,7 +39,9 @@ void USdButtonCharacterSelection::OnDataChanged()
 
 void USdButtonCharacterSelection::UpdateButtonInfo()
 {
-	if (!CharacterSelectionData || CharacterSelectionData->IsSlotEmpty())
+	if (!CharacterSelectionData) return;
+
+	if (CharacterSelectionData->IsSlotEmpty())
 	{
 		Switcher->SetActiveWidget(SizeBox_CreateNew);
 	}

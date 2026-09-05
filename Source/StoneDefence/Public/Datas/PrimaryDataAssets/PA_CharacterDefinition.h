@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "StoneDefence/StoneDefence.h"
 #include "PA_CharacterDefinition.generated.h"
 
 class ASdCharacterBase;
@@ -11,11 +12,32 @@ class ASdCharacterBase;
 UENUM()
 enum class ESdFigureType : uint8
 {
-	FT_LEG UMETA(DisplayName = "腿"),
-	FT_WAIST UMETA(DisplayName = "腰"),
-	FT_ARM UMETA(DisplayName = "手臂"),
+	FT_LEG UMETA(DisplayName = "腿长"),
+	FT_WAIST UMETA(DisplayName = "腰长"),
+	FT_ARM UMETA(DisplayName = "臂长"),
 	FT_NUM
 };
+
+USTRUCT(BlueprintType)
+struct FFaceSculptFigureTypeInfo // 捏脸身材塑造时相关的信息
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	ESdFigureType Type;
+
+	UPROPERTY(EditAnywhere)
+	float DefaultValue; // 0~1之间
+
+	UPROPERTY(EditAnywhere)
+	int MaxValue;
+
+	UPROPERTY()
+	int CurValue;
+	
+	DATA_ACCESSOR(int, CurValue)
+};
+
 /**
  * 
  */
@@ -48,9 +70,9 @@ private:
 	TSoftClassPtr<UAnimInstance> DisplayAnimBP;
 
 	UPROPERTY(EditDefaultsOnly, Category="Character")
-	TMap<ESdFigureType, float> DefaultFigureSettings; 
+	TArray<FFaceSculptFigureTypeInfo> DefaultFigureSettings; 
 
 public:
 	FORCEINLINE FString GetCharacterDisplayName() const { return CharacterName; }
-	FORCEINLINE TMap<ESdFigureType, float> GetDefaultFigureSettings() const { return DefaultFigureSettings; }
+	FORCEINLINE TArray<FFaceSculptFigureTypeInfo> GetDefaultFigureSettings() const { return DefaultFigureSettings; }
 };

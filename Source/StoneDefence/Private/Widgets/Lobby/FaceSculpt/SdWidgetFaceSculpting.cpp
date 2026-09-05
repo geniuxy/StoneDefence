@@ -4,10 +4,12 @@
 #include "Widgets/Lobby/FaceSculpt/SdWidgetFaceSculpting.h"
 
 #include "CommonListView.h"
+#include "CommonActivatableWidgetSwitcher.h"
 #include "CommonVisibilitySwitcher.h"
 #include "Settings/DeveloperSettings/SdDataDeveloperSetting.h"
 #include "Widgets/Lobby/SdWidgetCharacterSelectionPanel.h"
 #include "Widgets/Lobby/FaceSculpt/SdButtonFaceSculptType.h"
+#include "Widgets/Lobby/FaceSculpt/SdWidgetFaceSculptingPageFigure.h"
 
 void USdWidgetFaceSculpting::NativeConstruct()
 {
@@ -30,6 +32,11 @@ void USdWidgetFaceSculpting::NativeConstruct()
 			PageListView->SetSelectedIndex(0);
 		})
 	);
+}
+
+void USdWidgetFaceSculpting::NativeOnActivated()
+{
+	Super::NativeOnActivated();
 }
 
 void USdWidgetFaceSculpting::PageSelected(UObject* InSelectedObject)

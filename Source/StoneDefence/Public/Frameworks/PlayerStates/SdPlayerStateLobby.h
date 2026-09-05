@@ -7,9 +7,8 @@
 #include "StoneDefenceNetCommonType.h"
 #include "SdPlayerStateLobby.generated.h"
 
-class UPA_CharacterDefinition;
 /**
- * 
+ * 这里PlayerStateLobby只存服务器上已有的内容，Temp的内容都存到Subsystem里去
  */
 UCLASS()
 class STONEDEFENCE_API ASdPlayerStateLobby : public ASdPlayerStateBase
@@ -17,8 +16,6 @@ class STONEDEFENCE_API ASdPlayerStateLobby : public ASdPlayerStateBase
 	GENERATED_BODY()
 
 public:
-	void SetSelectedCharacterDefinition(const UPA_CharacterDefinition* NewDefinition);
-
 	void UpdateCharacterAppearances(const FSdCharacterAppearance& InCA);
 
 private:

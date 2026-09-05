@@ -14,3 +14,17 @@ USdGISubsystemLobby* USdGISubsystemLobby::Get(const UObject* WorldContextObject)
 
 	return nullptr;
 }
+
+void USdGISubsystemLobby::UpdateCachedFigureSettings(ESdFigureType InType, int32 InValue)
+{
+	FFaceSculptFigureTypeInfo* CurSelectedTypeInfo = CachedFigureSettings.FindByPredicate(
+		[&](const FFaceSculptFigureTypeInfo& InInfo)
+		{
+			return InInfo.Type == InType;
+		}
+	);
+	if (CurSelectedTypeInfo)
+	{
+		CurSelectedTypeInfo->SetCurValue(InValue);
+	}
+}

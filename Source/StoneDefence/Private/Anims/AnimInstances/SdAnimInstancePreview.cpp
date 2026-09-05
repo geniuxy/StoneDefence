@@ -13,6 +13,8 @@ void USdAnimInstancePreview::NativeInitializeAnimation()
 	{
 		OwnerPreviewActor = Cast<ASdActorPreview>(OwnerSkeletalMeshComp->GetOwner());
 	}
+
+	Montage_Play(EnterAnim);
 }
 
 void USdAnimInstancePreview::NativeThreadSafeUpdateAnimation(float DeltaSeconds)

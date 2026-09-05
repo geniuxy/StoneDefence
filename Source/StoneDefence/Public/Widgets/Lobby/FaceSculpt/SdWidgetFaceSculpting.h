@@ -3,9 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Widgets/Cores/SdCommonUserWidgetBase.h"
+#include "Widgets/Cores/SdCommonActivatableWidgetBase.h"
 #include "SdWidgetFaceSculpting.generated.h"
 
+class UCommonActivatableWidgetSwitcher;
 class USdWidgetFaceSculptingPageFace;
 class USdWidgetFaceSculptingPageFigure;
 class USdWidgetFaceSculptingPageTalent;
@@ -15,17 +16,18 @@ class UCommonListView;
  * 捏脸界面
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetFaceSculpting : public USdCommonUserWidgetBase
+class STONEDEFENCE_API USdWidgetFaceSculpting : public USdCommonActivatableWidgetBase
 {
 	GENERATED_BODY()
 
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeOnActivated() override;
 
 private:
 	/** Binding Widgets */
 	UPROPERTY(meta = (BindWidget))
-	UCommonVisibilitySwitcher* Switcher;
+	UCommonActivatableWidgetSwitcher* Switcher;
 
 	UPROPERTY(meta = (BindWidget))
 	UCommonListView* PageListView;
