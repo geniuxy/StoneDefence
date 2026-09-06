@@ -23,6 +23,18 @@ struct FFaceSculptFigureTypeInfo // 捏脸身材塑造时相关的信息
 {
 	GENERATED_BODY()
 
+	FFaceSculptFigureTypeInfo(): Type(ESdFigureType::FT_NUM), DefaultValue(0), MaxValue(0), CurValue(0)
+	{
+	}
+
+	FFaceSculptFigureTypeInfo(ESdFigureType InType, int InCurValue, float InDefaultValue = 0.f, int InMaxValue = 0):
+		Type(InType),
+		DefaultValue(InDefaultValue),
+		MaxValue(InMaxValue),
+		CurValue(InCurValue)
+	{
+	}
+
 	UPROPERTY(EditAnywhere)
 	ESdFigureType Type;
 

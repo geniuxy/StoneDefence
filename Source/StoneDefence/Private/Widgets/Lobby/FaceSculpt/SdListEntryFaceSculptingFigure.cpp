@@ -5,6 +5,7 @@
 
 #include "AnalogSlider.h"
 #include "CommonTextBlock.h"
+#include "Actors/SdActorPreview.h"
 #include "FunctionLibraries/SdFunctionLibraryCommon.h"
 #include "Subsystems/GameInstanceSubsytems/SdGISubsystemLobby.h"
 
@@ -22,6 +23,13 @@ void USdListEntryFaceSculptingFigure::NativeOnListItemObjectSet(UObject* ListIte
 		AnalogSlider_Setting->OnValueChanged.AddUniqueDynamic(this, &ThisClass::OnSliderChanged);
 		int32 CurValue = FMath::RoundToInt(FaceSculptingFigureData->GetCurValue());
 		ValueText->SetText(FText::FromString(FString::Printf(TEXT("%02d"), CurValue)));
+
+		if (ASdActorPreview* ActorLobbyPreview = USdGISubsystemLobby::Get(this)->GetActorLobbyPreview())
+		{
+			ActorLobbyPreview->UpdateFigureTypeSize(
+				FaceSculptingFigureData->GetType(), FaceSculptingFigureData->GetCurValue()
+			);
+		}
 	}
 }
 
@@ -30,5 +38,9 @@ void USdListEntryFaceSculptingFigure::OnSliderChanged(float InValue)
 	int32 CurValue = FMath::RoundToInt(InValue);
 	ValueText->SetText(FText::FromString(FString::Printf(TEXT("%02d"), CurValue)));
 
-	USdGISubsystemLobby::Get(this)->UpdateCachedFigureSettings(FaceSculptingFigureData->GetType(), CurValue);
+	if (USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this))
+	{
+		LobbySubsystem->UpdateCachedFigureSettings(FaceSculptingFigureData->GetType(), CurValue);
+		LobbySubsystem->GetActorLobbyPreview()->UpdateFigureTypeSize(FaceSculptingFigureData->GetType(), CurValue);
+	}
 }

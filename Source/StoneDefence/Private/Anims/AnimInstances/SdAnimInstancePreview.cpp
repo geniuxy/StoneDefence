@@ -21,19 +21,13 @@ void USdAnimInstancePreview::NativeInitializeAnimation()
 void USdAnimInstancePreview::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
-
-	if (!USdGISubsystemLobby::Get(this)) return;
-	USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this);
 	
 	if (OwnerPreviewActor)
 	{
 		bIsModifying = OwnerPreviewActor->GetIsModifying();
 
-		if (LobbySubsystem)
-		{
-			LegSize = LobbySubsystem->GetCachedFigureValueByType(ESdFigureType::FT_LEG);
-			WaistSize = LobbySubsystem->GetCachedFigureValueByType(ESdFigureType::FT_WAIST);
-			ArmSize = LobbySubsystem->GetCachedFigureValueByType(ESdFigureType::FT_ARM);
-		}
+		LegSize = OwnerPreviewActor->GetFigureSizeByType(ESdFigureType::FT_LEG);
+		WaistSize = OwnerPreviewActor->GetFigureSizeByType(ESdFigureType::FT_WAIST);
+		ArmSize = OwnerPreviewActor->GetFigureSizeByType(ESdFigureType::FT_ARM);
 	}
 }

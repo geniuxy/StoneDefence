@@ -36,14 +36,14 @@ protected:
 	/**********************************************************************/
 public:
 	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
-	FORCEINLINE float GetLegSize() const { return LegSize; }
+	FORCEINLINE int32 GetLegSize() const { return LegSize; }
 	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
-	FORCEINLINE float GetWaistSize() const { return WaistSize; }
+	FORCEINLINE int32 GetWaistSize() const { return WaistSize; }
 	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
-	FORCEINLINE float GetArmSize() const { return ArmSize; }
+	FORCEINLINE int32 GetArmSize() const { return ArmSize; }
 
 protected:
-	float LegSize = 0.f;
-	float WaistSize = 0.f;
-	float ArmSize = 0.f;
+	int32 LegSize = 0;
+	int32 WaistSize = 0;
+	int32 ArmSize = 0;
 };

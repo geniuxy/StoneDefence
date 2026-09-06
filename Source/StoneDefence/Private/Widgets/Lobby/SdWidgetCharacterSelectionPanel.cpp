@@ -76,19 +76,31 @@ void USdWidgetCharacterSelectionPanel::InitSelectionListView()
 
 void USdWidgetCharacterSelectionPanel::CharacterSelected(UObject* SelectedUObject)
 {
+	ASdPlayerStateLobby* PlayerState = GetOwningPlayerState<ASdPlayerStateLobby>();
+	if (!PlayerState) return;
+	USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this);
+	if (!LobbySubsystem) return;
+
 	if (const UCharacterSelectionData* CharacterSelectionData = Cast<UCharacterSelectionData>(SelectedUObject))
 	{
-		if (USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this))
+		LobbySubsystem->SetCurSelectedCharacterDefinition(CharacterSelectionData->GetCharacterDefinition());
+		LobbySubsystem->SetCurSelectedSlotIndex(CharacterSelectionData->GetSlotIndex());
+		
+		if (ASdActorPreview* ActorLobbyPreview = LobbySubsystem->GetActorLobbyPreview())
 		{
-			LobbySubsystem->SetCurSelectedCharacterDefinition(CharacterSelectionData->GetCharacterDefinition());
-			LobbySubsystem->SetCurSelectedSlotIndex(CharacterSelectionData->GetSlotIndex());
-		}
+			ActorLobbyPreview->ConfigureWithCharacterDefinition(CharacterSelectionData->GetCharacterDefinition());
 
-		if (USdGISubsystemLobby::Get(this)->GetActorLobbyPreview())
-		{
-			USdGISubsystemLobby::Get(this)->GetActorLobbyPreview()->ConfigureWithCharacterDefinition(
-				CharacterSelectionData->GetCharacterDefinition()
+			// 根据服务器上的身材数据赋值给ActorLobbyPreview
+			FSdCharacterAppearance* CharacterAppearance = PlayerState->GetCachedCharacterAppearances().FindByPredicate(
+				[&](const FSdCharacterAppearance& InCharacterAppearance)
+				{
+					return InCharacterAppearance.SlotIndex == CharacterSelectionData->GetSlotIndex();
+				}
 			);
+			if (CharacterAppearance)
+			{
+				ActorLobbyPreview->UpdateFigureTypeSize(CharacterAppearance->FigureSizeStr);
+			}
 		}
 
 		if (CharacterSelectionData->IsSlotEmpty())

@@ -3,6 +3,8 @@
 
 #include "Subsystems/GameInstanceSubsytems/SdGISubsystemLobby.h"
 
+#include "Actors/SdActorPreview.h"
+
 USdGISubsystemLobby* USdGISubsystemLobby::Get(const UObject* WorldContextObject)
 {
 	if (GEngine)
@@ -29,38 +31,44 @@ void USdGISubsystemLobby::UpdateCachedFigureSettings(ESdFigureType InType, int32
 	}
 	else
 	{
-		FFaceSculptFigureTypeInfo NewTypeInfo = FFaceSculptFigureTypeInfo();
-		NewTypeInfo.Type = InType;
-		NewTypeInfo.SetCurValue(InValue);
+		FFaceSculptFigureTypeInfo NewTypeInfo = FFaceSculptFigureTypeInfo(InType, InValue);
 		CachedFigureSettings.Add(NewTypeInfo);
 	}
 }
 
-void USdGISubsystemLobby::UpdateCachedFigureSettings(const FFaceSculptFigureTypeInfo& InTypeInfo)
-{
-	FFaceSculptFigureTypeInfo* CurSelectedTypeInfo = CachedFigureSettings.FindByPredicate(
-		[&](const FFaceSculptFigureTypeInfo& InInfo)
-		{
-			return InInfo.Type == InTypeInfo.Type;
-		}
-	);
-	if (CurSelectedTypeInfo)
-	{
-		*CurSelectedTypeInfo = InTypeInfo;
-	}
-	else
-	{
-		CachedFigureSettings.Add(InTypeInfo);
-	}
-}
+// void USdGISubsystemLobby::UpdateCachedFigureSettings(const FFaceSculptFigureTypeInfo& InTypeInfo)
+// {
+// 	FFaceSculptFigureTypeInfo* CurSelectedTypeInfo = CachedFigureSettings.FindByPredicate(
+// 		[&](const FFaceSculptFigureTypeInfo& InInfo)
+// 		{
+// 			return InInfo.Type == InTypeInfo.Type;
+// 		}
+// 	);
+// 	if (CurSelectedTypeInfo)
+// 	{
+// 		*CurSelectedTypeInfo = InTypeInfo;
+// 	}
+// 	else
+// 	{
+// 		CachedFigureSettings.Add(InTypeInfo);
+// 	}
+// }
+//
+// void USdGISubsystemLobby::UpdateCachedFigureSettings(TArray<FFaceSculptFigureTypeInfo> InTypeInfoArray)
+// {
+// 	for (const FFaceSculptFigureTypeInfo& TypeInfo : InTypeInfoArray)
+// 	{
+// 		UpdateCachedFigureSettings(TypeInfo);
+// 	}
+// }
 
-int USdGISubsystemLobby::GetCachedFigureValueByType(ESdFigureType InType)
-{
-	FFaceSculptFigureTypeInfo* CurSelectedTypeInfo = CachedFigureSettings.FindByPredicate(
-		[&](const FFaceSculptFigureTypeInfo& InInfo)
-		{
-			return InInfo.Type == InType;
-		}
-	);
-	return CurSelectedTypeInfo ? CurSelectedTypeInfo->GetCurValue() : 0;
-}
+// int USdGISubsystemLobby::GetCachedFigureValueByType(ESdFigureType InType)
+// {
+// 	FFaceSculptFigureTypeInfo* CurSelectedTypeInfo = CachedFigureSettings.FindByPredicate(
+// 		[&](const FFaceSculptFigureTypeInfo& InInfo)
+// 		{
+// 			return InInfo.Type == InType;
+// 		}
+// 	);
+// 	return CurSelectedTypeInfo ? CurSelectedTypeInfo->GetCurValue() : 0;
+// }

@@ -5,12 +5,15 @@
 
 #include "CommonListView.h"
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
+#include "Frameworks/PlayerStates/SdPlayerStateLobby.h"
 #include "Subsystems/GameInstanceSubsytems/SdGISubsystemLobby.h"
 #include "Widgets/Lobby/FaceSculpt/SdListEntryFaceSculptingFigure.h"
 
 void USdWidgetFaceSculptingPageFigure::ConfigurePageFigure()
 {
 	if (!USdGISubsystemLobby::Get(this)) return;
+	ASdPlayerStateLobby* PlayerState = GetOwningPlayerState<ASdPlayerStateLobby>();
+	if (!PlayerState) return;
 
 	USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this);
 	UPA_CharacterDefinition* SelectedCharacterDefinition = LobbySubsystem->GetCurSelectedCharacterDefinition();
@@ -26,9 +29,32 @@ void USdWidgetFaceSculptingPageFigure::ConfigurePageFigure()
 			NewFaceSculptingFigureData->SetType(DefaultFigureSetting.Type);
 			NewFaceSculptingFigureData->SetDefaultValue(DefaultFigureSetting.DefaultValue);
 			NewFaceSculptingFigureData->SetMaxValue(DefaultFigureSetting.MaxValue);
-			NewFaceSculptingFigureData->SetCurValue(DefaultFigureSetting.DefaultValue * DefaultFigureSetting.MaxValue);\
+
+			int CurValue = DefaultFigureSetting.DefaultValue * DefaultFigureSetting.MaxValue;
+			// 根据服务器的FigureSizeStr值进行修改
+			if (PlayerState->GetCurSelectedCharacterAppearance().IsSet() &&
+				!PlayerState->GetCurSelectedCharacterAppearance()->IsEmpty())
+			{
+				FString FigureSizeStr = PlayerState->GetCurSelectedCharacterAppearance().GetValue().FigureSizeStr;
+				TArray<FString> StrFigureSizeArray;
+				FigureSizeStr.ParseIntoArray(StrFigureSizeArray, TEXT("|"));
+				for (const FString& StrFigureSize : StrFigureSizeArray)
+				{
+					TArray<FString> StrFigureTypeAndSize;
+					StrFigureSize.ParseIntoArray(StrFigureTypeAndSize, TEXT(","));
+					if (StrFigureTypeAndSize.Num() != 2) continue;
+
+					int TypeIndex = FCString::Atoi(*StrFigureTypeAndSize[0]);
+					if (TypeIndex >= 0 && TypeIndex < static_cast<int>(ESdFigureType::FT_NUM))
+					{
+						CurValue = FCString::Atoi(*StrFigureTypeAndSize[1]);
+					}
+				}
+			}
+			NewFaceSculptingFigureData->SetCurValue(CurValue);
+			LobbySubsystem->UpdateCachedFigureSettings(DefaultFigureSetting.Type, CurValue);
+			
 			FigureOptionListView->AddItem(NewFaceSculptingFigureData);
-			LobbySubsystem->UpdateCachedFigureSettings(DefaultFigureSetting);
 		}
 		LobbySubsystem->SetCachedSlotIndex(LobbySubsystem->GetCurSelectedSlotIndex());
 	}

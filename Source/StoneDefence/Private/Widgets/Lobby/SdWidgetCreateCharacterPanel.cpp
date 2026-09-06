@@ -33,9 +33,8 @@ void USdWidgetCreateCharacterPanel::ButtonCreateClicked()
 {
 	ASdPlayerStateLobby* PlayerState = GetOwningPlayerState<ASdPlayerStateLobby>();
 	if (!PlayerState) return;
-	if (!PlayerState->GetCurSelectedCharacterAppearance().IsSet()) return;
 	// 服务器上对应槽位目前是空内容，才能发送创建请求
-	if (!PlayerState->GetCurSelectedCharacterAppearance().GetValue().IsEmpty()) return;
+	if (PlayerState->GetCurSelectedCharacterAppearance().IsSet()) return;
 	if (!USdGISubsystemLobby::Get(this)) return;
 
 	USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this);
@@ -54,7 +53,14 @@ void USdWidgetCreateCharacterPanel::ButtonCreateClicked()
 			TmpCreateCharacter.Level = 1;
 			TmpCreateCharacter.SlotIndex = USdGISubsystemLobby::Get(this)->GetCurSelectedSlotIndex();
 
-			
+			FString FigureSizeStr;
+			for (FFaceSculptFigureTypeInfo CachedInfo : LobbySubsystem->GetCachedFigureSettings())
+			{
+				FigureSizeStr += FString::FromInt(static_cast<int>(CachedInfo.Type)) + TEXT(",") +
+					FString::FromInt(CachedInfo.GetCurValue()) + TEXT("|");
+			}
+			FigureSizeStr.RemoveFromEnd(TEXT("|"));
+			TmpCreateCharacter.FigureSizeStr = FigureSizeStr;
 
 			LobbyMain->CreateCharacter(TmpCreateCharacter);
 		}

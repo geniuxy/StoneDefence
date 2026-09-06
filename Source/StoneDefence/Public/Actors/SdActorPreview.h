@@ -7,6 +7,8 @@
 #include "StoneDefence/StoneDefence.h"
 #include "SdActorPreview.generated.h"
 
+struct FFaceSculptFigureTypeInfo;
+enum class ESdFigureType : uint8;
 class UCameraComponent;
 class UPA_CharacterDefinition;
 
@@ -39,13 +41,12 @@ public:
 	/**********************************************************************/
 	/*                          Figure Type Size                          */
 	/**********************************************************************/
-protected:
-	float LegSize = 0.f;
-	float WaistSize = 0.f;
-	float ArmSize = 0.f;
-
 public:
-	DATA_ACCESSOR(float, LegSize)
-	DATA_ACCESSOR(float, WaistSize)
-	DATA_ACCESSOR(float, ArmSize)
+	void UpdateFigureTypeSize(ESdFigureType InType, int32 InValue);
+	void UpdateFigureTypeSize(TArray<FFaceSculptFigureTypeInfo> InFigureSettings);
+	void UpdateFigureTypeSize(const FString& InFigureSizeStr);
+	int32 GetFigureSizeByType(ESdFigureType InType);
+	
+protected:
+	TMap<ESdFigureType, int32> FigureSizeMap;
 };

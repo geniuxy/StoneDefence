@@ -44,12 +44,9 @@ private:
 	/**********************************************************************/
 	/*                         Face Sculpt Figure                         */
 	/**********************************************************************/
-
 public:
 	TArray<FFaceSculptFigureTypeInfo>& GetCachedFigureSettings() { return CachedFigureSettings; }
 	void UpdateCachedFigureSettings(ESdFigureType InType, int32 InValue);
-	void UpdateCachedFigureSettings(const FFaceSculptFigureTypeInfo& InTypeInfo);
-	int GetCachedFigureValueByType(ESdFigureType InType);
 	
 private:
 	TArray<FFaceSculptFigureTypeInfo> CachedFigureSettings;
