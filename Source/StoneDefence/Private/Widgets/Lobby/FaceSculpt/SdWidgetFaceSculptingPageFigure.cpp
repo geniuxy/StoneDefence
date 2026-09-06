@@ -28,6 +28,7 @@ void USdWidgetFaceSculptingPageFigure::ConfigurePageFigure()
 			NewFaceSculptingFigureData->SetMaxValue(DefaultFigureSetting.MaxValue);
 			NewFaceSculptingFigureData->SetCurValue(DefaultFigureSetting.DefaultValue * DefaultFigureSetting.MaxValue);\
 			FigureOptionListView->AddItem(NewFaceSculptingFigureData);
+			LobbySubsystem->UpdateCachedFigureSettings(DefaultFigureSetting);
 		}
 		LobbySubsystem->SetCachedSlotIndex(LobbySubsystem->GetCurSelectedSlotIndex());
 	}

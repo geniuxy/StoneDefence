@@ -27,6 +27,31 @@ void USdGISubsystemLobby::UpdateCachedFigureSettings(ESdFigureType InType, int32
 	{
 		CurSelectedTypeInfo->SetCurValue(InValue);
 	}
+	else
+	{
+		FFaceSculptFigureTypeInfo NewTypeInfo = FFaceSculptFigureTypeInfo();
+		NewTypeInfo.Type = InType;
+		NewTypeInfo.SetCurValue(InValue);
+		CachedFigureSettings.Add(NewTypeInfo);
+	}
+}
+
+void USdGISubsystemLobby::UpdateCachedFigureSettings(const FFaceSculptFigureTypeInfo& InTypeInfo)
+{
+	FFaceSculptFigureTypeInfo* CurSelectedTypeInfo = CachedFigureSettings.FindByPredicate(
+		[&](const FFaceSculptFigureTypeInfo& InInfo)
+		{
+			return InInfo.Type == InTypeInfo.Type;
+		}
+	);
+	if (CurSelectedTypeInfo)
+	{
+		*CurSelectedTypeInfo = InTypeInfo;
+	}
+	else
+	{
+		CachedFigureSettings.Add(InTypeInfo);
+	}
 }
 
 int USdGISubsystemLobby::GetCachedFigureValueByType(ESdFigureType InType)
