@@ -27,7 +27,7 @@ protected:
 public:
 	void SignIn(FString InAccount, FString InPassword);
 	void Register();
-	void Register(FString InRegisterInfo);
+	void SendRegisterInfo(FString InRegisterInfo);
 
 	void PrintLog(const FString& InMsg);
 	void PrintLog(const FText& InMsg);
@@ -40,7 +40,7 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	USdWidgetLoginInfo* LoginInfo;
 
-	UPROPERTY(meta = (BindWidgetOptional))
+	UPROPERTY(meta = (BindWidget))
 	USdWidgetRegisterInfo* RegisterInfo;
 
 	UPROPERTY(meta=(BindWidget))

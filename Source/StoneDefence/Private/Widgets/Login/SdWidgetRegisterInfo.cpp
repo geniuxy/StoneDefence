@@ -32,12 +32,11 @@ void USdWidgetRegisterInfo::Submit()
 	{
 		ResetColor();
 
-		FString NiceNameString = EditableText_NiceName->GetText().ToString();
+		FString NiceNameString = EditableText_NickName->GetText().ToString();
 		FString EmailString = EditableText_Email->GetText().ToString();
 		FString PlayerAccountString = EditableText_Account->GetText().ToString();
 		FString PlayerPasswordString = EditableText_Password->GetText().ToString();
 		FString ConfirmPasswordString = EditableText_ConfirmPassword->GetText().ToString();
-		FString AuthorURLString = EditableText_AuthorURL->GetText().ToString();
   
 		if (IsSpecialCharacters(NiceNameString))
 		{
@@ -72,11 +71,11 @@ void USdWidgetRegisterInfo::Submit()
 
 			return;
 		}
-		else if (PlayerAccountString.Len() < 8 || PlayerAccountString.Len() > 20)
+		else if (PlayerAccountString.Len() < 3 || PlayerAccountString.Len() > 20)
 		{
 			ShowAccountWarnings();
 
-			// WarningPrint(LOCTEXT("Register_Account", "The account has at least 8 characters."));
+			// WarningPrint(LOCTEXT("Register_Account", "The account has at least 3 characters."));
 
 			return;
 		}
@@ -112,10 +111,9 @@ void USdWidgetRegisterInfo::Submit()
 				*NiceNameString,
 				*EmailString,
 				*PlayerAccountString,
-				*PlayerPasswordString,
-				*AuthorURLString);
+				*PlayerPasswordString);
 
-			InLoginMain->Register(RegisterInfo);
+			InLoginMain->SendRegisterInfo(RegisterInfo);
 
 			RegisterOut();
 		}
@@ -131,17 +129,16 @@ void USdWidgetRegisterInfo::Cancel()
 
 void USdWidgetRegisterInfo::ResetText()
 {
-	EditableText_NiceName->SetText(FText::GetEmpty());
+	EditableText_NickName->SetText(FText::GetEmpty());
 	EditableText_Account->SetText(FText::GetEmpty());
 	EditableText_Password->SetText(FText::GetEmpty());
 	EditableText_ConfirmPassword->SetText(FText::GetEmpty());
-	EditableText_AuthorURL->SetText(FText::GetEmpty());
 	EditableText_Email->SetText(FText::GetEmpty());
 }
 
 void USdWidgetRegisterInfo::ResetColor()
 {
-	NiceNameText->SetColorAndOpacity(FSlateColor(FLinearColor::White));
+	NickNameText->SetColorAndOpacity(FSlateColor(FLinearColor::White));
 	PlayerAccountText->SetColorAndOpacity(FSlateColor(FLinearColor::White));
 	PlayerPasswordText->SetColorAndOpacity(FSlateColor(FLinearColor::White));
 	ConfirmPasswordText->SetColorAndOpacity(FSlateColor(FLinearColor::White));
@@ -172,10 +169,12 @@ bool USdWidgetRegisterInfo::IsSpecialCharacters(const FString& InString)
 
 void USdWidgetRegisterInfo::RegisterIn()
 {
+	PlayAnimation(FadeIn);
 }
 
 void USdWidgetRegisterInfo::RegisterOut()
 {
+	PlayAnimation(FadeOut);
 }
 
 void USdWidgetRegisterInfo::ShowFailedRegisterWarnings()
@@ -184,7 +183,7 @@ void USdWidgetRegisterInfo::ShowFailedRegisterWarnings()
 
 void USdWidgetRegisterInfo::ShowNiceNameWarnings()
 {
-	NiceNameText->SetColorAndOpacity(FSlateColor(FLinearColor::Red));
+	NickNameText->SetColorAndOpacity(FSlateColor(FLinearColor::Red));
 }
 
 void USdWidgetRegisterInfo::ShowAccountWarnings()

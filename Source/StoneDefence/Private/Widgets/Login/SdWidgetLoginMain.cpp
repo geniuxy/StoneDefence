@@ -87,9 +87,9 @@ void USdWidgetLoginMain::Register()
 	RegisterInfo->RegisterIn();
 }
 
-void USdWidgetLoginMain::Register(FString InRegisterInfo)
+void USdWidgetLoginMain::SendRegisterInfo(FString InRegisterInfo)
 {
-	
+	SEND_DATA(SP_RegisterRequests, InRegisterInfo);
 }
 
 void USdWidgetLoginMain::PrintLog(const FString& InMsg)
@@ -211,7 +211,7 @@ void USdWidgetLoginMain::HandleRegisterResponses(FSimpleChannel* Channel)
 	{
 	case ACCOUNT_AND_EMAIL_REPETITION_ERROR:
 		{
-			PrintLog(LOCTEXT("ACCOUNT_AND_EMAIL_REPETITION_ERROR", "Duplicate account or email."));
+			PrintLog(LOCTEXT("ACCOUNT_AND_EMAIL_REPETITION_ERROR", "账号或者邮箱已被注册"));
 
 			FTimerHandle TmpTimeHandle;
 			GetWorld()->GetTimerManager().SetTimer(TmpTimeHandle, FTimerDelegate::CreateLambda([this]()
@@ -227,15 +227,16 @@ void USdWidgetLoginMain::HandleRegisterResponses(FSimpleChannel* Channel)
 		}
 	case PLAYER_REGISTRATION_SUCCESS:
 		{
-			PrintLog(LOCTEXT("REGISTRATION_SUCCESS", "Registration was successful."));
+			PrintLog(LOCTEXT("REGISTRATION_SUCCESS", "注册成功！"));
 
+			RegisterInfo->RegisterOut();
 			//清除原来账户信息
 			LoginInfo->ClearAccountPassword();
 			break;
 		}
 	case SERVER_BUG_WRONG:
 		{
-			PrintLog(LOCTEXT("SERVER_BUG_WRONG", "Server unknown error."));
+			PrintLog(LOCTEXT("SERVER_BUG_WRONG", "服务器未知错误..."));
 			break;
 		}
 	default:

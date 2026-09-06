@@ -131,6 +131,7 @@ bool USdWidgetLoginInfo::DecryptionFromLocal(const FString& InPaths)
 	TArray<FString> FileNames;
 	IFileManager::Get().FindFilesRecursive(FileNames, *InPaths, TEXT("*.*"), true, false);
 
+	// TODO: 可以文件命里加个登录时间，可以读取最近登录的账号，目前只能读取头字母靠前的账号
 	for (auto& Tmp : FileNames)
 	{
 		FString FileNameTitle = FPaths::GetCleanFilename(Tmp);

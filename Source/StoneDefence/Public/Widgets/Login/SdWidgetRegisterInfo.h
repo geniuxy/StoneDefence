@@ -33,16 +33,13 @@ private:
 	UEditableTextBox* EditableText_ConfirmPassword;
 	
 	UPROPERTY(meta=(BindWidget))
-	UEditableTextBox* EditableText_NiceName;
+	UEditableTextBox* EditableText_NickName;
 
 	UPROPERTY(meta=(BindWidget))
 	UEditableTextBox* EditableText_Email;
 
-	UPROPERTY(meta=(BindWidget))
-	UEditableTextBox* EditableText_AuthorURL;
-
 	UPROPERTY(meta = (BindWidget))
-	UCommonTextBlock* NiceNameText;
+	UCommonTextBlock* NickNameText;
 
 	UPROPERTY(meta = (BindWidget))
 	UCommonTextBlock* EmailText;
@@ -61,6 +58,12 @@ private:
 
 	UPROPERTY(meta=(BindWidget))
 	USdCommonButtonImage* Button_Cancel;
+
+	UPROPERTY(Transient, meta=(BindWidgetAnim))
+	UWidgetAnimation* FadeIn;
+
+	UPROPERTY(Transient, meta=(BindWidgetAnim))
+	UWidgetAnimation* FadeOut;
 	/********************/
 
 	void Submit();
