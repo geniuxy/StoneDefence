@@ -35,4 +35,17 @@ private:
 
 public:
 	DATA_ACCESSOR(bool, IsModifying)
+
+	/**********************************************************************/
+	/*                          Figure Type Size                          */
+	/**********************************************************************/
+protected:
+	float LegSize = 0.f;
+	float WaistSize = 0.f;
+	float ArmSize = 0.f;
+
+public:
+	DATA_ACCESSOR(float, LegSize)
+	DATA_ACCESSOR(float, WaistSize)
+	DATA_ACCESSOR(float, ArmSize)
 };

@@ -48,9 +48,6 @@ private:
 
 	void SpawnCharacterPreview();
 
-	UPROPERTY()
-	ASdActorPreview* ActorLobbyPreview;
-
 	UPROPERTY(EditDefaultsOnly, Category="Character Preview")
 	TSubclassOf<ASdActorPreview> ActorLobbyPreviewClass;
 
@@ -59,8 +56,6 @@ public:
 
 	void UpdateCharacterAppearances();
 	void SelectRecentCharacter();
-
-	void SetPreviewActorIsModifying(bool bIsModifying);
 
 private:
 	bool bInitCharacterDefinitions = false;

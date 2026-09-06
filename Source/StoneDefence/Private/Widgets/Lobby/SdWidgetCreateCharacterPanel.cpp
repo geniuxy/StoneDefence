@@ -38,6 +38,7 @@ void USdWidgetCreateCharacterPanel::ButtonCreateClicked()
 	if (!PlayerState->GetCurSelectedCharacterAppearance().GetValue().IsEmpty()) return;
 	if (!USdGISubsystemLobby::Get(this)) return;
 
+	USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this);
 	if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
 	{
 		if (EditBox_NewName->GetText().IsEmpty())
@@ -48,10 +49,12 @@ void USdWidgetCreateCharacterPanel::ButtonCreateClicked()
 		{
 			FSdCharacterAppearance TmpCreateCharacter = FSdCharacterAppearance();
 			TmpCreateCharacter.Name = EditBox_NewName->GetText().ToString();
-			TmpCreateCharacter.DisplayAssetName = TEXT("PA_CharacterDefinition_Tubaki");
+			TmpCreateCharacter.DisplayAssetName = LobbySubsystem->GetCurSelectedCharacterDefinition()->GetName();
 			TmpCreateCharacter.LastLoginTime = FDateTime::Now().ToString();
 			TmpCreateCharacter.Level = 1;
 			TmpCreateCharacter.SlotIndex = USdGISubsystemLobby::Get(this)->GetCurSelectedSlotIndex();
+
+			
 
 			LobbyMain->CreateCharacter(TmpCreateCharacter);
 		}

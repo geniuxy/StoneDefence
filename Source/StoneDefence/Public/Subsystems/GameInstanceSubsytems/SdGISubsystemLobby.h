@@ -8,6 +8,7 @@
 #include "Widgets/Lobby/FaceSculpt/SdListEntryFaceSculptingFigure.h"
 #include "SdGISubsystemLobby.generated.h"
 
+class ASdActorPreview;
 struct FFaceSculptFigureTypeInfo;
 class UPA_CharacterDefinition;
 /**
@@ -28,13 +29,17 @@ public:
 	DATA_ACCESSOR(int32, CurSelectedSlotIndex)
 	DATA_ACCESSOR(int32, CachedSlotIndex)
 	DATA_ACCESSOR(UPA_CharacterDefinition*, CurSelectedCharacterDefinition)
-
+	DATA_ACCESSOR(ASdActorPreview*, ActorLobbyPreview)
+	
 private:
 	int32 CurSelectedSlotIndex = INDEX_NONE;
 	int32 CachedSlotIndex = INDEX_NONE; // 支持缓存上一次槽位的捏脸数据
 
 	UPROPERTY()
 	UPA_CharacterDefinition* CurSelectedCharacterDefinition;
+
+	UPROPERTY()
+	ASdActorPreview* ActorLobbyPreview;
 
 	/**********************************************************************/
 	/*                         Face Sculpt Figure                         */
@@ -43,7 +48,8 @@ private:
 public:
 	TArray<FFaceSculptFigureTypeInfo>& GetCachedFigureSettings() { return CachedFigureSettings; }
 	void UpdateCachedFigureSettings(ESdFigureType InType, int32 InValue);
-
+	int GetCachedFigureValueByType(ESdFigureType InType);
+	
 private:
 	TArray<FFaceSculptFigureTypeInfo> CachedFigureSettings;
 };

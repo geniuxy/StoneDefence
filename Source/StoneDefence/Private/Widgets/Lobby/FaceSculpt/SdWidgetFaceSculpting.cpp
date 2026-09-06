@@ -5,11 +5,11 @@
 
 #include "CommonListView.h"
 #include "CommonActivatableWidgetSwitcher.h"
-#include "CommonVisibilitySwitcher.h"
+#include "Actors/SdActorPreview.h"
 #include "Settings/DeveloperSettings/SdDataDeveloperSetting.h"
+#include "Subsystems/GameInstanceSubsytems/SdGISubsystemLobby.h"
 #include "Widgets/Lobby/SdWidgetCharacterSelectionPanel.h"
 #include "Widgets/Lobby/FaceSculpt/SdButtonFaceSculptType.h"
-#include "Widgets/Lobby/FaceSculpt/SdWidgetFaceSculptingPageFigure.h"
 
 void USdWidgetFaceSculpting::NativeConstruct()
 {
@@ -18,7 +18,7 @@ void USdWidgetFaceSculpting::NativeConstruct()
 	PageListView->ClearListItems();
 	if (const USdDataDeveloperSetting* DataDeveloperSettings = GetDefault<USdDataDeveloperSetting>())
 	{
-		for (FFaceSculptPageDataInfo FaceSculptPageDataInfo: DataDeveloperSettings->FaceSculptPageDataInfoList)
+		for (FFaceSculptPageDataInfo FaceSculptPageDataInfo : DataDeveloperSettings->FaceSculptPageDataInfoList)
 		{
 			UFaceSculptPageData* FaceSculptPageData = NewObject<UFaceSculptPageData>();
 			FaceSculptPageData->SetInfo(FaceSculptPageDataInfo);
@@ -45,9 +45,11 @@ void USdWidgetFaceSculpting::PageSelected(UObject* InSelectedObject)
 	{
 		int PageIndex = static_cast<int>(FaceSculptPageData->GetType());
 		Switcher->SetActiveWidgetIndex(PageIndex);
-		if (USdWidgetCharacterSelectionPanel* SelectionPanel = GetParentWidget<USdWidgetCharacterSelectionPanel>())
+		if (USdGISubsystemLobby::Get(this)->GetActorLobbyPreview())
 		{
-			SelectionPanel->SetPreviewActorIsModifying(FaceSculptPageData->GetType() < ESdFaceSculptPageType::FSP_TALENT);
+			USdGISubsystemLobby::Get(this)->GetActorLobbyPreview()->SetIsModifying(
+				FaceSculptPageData->GetType() < ESdFaceSculptPageType::FSP_TALENT
+			);
 		}
 	}
 }

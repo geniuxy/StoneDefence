@@ -26,9 +26,24 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Start Anim")
 	UAnimMontage* EnterAnim;
 
-private:
 	UPROPERTY()
 	ASdActorPreview* OwnerPreviewActor;
 
 	bool bIsModifying = false;
+
+	/**********************************************************************/
+	/*                          Figure Type Size                          */
+	/**********************************************************************/
+public:
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE float GetLegSize() const { return LegSize; }
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE float GetWaistSize() const { return WaistSize; }
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE float GetArmSize() const { return ArmSize; }
+
+protected:
+	float LegSize = 0.f;
+	float WaistSize = 0.f;
+	float ArmSize = 0.f;
 };

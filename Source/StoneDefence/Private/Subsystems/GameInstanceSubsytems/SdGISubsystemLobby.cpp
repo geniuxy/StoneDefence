@@ -28,3 +28,14 @@ void USdGISubsystemLobby::UpdateCachedFigureSettings(ESdFigureType InType, int32
 		CurSelectedTypeInfo->SetCurValue(InValue);
 	}
 }
+
+int USdGISubsystemLobby::GetCachedFigureValueByType(ESdFigureType InType)
+{
+	FFaceSculptFigureTypeInfo* CurSelectedTypeInfo = CachedFigureSettings.FindByPredicate(
+		[&](const FFaceSculptFigureTypeInfo& InInfo)
+		{
+			return InInfo.Type == InType;
+		}
+	);
+	return CurSelectedTypeInfo ? CurSelectedTypeInfo->GetCurValue() : 0;
+}
