@@ -32,6 +32,7 @@ private:
 	void HandleCharacterAppearanceResponses(FSimpleChannel* Channel);
 	void HandleCheckCharacterNameResponses(FSimpleChannel* Channel);
 	void HandleCreateCharacterResponses(FSimpleChannel* Channel);
+	void HandleDeleteCharacterResponses(FSimpleChannel* Channel);
 
 public:
 	void PrintLog(const FString& InMsg);

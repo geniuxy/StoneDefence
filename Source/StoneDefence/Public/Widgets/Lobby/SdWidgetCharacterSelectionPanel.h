@@ -6,6 +6,8 @@
 #include "Widgets/Cores/SdCommonActivatableWidgetBase.h"
 #include "SdWidgetCharacterSelectionPanel.generated.h"
 
+class UVerticalBox;
+class USdCommonButtonImage;
 class UCommonVisibilitySwitcher;
 class UCommonActivatableWidgetSwitcher;
 class UCommonTextBlock;
@@ -34,9 +36,18 @@ private:
 	
 	UPROPERTY(meta = (BindWidget))
 	UCommonTextBlock* PanelTitle;
+
+	UPROPERTY(meta = (BindWidget))
+	UVerticalBox* SelectionBox;
 	
 	UPROPERTY(meta = (BindWidget))
 	UCommonListView* SelectionListView;
+	
+	UPROPERTY(meta=(BindWidget))
+	USdCommonButtonImage* Button_Edit;
+
+	UPROPERTY(meta=(BindWidget))
+	USdCommonButtonImage* Button_Delete;
 	
 	UPROPERTY(meta = (BindWidget))
 	USdWidgetFaceSculpting* FaceSculptingWidget;
@@ -45,6 +56,9 @@ private:
 	void InitSelectionListView();
 
 	void CharacterSelected(UObject* SelectedUObject);
+
+	void HandleEditCharacter();
+	void HandleDeleteCharacter();
 
 	void SpawnCharacterPreview();
 

@@ -7,11 +7,15 @@
 #include "CommonTextBlock.h"
 #include "CommonVisibilitySwitcher.h"
 #include "Actors/SdActorPreview.h"
+#include "Components/VerticalBox.h"
 #include "Engine/StreamableManager.h"
 #include "Frameworks/SdAssetManager.h"
+#include "Frameworks/GameInstance/SdGameInstance.h"
 #include "Frameworks/PlayerStates/SdPlayerStateLobby.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
+#include "Protocol/LobbyProtocol.h"
+#include "SdTypes/SdMacros.h"
 #include "Settings/DeveloperSettings/SdDataDeveloperSetting.h"
 #include "Subsystems/GameInstanceSubsytems/SdGISubsystemLobby.h"
 #include "Widgets/Lobby/SdButtonCharacterSelection.h"
@@ -31,7 +35,13 @@ void USdWidgetCharacterSelectionPanel::NativeConstruct()
 	// OnItemSelectionChanged()在取消选择时，不会做任何反应
 	SelectionListView->OnItemSelectionChanged().AddUObject(this, &ThisClass::CharacterSelected);
 
+	Button_Edit->OnReleased().AddUObject(this, &ThisClass::HandleEditCharacter);
+	Button_Delete->OnReleased().AddUObject(this, &ThisClass::HandleDeleteCharacter);
+
 	SpawnCharacterPreview();
+
+	// 在收到服务端信息之前都是不可点击的
+	SetVisibility(ESlateVisibility::HitTestInvisible);
 }
 
 void USdWidgetCharacterSelectionPanel::NativePreConstruct()
@@ -110,7 +120,7 @@ void USdWidgetCharacterSelectionPanel::CharacterSelected(UObject* SelectedUObjec
 		}
 		else
 		{
-			Switcher->SetActiveWidget(SelectionListView);
+			Switcher->SetActiveWidget(SelectionBox);
 			PanelTitle->SetText(FText::FromString(TEXT("角色选择")));
 		}
 
@@ -118,6 +128,26 @@ void USdWidgetCharacterSelectionPanel::CharacterSelected(UObject* SelectedUObjec
 		{
 			LobbyMain->HandleSelectCharacterSlot(CharacterSelectionData->IsSlotEmpty());
 		}
+	}
+}
+
+void USdWidgetCharacterSelectionPanel::HandleEditCharacter()
+{
+	USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this);
+	if (!LobbySubsystem) return;
+	// SEND_DATA(SP_DeleteCharacterRequests,  ClientGameInstance->GetUserData().Id, NewCharacterName);
+}
+
+void USdWidgetCharacterSelectionPanel::HandleDeleteCharacter()
+{
+	USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this);
+	if (!LobbySubsystem) return;
+	int32 CurSelectedSlotIndex = LobbySubsystem->GetCurSelectedSlotIndex();
+	const USdDataDeveloperSetting* DataDeveloperSettings = GetDefault<USdDataDeveloperSetting>();
+	if (!DataDeveloperSettings) return;
+	if (CurSelectedSlotIndex >= 0 && CurSelectedSlotIndex < DataDeveloperSettings->MaxCharacterSelectionNum)
+	{
+		SEND_DATA(SP_DeleteCharacterRequests,  ClientGameInstance->GetUserData().Id, CurSelectedSlotIndex);
 	}
 }
 
@@ -146,7 +176,7 @@ void USdWidgetCharacterSelectionPanel::SpawnCharacterPreview()
 
 void USdWidgetCharacterSelectionPanel::BackToCharacterSelectionPanel()
 {
-	Switcher->SetActiveWidget(SelectionListView);
+	Switcher->SetActiveWidget(SelectionBox);
 	PanelTitle->SetText(FText::FromString(TEXT("角色选择")));
 	SelectionListView->ClearSelection();
 	if (USdGISubsystemLobby::Get(this)->GetActorLobbyPreview())
@@ -190,9 +220,19 @@ void USdWidgetCharacterSelectionPanel::UpdateCharacterAppearances()
 			{
 				CharacterSelectionData->SetCharacterDefinition(DisplayCharacterDefinition);
 			}
-
-			CharacterSelectionData->OnDataChanged.Broadcast();
 		}
+		else
+		{
+			CharacterSelectionData->SetSlotIsEmpty(true);
+			CharacterSelectionData->SetCharacterName("");
+			CharacterSelectionData->SetLastLoginTimeStr("");
+			if (UPA_CharacterDefinition* TubakiDef =
+				USdAssetManager::Get().GetCharacterDefinition(FName("PA_CharacterDefinition_Tubaki")))
+			{
+				CharacterSelectionData->SetCharacterDefinition(TubakiDef);
+			}
+		}
+		CharacterSelectionData->OnDataChanged.Broadcast();
 	}
 }
 

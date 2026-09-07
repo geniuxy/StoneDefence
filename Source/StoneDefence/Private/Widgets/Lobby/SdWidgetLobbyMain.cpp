@@ -3,8 +3,10 @@
 
 #include "Widgets/Lobby/SdWidgetLobbyMain.h"
 
+#include "SdDebugHelper.h"
 #include "Frameworks/GameInstance/SdGameInstance.h"
 #include "Frameworks/PlayerStates/SdPlayerStateLobby.h"
+#include "FunctionLibraries/SdFunctionLibraryCommon.h"
 #include "Kismet/GameplayStatics.h"
 #include "Widgets/Common/SdWidgetPrintMsg.h"
 #include "Widgets/Lobby/SdWidgetCharacterSelectionPanel.h"
@@ -72,6 +74,11 @@ void USdWidgetLobbyMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Cha
 			HandleCreateCharacterResponses(Channel);
 			break;
 		}
+	case SP_DeleteCharacterResponses:
+		{
+			HandleDeleteCharacterResponses(Channel);
+			break;
+		}
 	default:
 		break;
 	}
@@ -94,6 +101,8 @@ void USdWidgetLobbyMain::HandleCharacterAppearanceResponses(FSimpleChannel* Chan
 			CharacterSelectionPanel->UpdateCharacterAppearances();
 
 			CharacterSelectionPanel->SelectRecentCharacter();
+
+			CharacterSelectionPanel->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
 }
@@ -135,6 +144,56 @@ void USdWidgetLobbyMain::HandleCreateCharacterResponses(FSimpleChannel* Channel)
 		{
 			PrintLogByCheckName(CheckNameType);
 		}), 1.5f, false);
+	}
+}
+
+void USdWidgetLobbyMain::HandleDeleteCharacterResponses(FSimpleChannel* Channel)
+{
+	int32 UserId = INDEX_NONE;
+	int32 SlotIndex = INDEX_NONE;
+	EDeleteCharacterResponseType DeleteCharacterResponseType = DCR_UNKNOWN_ERROR;
+	SIMPLE_PROTOCOLS_RECEIVE(SP_DeleteCharacterResponses, UserId, SlotIndex, DeleteCharacterResponseType);
+
+	switch (DeleteCharacterResponseType)
+	{
+	case DCR_UNKNOWN_ERROR:
+	case DCR_PARAM_INVALID:
+	case DCR_METADATA_NOTEXIST:
+	case DCR_REMOVED_SLOT_NOTEXIST:
+	case DCR_DELETE_SLOT_ERROR:
+	case DCR_UPDATE_METADATA_ERROR:
+		{
+			Debug::Print(FString::Printf(
+					TEXT("Delete Character Error: UserId:%i, SlotIndex:%i, ErrorType:%s"),
+					UserId,
+					SlotIndex,
+					*USdFunctionLibraryCommon::GetDisplayValueOfEnum(DeleteCharacterResponseType).ToString()
+				)
+			);
+			break;
+		}
+	case DCR_SUCCESS:
+		{
+			Debug::Print(FString::Printf(
+					TEXT("Delete Character Success: UserId:%i, SlotIndex:%i, Type:%s"),
+					UserId,
+					SlotIndex,
+					*USdFunctionLibraryCommon::GetDisplayValueOfEnum(DeleteCharacterResponseType).ToString()
+				)
+			);
+
+			if (ASdPlayerStateLobby* PlayerState = GetOwningPlayerState<ASdPlayerStateLobby>())
+			{
+				PlayerState->RemoveCharacterAppearance(SlotIndex);
+
+				CharacterSelectionPanel->UpdateCharacterAppearances();
+
+				CharacterSelectionPanel->SelectRecentCharacter();
+			}
+			break;
+		}
+	default:
+		break;
 	}
 }
 
@@ -205,11 +264,7 @@ void USdWidgetLobbyMain::ConfigurePreviewInputCapture(AActor* InPreviewActor)
 
 void USdWidgetLobbyMain::CheckNewName(FString NewCharacterName)
 {
-	if (USdGameInstance* InGameInstance = GetGameInstance<USdGameInstance>())
-	{
-		int32 UserId = InGameInstance->GetUserData().Id;
-		SEND_DATA(SP_CheckCharacterNameRequests, UserId, NewCharacterName);
-	}
+	SEND_DATA(SP_CheckCharacterNameRequests, ClientGameInstance->GetUserData().Id, NewCharacterName);
 }
 
 void USdWidgetLobbyMain::CreateCharacter(const FSdCharacterAppearance& InCA)

@@ -17,6 +17,7 @@ class STONEDEFENCE_API ASdPlayerStateLobby : public ASdPlayerStateBase
 
 public:
 	void UpdateCharacterAppearances(const FSdCharacterAppearance& InCA);
+	void RemoveCharacterAppearance(int32 InSlotIndex);
 
 private:
 	FSdCharacterAppearances CachedCharacterAppearances;

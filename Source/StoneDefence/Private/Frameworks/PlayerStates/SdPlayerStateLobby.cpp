@@ -7,6 +7,8 @@
 
 void ASdPlayerStateLobby::UpdateCharacterAppearances(const FSdCharacterAppearance& InCA)
 {
+	if (InCA.SlotIndex == INDEX_NONE) return;
+
 	FSdCharacterAppearance* CurCharacterAppearance = CachedCharacterAppearances.FindByPredicate(
 		[&](const FSdCharacterAppearance& CA)
 		{
@@ -21,6 +23,20 @@ void ASdPlayerStateLobby::UpdateCharacterAppearances(const FSdCharacterAppearanc
 	else
 	{
 		CachedCharacterAppearances.Add(InCA);
+	}
+}
+
+void ASdPlayerStateLobby::RemoveCharacterAppearance(int32 InSlotIndex)
+{
+	int32 FoundIndex = CachedCharacterAppearances.IndexOfByPredicate(
+		[&](const FSdCharacterAppearance& CA)
+		{
+			return CA.SlotIndex == InSlotIndex;
+		}
+	);
+	if (FoundIndex != INDEX_NONE)
+	{
+		CachedCharacterAppearances.RemoveAt(FoundIndex);
 	}
 }
 
