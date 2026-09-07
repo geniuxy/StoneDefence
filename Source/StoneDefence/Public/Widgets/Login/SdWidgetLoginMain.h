@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SimpleNetChannelType.h"
-#include "Widgets/Cores/SdCommonUserWidgetBase.h"
+#include "Widgets/Cores/SdWidgetProtocolReceiver.h"
 #include "SdWidgetLoginMain.generated.h"
 
 class USdWidgetRegisterInfo;
@@ -14,7 +14,7 @@ class USdWidgetLoginInfo;
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetLoginMain : public USdCommonUserWidgetBase
+class STONEDEFENCE_API USdWidgetLoginMain : public USdWidgetProtocolReceiver
 {
 	GENERATED_BODY()
 
@@ -52,9 +52,6 @@ private:
 	UPROPERTY(Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* LoginInfoFadeOut;
 	/********************/
-	
-	FDelegateHandle ClientRecvDelegate;
-	void BindClientRcv();
 
 	void ShowServerLinkingInfo(ESimpleNetErrorType InType, const FString& InMsg);
 

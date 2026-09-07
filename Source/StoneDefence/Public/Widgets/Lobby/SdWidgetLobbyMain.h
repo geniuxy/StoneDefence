@@ -6,6 +6,7 @@
 #include "SimpleNetChannelType.h"
 #include "StoneDefenceNetCommonType.h"
 #include "Widgets/Cores/SdCommonUserWidgetBase.h"
+#include "Widgets/Cores/SdWidgetProtocolReceiver.h"
 #include "SdWidgetLobbyMain.generated.h"
 
 class USdWidgetPreviewInputCapture;
@@ -17,7 +18,7 @@ class USdWidgetPrintMsg;
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetLobbyMain : public USdCommonUserWidgetBase
+class STONEDEFENCE_API USdWidgetLobbyMain : public USdWidgetProtocolReceiver
 {
 	GENERATED_BODY()
 
@@ -63,10 +64,7 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	USdWidgetPreviewInputCapture* PreviewInputCaptureWidget;
 	/********************/
-	
-	FDelegateHandle ClientRecvDelegate;
 
-	void BindClientRcv();
 	void HandleServerLinkInfo(ESimpleNetErrorType InType, const FString& InMsg);
 	
 	void BeginGame();

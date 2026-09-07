@@ -225,30 +225,6 @@ void USdWidgetLobbyMain::CreateCharacter(const FSdCharacterAppearance& InCA)
 	}
 }
 
-void USdWidgetLobbyMain::BindClientRcv()
-{
-	if (USdGameInstance* ClientGameInstance = GetGameInstance<USdGameInstance>())
-	{
-		if (ClientGameInstance->GetClient() && ClientGameInstance->GetClient()->GetController())
-		{
-			ClientRecvDelegate = ClientGameInstance->GetClient()->GetController()->RecvDelegate.AddLambda(
-				[&](uint32 ProtocolNumber, FSimpleChannel* Channel)
-				{
-					this->RecvProtocol(ProtocolNumber, Channel);
-				}
-			);
-		}
-		else
-		{
-			GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::BindClientRcv);
-		}
-	}
-	else
-	{
-		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::BindClientRcv);
-	}
-}
-
 void USdWidgetLobbyMain::HandleServerLinkInfo(ESimpleNetErrorType InType, const FString& InMsg)
 {
 	if (InType == HAND_SHAKE_SUCCESS)

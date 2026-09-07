@@ -15,11 +15,6 @@ class STONEDEFENCE_API USdCommonUserWidgetBase : public UCommonUserWidget
 {
 	GENERATED_BODY()
 
-protected:
-	virtual void RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
-	{
-	}
-
 	/**********************************************************************/
 	/*                           Parent Widget                            */
 	/**********************************************************************/

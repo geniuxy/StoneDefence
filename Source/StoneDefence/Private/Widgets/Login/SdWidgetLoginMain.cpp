@@ -103,30 +103,6 @@ void USdWidgetLoginMain::PrintLog(const FText& InMsg)
 	MsgLogWidget->SetLogText(InMsg);
 }
 
-void USdWidgetLoginMain::BindClientRcv()
-{
-	if (USdGameInstance* ClientGameInstance = GetGameInstance<USdGameInstance>())
-	{
-		if (ClientGameInstance->GetClient() && ClientGameInstance->GetClient()->GetController())
-		{
-			ClientRecvDelegate = ClientGameInstance->GetClient()->GetController()->RecvDelegate.AddLambda(
-				[&](uint32 ProtocolNumber, FSimpleChannel* Channel)
-				{
-					this->RecvProtocol(ProtocolNumber, Channel);
-				}
-			);
-		}
-		else
-		{
-			GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::BindClientRcv);
-		}
-	}
-	else
-	{
-		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::BindClientRcv);
-	}
-}
-
 void USdWidgetLoginMain::ShowServerLinkingInfo(ESimpleNetErrorType InType, const FString& InMsg)
 {
 	if (InType == HAND_SHAKE_SUCCESS)
