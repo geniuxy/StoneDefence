@@ -30,6 +30,7 @@ public:
 	DATA_ACCESSOR(int32, CachedSlotIndex)
 	DATA_ACCESSOR(UPA_CharacterDefinition*, CurSelectedCharacterDefinition)
 	DATA_ACCESSOR(ASdActorPreview*, ActorLobbyPreview)
+	DATA_ACCESSOR(bool, IsEditingCharacter)
 	
 private:
 	int32 CurSelectedSlotIndex = INDEX_NONE;
@@ -40,6 +41,8 @@ private:
 
 	UPROPERTY()
 	ASdActorPreview* ActorLobbyPreview;
+
+	bool IsEditingCharacter = false;
 
 	/**********************************************************************/
 	/*                         Face Sculpt Figure                         */

@@ -95,7 +95,7 @@ void USdWidgetCharacterSelectionPanel::CharacterSelected(UObject* SelectedUObjec
 	{
 		LobbySubsystem->SetCurSelectedCharacterDefinition(CharacterSelectionData->GetCharacterDefinition());
 		LobbySubsystem->SetCurSelectedSlotIndex(CharacterSelectionData->GetSlotIndex());
-		
+
 		if (ASdActorPreview* ActorLobbyPreview = LobbySubsystem->GetActorLobbyPreview())
 		{
 			ActorLobbyPreview->ConfigureWithCharacterDefinition(CharacterSelectionData->GetCharacterDefinition());
@@ -133,9 +133,23 @@ void USdWidgetCharacterSelectionPanel::CharacterSelected(UObject* SelectedUObjec
 
 void USdWidgetCharacterSelectionPanel::HandleEditCharacter()
 {
+	ASdPlayerStateLobby* PlayerState = GetOwningPlayerState<ASdPlayerStateLobby>();
+	if (!PlayerState) return;
+	if (!PlayerState->GetCurSelectedCharacterAppearance().IsSet()) return;
+	if (PlayerState->GetCurSelectedCharacterAppearance()->IsEmpty()) return;
+
 	USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this);
 	if (!LobbySubsystem) return;
-	// SEND_DATA(SP_DeleteCharacterRequests,  ClientGameInstance->GetUserData().Id, NewCharacterName);
+	LobbySubsystem->SetIsEditingCharacter(true);
+
+	Switcher->SetActiveWidget(FaceSculptingWidget);
+	PanelTitle->SetText(FText::FromString(TEXT("角色编辑")));
+
+	if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
+	{
+		FString OldName = PlayerState->GetCurSelectedCharacterAppearance().GetValue().Name;
+		LobbyMain->HandleEditCharacterSlot(FText::FromString(OldName));
+	}
 }
 
 void USdWidgetCharacterSelectionPanel::HandleDeleteCharacter()
@@ -147,7 +161,7 @@ void USdWidgetCharacterSelectionPanel::HandleDeleteCharacter()
 	if (!DataDeveloperSettings) return;
 	if (CurSelectedSlotIndex >= 0 && CurSelectedSlotIndex < DataDeveloperSettings->MaxCharacterSelectionNum)
 	{
-		SEND_DATA(SP_DeleteCharacterRequests,  ClientGameInstance->GetUserData().Id, CurSelectedSlotIndex);
+		SEND_DATA(SP_DeleteCharacterRequests, ClientGameInstance->GetUserData().Id, CurSelectedSlotIndex);
 	}
 }
 

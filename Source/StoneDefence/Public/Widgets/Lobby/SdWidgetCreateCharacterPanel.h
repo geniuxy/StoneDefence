@@ -45,4 +45,7 @@ private:
 public:
 	void PanelFadeIn();
 	void HidePanel();
+
+	void SetButtonCreateText(FText InText);
+	void SetEditNewNameText(FText InText);
 };

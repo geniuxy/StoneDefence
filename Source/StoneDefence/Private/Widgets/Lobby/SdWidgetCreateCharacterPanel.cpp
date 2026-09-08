@@ -31,38 +31,45 @@ void USdWidgetCreateCharacterPanel::ButtonVerifyNameClicked()
 
 void USdWidgetCreateCharacterPanel::ButtonCreateClicked()
 {
+	if (!USdGISubsystemLobby::Get(this)) return;
 	ASdPlayerStateLobby* PlayerState = GetOwningPlayerState<ASdPlayerStateLobby>();
 	if (!PlayerState) return;
-	// 服务器上对应槽位目前是空内容，才能发送创建请求
-	if (PlayerState->GetCurSelectedCharacterAppearance().IsSet()) return;
-	if (!USdGISubsystemLobby::Get(this)) return;
+	bool bIsCreatingCharacter = !PlayerState->GetCurSelectedCharacterAppearance().IsSet();
 
 	USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this);
-	if (USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>())
+	if (!LobbySubsystem) return;
+	USdWidgetLobbyMain* LobbyMain = GetParentWidget<USdWidgetLobbyMain>();
+	if (!LobbyMain) return;
+
+	if (EditBox_NewName->GetText().IsEmpty())
 	{
-		if (EditBox_NewName->GetText().IsEmpty())
+		LobbyMain->PrintLog(TEXT("名字不能为空..."));
+	}
+	else
+	{
+		FSdCharacterAppearance TmpCreateCharacter = FSdCharacterAppearance();
+		TmpCreateCharacter.Name = EditBox_NewName->GetText().ToString();
+		TmpCreateCharacter.DisplayAssetName = LobbySubsystem->GetCurSelectedCharacterDefinition()->GetName();
+		TmpCreateCharacter.LastLoginTime = FDateTime::Now().ToString();
+		TmpCreateCharacter.Level = 1;
+		TmpCreateCharacter.SlotIndex = USdGISubsystemLobby::Get(this)->GetCurSelectedSlotIndex();
+
+		FString FigureSizeStr;
+		for (FFaceSculptFigureTypeInfo CachedInfo : LobbySubsystem->GetCachedFigureSettings())
 		{
-			LobbyMain->PrintLog(TEXT("名字不能为空..."));
+			FigureSizeStr += FString::FromInt(static_cast<int>(CachedInfo.Type)) + TEXT(",") +
+				FString::FromInt(CachedInfo.GetCurValue()) + TEXT("|");
+		}
+		FigureSizeStr.RemoveFromEnd(TEXT("|"));
+		TmpCreateCharacter.FigureSizeStr = FigureSizeStr;
+
+		if (bIsCreatingCharacter)
+		{
+			LobbyMain->CreateCharacter(TmpCreateCharacter);
 		}
 		else
 		{
-			FSdCharacterAppearance TmpCreateCharacter = FSdCharacterAppearance();
-			TmpCreateCharacter.Name = EditBox_NewName->GetText().ToString();
-			TmpCreateCharacter.DisplayAssetName = LobbySubsystem->GetCurSelectedCharacterDefinition()->GetName();
-			TmpCreateCharacter.LastLoginTime = FDateTime::Now().ToString();
-			TmpCreateCharacter.Level = 1;
-			TmpCreateCharacter.SlotIndex = USdGISubsystemLobby::Get(this)->GetCurSelectedSlotIndex();
-
-			FString FigureSizeStr;
-			for (FFaceSculptFigureTypeInfo CachedInfo : LobbySubsystem->GetCachedFigureSettings())
-			{
-				FigureSizeStr += FString::FromInt(static_cast<int>(CachedInfo.Type)) + TEXT(",") +
-					FString::FromInt(CachedInfo.GetCurValue()) + TEXT("|");
-			}
-			FigureSizeStr.RemoveFromEnd(TEXT("|"));
-			TmpCreateCharacter.FigureSizeStr = FigureSizeStr;
-
-			LobbyMain->CreateCharacter(TmpCreateCharacter);
+			LobbyMain->EditCharacter(TmpCreateCharacter);
 		}
 	}
 }
@@ -76,8 +83,13 @@ void USdWidgetCreateCharacterPanel::ButtonCancelClicked()
 		LobbyMain->SelectRecentCharacter();
 	}
 
-	USdGISubsystemLobby::Get(this)->SetCurSelectedSlotIndex(INDEX_NONE);
-	USdGISubsystemLobby::Get(this)->SetCurSelectedCharacterDefinition(nullptr);
+	if (USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this))
+	{
+		if (LobbySubsystem->GetIsEditingCharacter())
+		{
+			LobbySubsystem->SetIsEditingCharacter(false);
+		}
+	}
 }
 
 void USdWidgetCreateCharacterPanel::PanelFadeIn()
@@ -89,4 +101,14 @@ void USdWidgetCreateCharacterPanel::HidePanel()
 {
 	SetRenderOpacity(0.f);
 	SetVisibility(ESlateVisibility::HitTestInvisible);
+}
+
+void USdWidgetCreateCharacterPanel::SetButtonCreateText(FText InText)
+{
+	Button_Create->SetButtonText(InText, ESdTextJustify::Center);
+}
+
+void USdWidgetCreateCharacterPanel::SetEditNewNameText(FText InText)
+{
+	EditBox_NewName->SetText(InText);
 }

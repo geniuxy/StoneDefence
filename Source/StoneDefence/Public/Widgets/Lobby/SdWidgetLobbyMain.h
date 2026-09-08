@@ -33,6 +33,7 @@ private:
 	void HandleCheckCharacterNameResponses(FSimpleChannel* Channel);
 	void HandleCreateCharacterResponses(FSimpleChannel* Channel);
 	void HandleDeleteCharacterResponses(FSimpleChannel* Channel);
+	void HandleEditCharacterResponses(FSimpleChannel* Channel);
 
 public:
 	void PrintLog(const FString& InMsg);
@@ -42,11 +43,13 @@ public:
 	void BackToCharacterSelectionPanel();
 	void SelectRecentCharacter();
 	void HandleSelectCharacterSlot(bool bCreateCharacter);
+	void HandleEditCharacterSlot(const FText& InOldNameText);
 
 	void ConfigurePreviewInputCapture(AActor* InPreviewActor);
 
 	void CheckNewName(FString NewCharacterName);
 	void CreateCharacter(const FSdCharacterAppearance& InCA);
+	void EditCharacter(const FSdCharacterAppearance& InCA);
 
 private:
 	/** Binding Widgets */

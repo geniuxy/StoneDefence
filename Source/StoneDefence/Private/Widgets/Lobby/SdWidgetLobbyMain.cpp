@@ -13,6 +13,7 @@
 #include "Widgets/Lobby/SdWidgetCreateCharacterPanel.h"
 #include "Protocol/LobbyProtocol.h"
 #include "SdTypes/SdMacros.h"
+#include "Subsystems/GameInstanceSubsytems/SdGISubsystemLobby.h"
 #include "Widgets/Common/SdWidgetPreviewInputCapture.h"
 #include "Widgets/Components/Button/SdCommonButtonImage.h"
 
@@ -77,6 +78,11 @@ void USdWidgetLobbyMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Cha
 	case SP_DeleteCharacterResponses:
 		{
 			HandleDeleteCharacterResponses(Channel);
+			break;
+		}
+	case SP_EditCharacterResponses:
+		{
+			HandleEditCharacterResponses(Channel);
 			break;
 		}
 	default:
@@ -197,6 +203,44 @@ void USdWidgetLobbyMain::HandleDeleteCharacterResponses(FSimpleChannel* Channel)
 	}
 }
 
+void USdWidgetLobbyMain::HandleEditCharacterResponses(FSimpleChannel* Channel)
+{
+	ECheckNameType CheckNameType = UNKNOWN_ERROR;
+	bool bUpdateSucceeded = false;
+	FString CAJson;
+	
+	SIMPLE_PROTOCOLS_RECEIVE(SP_CreateCharacterResponses, CheckNameType, bUpdateSucceeded, CAJson);
+
+	if (bUpdateSucceeded)
+	{
+		PrintLog(LOCTEXT("EDIT_CHARACTER_RESPONSES_SUCCESSFULLY", "角色编辑成功"));
+		FSdCharacterAppearance InCA;
+		NetDataAnalysis::StringToCharacterAppearance(CAJson, InCA);
+		if (ASdPlayerStateLobby* InPlayerState = GetOwningPlayerState<ASdPlayerStateLobby>())
+		{
+			InPlayerState->UpdateCharacterAppearances(InCA);
+
+			CharacterSelectionPanel->UpdateCharacterAppearances();
+
+			CharacterSelectionPanel->SelectRecentCharacter();
+		}
+
+		if (USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this))
+		{
+			LobbySubsystem->SetIsEditingCharacter(false);
+		}
+	}
+	else
+	{
+		PrintLog(LOCTEXT("EDIT_CHARACTER_RESPONSES_FAIL", "角色编辑失败"));
+		FTimerHandle TmpTimeHandle;
+		GetWorld()->GetTimerManager().SetTimer(TmpTimeHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			PrintLogByCheckName(CheckNameType);
+		}), 1.5f, false);
+	}
+}
+
 void USdWidgetLobbyMain::PrintLog(const FString& InMsg)
 {
 	PrintLog(FText::FromString(InMsg));
@@ -245,12 +289,28 @@ void USdWidgetLobbyMain::HandleSelectCharacterSlot(bool bCreateCharacter)
 	if (bCreateCharacter)
 	{
 		CreateCharacterPanel->PanelFadeIn();
+		CreateCharacterPanel->SetButtonCreateText(FText::FromString(TEXT("创建角色")));
+		CreateCharacterPanel->SetEditNewNameText(FText::FromString(TEXT("")));
 		Button_BeginGame->SetVisibility(ESlateVisibility::Hidden);
 	}
 	else
 	{
 		CreateCharacterPanel->HidePanel();
 		Button_BeginGame->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void USdWidgetLobbyMain::HandleEditCharacterSlot(const FText& InOldNameText)
+{
+	if (USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this))
+	{
+		if (LobbySubsystem->GetIsEditingCharacter())
+		{
+			CreateCharacterPanel->PanelFadeIn();
+			CreateCharacterPanel->SetButtonCreateText(FText::FromString(TEXT("编辑角色")));
+			CreateCharacterPanel->SetEditNewNameText(InOldNameText);
+			Button_BeginGame->SetVisibility(ESlateVisibility::Hidden);
+		}
 	}
 }
 
@@ -269,15 +329,18 @@ void USdWidgetLobbyMain::CheckNewName(FString NewCharacterName)
 
 void USdWidgetLobbyMain::CreateCharacter(const FSdCharacterAppearance& InCA)
 {
-	if (USdGameInstance* InGameInstance = GetGameInstance<USdGameInstance>())
-	{
-		FString CAJson;
+	FString CAJson;
+	NetDataAnalysis::CharacterAppearanceToString(InCA, CAJson);
 
-		NetDataAnalysis::CharacterAppearanceToString(InCA, CAJson);
-		int32 UserId = InGameInstance->GetUserData().Id;
+	SEND_DATA(SP_CreateCharacterRequests, ClientGameInstance->GetUserData().Id, CAJson);
+}
 
-		SEND_DATA(SP_CreateCharacterRequests, UserId, CAJson);
-	}
+void USdWidgetLobbyMain::EditCharacter(const FSdCharacterAppearance& InCA)
+{
+	FString CAJson;
+	NetDataAnalysis::CharacterAppearanceToString(InCA, CAJson);
+
+	SEND_DATA(SP_EditCharacterRequests, ClientGameInstance->GetUserData().Id, CAJson);
 }
 
 void USdWidgetLobbyMain::HandleServerLinkInfo(ESimpleNetErrorType InType, const FString& InMsg)
