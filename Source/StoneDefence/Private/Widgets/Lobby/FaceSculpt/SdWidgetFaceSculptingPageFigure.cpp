@@ -29,8 +29,11 @@ void USdWidgetFaceSculptingPageFigure::ConfigurePageFigure()
 			NewFaceSculptingFigureData->SetType(DefaultFigureSetting.Type);
 			NewFaceSculptingFigureData->SetDefaultValue(DefaultFigureSetting.DefaultValue);
 			NewFaceSculptingFigureData->SetMaxValue(DefaultFigureSetting.MaxValue);
+			NewFaceSculptingFigureData->SetMinValue(DefaultFigureSetting.MinValue);
 
-			int CurValue = DefaultFigureSetting.DefaultValue * DefaultFigureSetting.MaxValue;
+			int CurValue = FMath::Max(
+				DefaultFigureSetting.MinValue, DefaultFigureSetting.DefaultValue * DefaultFigureSetting.MaxValue
+			);
 			// 根据服务器的FigureSizeStr值进行修改
 			if (PlayerState->GetCurSelectedCharacterAppearance().IsSet() &&
 				!PlayerState->GetCurSelectedCharacterAppearance()->IsEmpty())

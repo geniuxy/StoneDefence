@@ -15,6 +15,8 @@ enum class ESdFigureType : uint8
 	FT_LEG UMETA(DisplayName = "腿长"),
 	FT_WAIST UMETA(DisplayName = "腰长"),
 	FT_ARM UMETA(DisplayName = "臂长"),
+	FT_HEAD UMETA(DisplayName = "头大"),
+	FT_CHEST UMETA(DisplayName = "胸大"),
 	FT_NUM
 };
 
@@ -43,6 +45,9 @@ struct FFaceSculptFigureTypeInfo // 捏脸身材塑造时相关的信息
 
 	UPROPERTY(EditAnywhere)
 	int MaxValue;
+
+	UPROPERTY(EditAnywhere)
+	int MinValue;
 
 	UPROPERTY()
 	int CurValue;

@@ -27,12 +27,16 @@ class STONEDEFENCE_API UFaceSculptingFigureData : public USdListEntryDataObjectB
 	int MaxValue;
 
 	UPROPERTY()
+	int MinValue;
+
+	UPROPERTY()
 	float CurValue;
 
 public:
 	DATA_ACCESSOR(ESdFigureType, Type)
 	DATA_ACCESSOR(float, DefaultValue)
 	DATA_ACCESSOR(int, MaxValue)
+	DATA_ACCESSOR(int, MinValue)
 	DATA_ACCESSOR(float, CurValue)
 };
 /**

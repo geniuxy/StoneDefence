@@ -18,6 +18,7 @@ void USdListEntryFaceSculptingFigure::NativeOnListItemObjectSet(UObject* ListIte
 	{
 		FigureTypeText->SetText(USdFunctionLibraryCommon::GetDisplayValueOfEnum(FaceSculptingFigureData->GetType()));
 		AnalogSlider_Setting->SetMaxValue(FaceSculptingFigureData->GetMaxValue());
+		AnalogSlider_Setting->SetMinValue(FaceSculptingFigureData->GetMinValue());
 		AnalogSlider_Setting->SetStepSize(1);
 		AnalogSlider_Setting->SetValue(FaceSculptingFigureData->GetCurValue());
 		AnalogSlider_Setting->OnValueChanged.AddUniqueDynamic(this, &ThisClass::OnSliderChanged);

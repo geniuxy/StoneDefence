@@ -29,5 +29,7 @@ void USdAnimInstancePreview::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 		LegSize = OwnerPreviewActor->GetFigureSizeByType(ESdFigureType::FT_LEG);
 		WaistSize = OwnerPreviewActor->GetFigureSizeByType(ESdFigureType::FT_WAIST);
 		ArmSize = OwnerPreviewActor->GetFigureSizeByType(ESdFigureType::FT_ARM);
+		HeadSize = OwnerPreviewActor->GetFigureSizeByType(ESdFigureType::FT_HEAD);
+		ChestSize = OwnerPreviewActor->GetFigureSizeByType(ESdFigureType::FT_CHEST);
 	}
 }
