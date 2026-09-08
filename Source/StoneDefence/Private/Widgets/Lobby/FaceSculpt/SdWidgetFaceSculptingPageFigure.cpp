@@ -45,9 +45,10 @@ void USdWidgetFaceSculptingPageFigure::ConfigurePageFigure()
 					if (StrFigureTypeAndSize.Num() != 2) continue;
 
 					int TypeIndex = FCString::Atoi(*StrFigureTypeAndSize[0]);
-					if (TypeIndex >= 0 && TypeIndex < static_cast<int>(ESdFigureType::FT_NUM))
+					if (TypeIndex == static_cast<int>(DefaultFigureSetting.Type))
 					{
 						CurValue = FCString::Atoi(*StrFigureTypeAndSize[1]);
+						break;
 					}
 				}
 			}

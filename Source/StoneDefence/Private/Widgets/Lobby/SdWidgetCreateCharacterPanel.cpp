@@ -88,6 +88,7 @@ void USdWidgetCreateCharacterPanel::ButtonCancelClicked()
 		if (LobbySubsystem->GetIsEditingCharacter())
 		{
 			LobbySubsystem->SetIsEditingCharacter(false);
+			LobbySubsystem->SetCachedSlotIndex(INDEX_NONE); // 如果是在编辑角色的话，取消之后需要去恢复服务端上的设置项
 		}
 	}
 }
