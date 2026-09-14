@@ -85,6 +85,11 @@ void USdWidgetLobbyMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Cha
 			HandleEditCharacterResponses(Channel);
 			break;
 		}
+	case SP_LoginToDsServerResponses:
+		{
+			HandleLoginToDsServerResponses(Channel);
+			break;
+		}
 	default:
 		break;
 	}
@@ -241,6 +246,15 @@ void USdWidgetLobbyMain::HandleEditCharacterResponses(FSimpleChannel* Channel)
 	}
 }
 
+void USdWidgetLobbyMain::HandleLoginToDsServerResponses(FSimpleChannel* Channel)
+{
+	FSimpleAddr DSAddr;
+	SIMPLE_PROTOCOLS_RECEIVE(SP_LoginToDsServerResponses, DSAddr);
+
+	FString DSAddrStr = FSimpleNetManage::GetAddrString(DSAddr);
+	UGameplayStatics::OpenLevel(GetWorld(), *DSAddrStr);
+}
+
 void USdWidgetLobbyMain::PrintLog(const FString& InMsg)
 {
 	PrintLog(FText::FromString(InMsg));
@@ -353,7 +367,19 @@ void USdWidgetLobbyMain::HandleServerLinkInfo(ESimpleNetErrorType InType, const 
 
 void USdWidgetLobbyMain::BeginGame()
 {
-	UGameplayStatics::OpenLevel(GetWorld(), TEXT("GameMap"));
+	JumpToDsServer();
+}
+
+void USdWidgetLobbyMain::JumpToDsServer()
+{
+	if (USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this))
+	{
+		int32 CurSelectedSlotIndex = LobbySubsystem->GetCurSelectedSlotIndex();
+		if (CurSelectedSlotIndex != INDEX_NONE)
+		{
+			SEND_DATA(SP_LoginToDsServerRequests, ClientGameInstance->GetUserData().Id, CurSelectedSlotIndex);
+		}
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

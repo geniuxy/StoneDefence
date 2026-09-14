@@ -34,6 +34,7 @@ private:
 	void HandleCreateCharacterResponses(FSimpleChannel* Channel);
 	void HandleDeleteCharacterResponses(FSimpleChannel* Channel);
 	void HandleEditCharacterResponses(FSimpleChannel* Channel);
+	void HandleLoginToDsServerResponses(FSimpleChannel* Channel);
 
 public:
 	void PrintLog(const FString& InMsg);
@@ -72,4 +73,6 @@ private:
 	void HandleServerLinkInfo(ESimpleNetErrorType InType, const FString& InMsg);
 	
 	void BeginGame();
+
+	void JumpToDsServer();
 };
