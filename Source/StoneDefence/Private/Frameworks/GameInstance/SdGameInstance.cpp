@@ -66,6 +66,18 @@ void USdGameInstance::LinkServer(const FSimpleAddr& InAddr)
 	}
 }
 
+void USdGameInstance::LinkServer(const TCHAR* InIP, uint32 InPort)
+{
+	if (Client)
+	{
+		if (!Client->Init(InIP, InPort))
+		{
+			delete Client;
+			Client = nullptr;
+		}
+	}
+}
+
 FSimpleNetManage* USdGameInstance::GetClient() const
 {
 	return Client;

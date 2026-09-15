@@ -19,10 +19,15 @@ ASdPlayerControllerLobby::ASdPlayerControllerLobby()
 void ASdPlayerControllerLobby::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (!IsLocalController()) return;
 	
 	if (LobbyMainClass)
 	{
 		LobbyMain = CreateWidget<USdWidgetLobbyMain>(this, LobbyMainClass);
-		LobbyMain->AddToViewport();
+		if (LobbyMain)
+		{
+			LobbyMain->AddToViewport();
+		}
 	}
 }

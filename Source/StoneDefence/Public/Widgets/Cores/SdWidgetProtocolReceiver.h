@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SdCommonActivatableWidgetBase.h"
+#include "SdCommonUserWidgetBase.h"
 #include "SimpleNetChannelType.h"
 #include "SdWidgetProtocolReceiver.generated.h"
 
@@ -13,7 +13,7 @@ class USdWidgetPrintMsg;
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetProtocolReceiver : public USdCommonActivatableWidgetBase
+class STONEDEFENCE_API USdWidgetProtocolReceiver : public USdCommonUserWidgetBase
 {
 	GENERATED_BODY()
 

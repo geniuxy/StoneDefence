@@ -20,9 +20,14 @@ void ASdPlayerControllerLogin::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (!IsLocalController()) return;
+
 	if (LoginMainClass)
 	{
 		LoginMain = CreateWidget<USdWidgetLoginMain>(this, LoginMainClass);
-		LoginMain->AddToViewport();
+		if (LoginMain)
+		{
+			LoginMain->AddToViewport();
+		}
 	}
 }

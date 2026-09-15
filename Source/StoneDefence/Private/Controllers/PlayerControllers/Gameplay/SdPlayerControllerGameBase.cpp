@@ -19,9 +19,14 @@ void ASdPlayerControllerGameBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (!IsLocalController()) return;
+
 	if (GameHudMainClass)
 	{
 		GameHudMain = CreateWidget<USdWidgetGameHudMain>(this, GameHudMainClass);
-		GameHudMain->AddToViewport();
+		if (GameHudMain)
+		{
+			GameHudMain->AddToViewport();
+		}
 	}
 }
