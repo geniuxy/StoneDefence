@@ -7,8 +7,8 @@
 #include "Widgets/Cores/SdWidgetProtocolReceiver.h"
 #include "SdWidgetLoginMain.generated.h"
 
+class USdCommonUserWidgetBase;
 class USdWidgetRegisterInfo;
-class USdWidgetPrintMsg;
 class USdWidgetLoginInfo;
 /**
  * 
@@ -29,9 +29,6 @@ public:
 	void Register();
 	void SendRegisterInfo(FString InRegisterInfo);
 
-	void PrintLog(const FString& InMsg);
-	void PrintLog(const FText& InMsg);
-
 private:
 	/** Binding Widgets */
 	UPROPERTY(meta=(BindWidget))
@@ -43,9 +40,6 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	USdWidgetRegisterInfo* RegisterInfo;
 
-	UPROPERTY(meta=(BindWidget))
-	USdWidgetPrintMsg* MsgLogWidget;
-
 	UPROPERTY(Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* LoginInfoFadeIn;
 
@@ -53,7 +47,7 @@ private:
 	UWidgetAnimation* LoginInfoFadeOut;
 	/********************/
 
-	void ShowServerLinkingInfo(ESimpleNetErrorType InType, const FString& InMsg);
+	virtual void HandleServerLinkInfo(ESimpleNetErrorType InType, const FString& InMsg) override;
 
 	void HandleLoginResponses(FSimpleChannel* Channel);
 	void HandleRegisterResponses(FSimpleChannel* Channel);

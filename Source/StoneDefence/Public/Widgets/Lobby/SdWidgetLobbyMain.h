@@ -37,8 +37,6 @@ private:
 	void HandleLoginToDsServerResponses(FSimpleChannel* Channel);
 
 public:
-	void PrintLog(const FString& InMsg);
-	void PrintLog(const FText& InMsg);
 	void PrintLogByCheckName(ECheckNameType InCheckNameType);
 
 	void BackToCharacterSelectionPanel();
@@ -55,9 +53,6 @@ public:
 private:
 	/** Binding Widgets */
 	UPROPERTY(meta=(BindWidget))
-	USdWidgetPrintMsg* MsgLogWidget;
-	
-	UPROPERTY(meta=(BindWidget))
 	USdWidgetCharacterSelectionPanel* CharacterSelectionPanel;
 
 	UPROPERTY(meta=(BindWidget))
@@ -70,7 +65,7 @@ private:
 	USdWidgetPreviewInputCapture* PreviewInputCaptureWidget;
 	/********************/
 
-	void HandleServerLinkInfo(ESimpleNetErrorType InType, const FString& InMsg);
+	virtual void HandleServerLinkInfo(ESimpleNetErrorType InType, const FString& InMsg) override;
 	
 	void BeginGame();
 

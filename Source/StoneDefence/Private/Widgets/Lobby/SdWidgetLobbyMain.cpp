@@ -30,14 +30,7 @@ void USdWidgetLobbyMain::NativeConstruct()
 
 	if (USdGameInstance* ClientGameInstance = GetGameInstance<USdGameInstance>())
 	{
-		if (ClientGameInstance->GetClient())
-		{
-			ClientGameInstance->GetClient()->NetManageMsgDelegate.BindUObject(this, &ThisClass::HandleServerLinkInfo);
-			// 这一步连接到GateServer
-			ClientGameInstance->GetClient()->Init(ClientGameInstance->GetGateStatus().GateServerAddrInfo.Addr);
-
-			BindClientRcv();
-		}
+		LinkServer(ClientGameInstance->GetGateStatus().GateServerAddrInfo.Addr);
 	}
 
 	Button_BeginGame->OnReleased().AddUObject(this, &ThisClass::BeginGame);
@@ -46,14 +39,6 @@ void USdWidgetLobbyMain::NativeConstruct()
 void USdWidgetLobbyMain::NativeDestruct()
 {
 	Super::NativeDestruct();
-
-	if (USdGameInstance* ClientGameInstance = GetGameInstance<USdGameInstance>())
-	{
-		if (ClientGameInstance->GetClient() && ClientGameInstance->GetClient()->GetController())
-		{
-			ClientGameInstance->GetClient()->GetController()->RecvDelegate.Remove(ClientRecvDelegate);
-		}
-	}
 }
 
 void USdWidgetLobbyMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
@@ -253,17 +238,6 @@ void USdWidgetLobbyMain::HandleLoginToDsServerResponses(FSimpleChannel* Channel)
 
 	FString DSAddrStr = FSimpleNetManage::GetAddrString(DSAddr);
 	UGameplayStatics::OpenLevel(GetWorld(), *DSAddrStr);
-}
-
-void USdWidgetLobbyMain::PrintLog(const FString& InMsg)
-{
-	PrintLog(FText::FromString(InMsg));
-}
-
-void USdWidgetLobbyMain::PrintLog(const FText& InMsg)
-{
-	MsgLogWidget->PlayShowMsgAnim();
-	MsgLogWidget->SetLogText(InMsg);
 }
 
 void USdWidgetLobbyMain::PrintLogByCheckName(ECheckNameType InCheckNameType)

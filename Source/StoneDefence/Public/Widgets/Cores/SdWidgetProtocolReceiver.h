@@ -3,16 +3,31 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SdCommonUserWidgetBase.h"
+#include "SdCommonActivatableWidgetBase.h"
+#include "SimpleNetChannelType.h"
 #include "SdWidgetProtocolReceiver.generated.h"
 
+class FSimpleChannel;
+class USdWidgetPrintMsg;
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetProtocolReceiver : public USdCommonUserWidgetBase
+class STONEDEFENCE_API USdWidgetProtocolReceiver : public USdCommonActivatableWidgetBase
 {
 	GENERATED_BODY()
+
+protected:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
+public:
+	void PrintLog(const FString& InMsg);
+	void PrintLog(const FText& InMsg);
+
+protected:
+	UPROPERTY(meta=(BindWidget))
+	USdWidgetPrintMsg* MsgLogWidget;
 
 protected:
 	virtual void RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
@@ -22,4 +37,11 @@ protected:
 	FDelegateHandle ClientRecvDelegate;
 
 	virtual void BindClientRcv();
+
+	virtual void HandleServerLinkInfo(ESimpleNetErrorType InType, const FString& InMsg)
+	{
+	}
+	
+	void LinkServer();
+	void LinkServer(const FSimpleAddr& InAddr);
 };

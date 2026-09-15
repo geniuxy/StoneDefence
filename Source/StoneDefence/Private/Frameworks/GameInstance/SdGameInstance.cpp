@@ -34,9 +34,12 @@ void USdGameInstance::Shutdown()
 
 void USdGameInstance::CreateClient()
 {
+	if (Client) return;
+	
 	FSimpleNetGlobalInfo::Get()->Init();
-
-	Client = FSimpleNetManage::CreateManage(ESimpleNetLinkState::LINKSTATE_CONNET, ESimpleSocketType::SIMPLESOCKETTYPE_TCP);
+	Client = FSimpleNetManage::CreateManage(
+		ESimpleNetLinkState::LINKSTATE_CONNET, ESimpleSocketType::SIMPLESOCKETTYPE_TCP
+	);
 }
 
 void USdGameInstance::LinkServer()
@@ -44,6 +47,18 @@ void USdGameInstance::LinkServer()
 	if (Client)
 	{
 		if (!Client->Init())
+		{
+			delete Client;
+			Client = nullptr;
+		}
+	}
+}
+
+void USdGameInstance::LinkServer(const FSimpleAddr& InAddr)
+{
+	if (Client)
+	{
+		if (!Client->Init(InAddr))
 		{
 			delete Client;
 			Client = nullptr;

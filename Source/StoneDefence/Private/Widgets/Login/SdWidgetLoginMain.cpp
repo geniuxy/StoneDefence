@@ -26,18 +26,7 @@ void USdWidgetLoginMain::NativeConstruct()
 		RegisterInfo->SetParentWidget(this);
 	}
 
-	if (USdGameInstance* ClientGameInstance = GetGameInstance<USdGameInstance>())
-	{
-		ClientGameInstance->CreateClient();
-		if (ClientGameInstance->GetClient())
-		{
-			ClientGameInstance->GetClient()->NetManageMsgDelegate.BindUObject(this, &ThisClass::ShowServerLinkingInfo);
-
-			ClientGameInstance->LinkServer();
-
-			BindClientRcv();
-		}
-	}
+	LinkServer();
 
 	if (!LoginInfo->DecryptionFromLocal(FPaths::ProjectDir() / TEXT("User")))
 	{
@@ -48,14 +37,6 @@ void USdWidgetLoginMain::NativeConstruct()
 void USdWidgetLoginMain::NativeDestruct()
 {
 	Super::NativeDestruct();
-
-	if (USdGameInstance* ClientGameInstance = GetGameInstance<USdGameInstance>())
-	{
-		if (ClientGameInstance->GetClient() && ClientGameInstance->GetClient()->GetController())
-		{
-			ClientGameInstance->GetClient()->GetController()->RecvDelegate.Remove(ClientRecvDelegate);
-		}
-	}
 }
 
 void USdWidgetLoginMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
@@ -92,18 +73,7 @@ void USdWidgetLoginMain::SendRegisterInfo(FString InRegisterInfo)
 	SEND_DATA(SP_RegisterRequests, InRegisterInfo);
 }
 
-void USdWidgetLoginMain::PrintLog(const FString& InMsg)
-{
-	PrintLog(FText::FromString(InMsg));
-}
-
-void USdWidgetLoginMain::PrintLog(const FText& InMsg)
-{
-	MsgLogWidget->PlayShowMsgAnim();
-	MsgLogWidget->SetLogText(InMsg);
-}
-
-void USdWidgetLoginMain::ShowServerLinkingInfo(ESimpleNetErrorType InType, const FString& InMsg)
+void USdWidgetLoginMain::HandleServerLinkInfo(ESimpleNetErrorType InType, const FString& InMsg)
 {
 	if (InType == HAND_SHAKE_SUCCESS)
 	{

@@ -25,6 +25,7 @@ public:
 public:
 	void CreateClient();
 	void LinkServer();
+	void LinkServer(const FSimpleAddr& InAddr);
 
 	FSimpleNetManage* GetClient() const;
 	FSdUserData& GetUserData();
