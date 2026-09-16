@@ -7,7 +7,7 @@
 
 ASdPlayerControllerGameBase::ASdPlayerControllerGameBase()
 {
-	bShowMouseCursor = true;
+	bShowMouseCursor = false;
 
 	static ConstructorHelpers::FClassFinder<USdWidgetGameHudMain> GameHudMain_BPClass(
 		TEXT("/Game/_Blueprints/Widgets/GameHud/BP_Widget_GameHudMain")
