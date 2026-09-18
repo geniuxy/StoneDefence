@@ -20,7 +20,8 @@ public class StoneDefence : ModuleRules
 			"UMG",
 			"CommonUI",
 			"DeveloperSettings",
-			"SimpleCharacterBrowsing"
+			"SimpleCharacterBrowsing",
+			"GeniuxyGAS"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
