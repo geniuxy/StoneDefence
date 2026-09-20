@@ -14,7 +14,7 @@ enum class ESdFaceSculptPageType : uint8
 	FSP_FIGURE UMETA(DisplayName = "身材"),
 	FSP_FACE UMETA(DisplayName = "容貌"),
 	FSP_TALENT UMETA(DisplayName = "天赋"),
-	FSP_NUM
+	FSP_NUM UMETA(Hidden)
 };
 
 USTRUCT(BlueprintType)

@@ -1,0 +1,2 @@
+﻿#include "GeniuxyAnimationType.h"
+

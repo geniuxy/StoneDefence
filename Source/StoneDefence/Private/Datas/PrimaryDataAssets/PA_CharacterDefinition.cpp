@@ -7,7 +7,7 @@
 
 FPrimaryAssetId UPA_CharacterDefinition::GetPrimaryAssetId() const
 {
-	return FPrimaryAssetId(GetCharacterDefinitionAssetType(), GetFName());
+	return FPrimaryAssetId(GetCharacterDefinitionAssetType(), FName(CharacterTag.ToString()));
 }
 
 FPrimaryAssetType UPA_CharacterDefinition::GetCharacterDefinitionAssetType()

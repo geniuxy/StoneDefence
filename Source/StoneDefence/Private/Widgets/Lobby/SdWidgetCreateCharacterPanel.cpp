@@ -49,7 +49,7 @@ void USdWidgetCreateCharacterPanel::ButtonCreateClicked()
 	{
 		FSdCharacterAppearance TmpCreateCharacter = FSdCharacterAppearance();
 		TmpCreateCharacter.Name = EditBox_NewName->GetText().ToString();
-		TmpCreateCharacter.DisplayAssetName = LobbySubsystem->GetCurSelectedCharacterDefinition()->GetName();
+		TmpCreateCharacter.CharacterTagStr = LobbySubsystem->GetCurSelectedCharacterDefinition()->GetCharacterTagStr();
 		TmpCreateCharacter.LastLoginTime = FDateTime::Now().ToString();
 		TmpCreateCharacter.Level = 1;
 		TmpCreateCharacter.SlotIndex = USdGISubsystemLobby::Get(this)->GetCurSelectedSlotIndex();

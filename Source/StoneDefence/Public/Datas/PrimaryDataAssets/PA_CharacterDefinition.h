@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Engine/DataAsset.h"
 #include "StoneDefence/StoneDefence.h"
 #include "PA_CharacterDefinition.generated.h"
 
+class UCharacterAnimationSet;
 class ASdCharacterBase;
 
 UENUM()
@@ -17,7 +19,7 @@ enum class ESdFigureType : uint8
 	FT_ARM UMETA(DisplayName = "臂长"),
 	FT_HEAD UMETA(DisplayName = "头大"),
 	FT_CHEST UMETA(DisplayName = "胸大"),
-	FT_NUM
+	FT_NUM UMETA(Hidden)
 };
 
 USTRUCT(BlueprintType)
@@ -25,14 +27,16 @@ struct FFaceSculptFigureTypeInfo // 捏脸身材塑造时相关的信息
 {
 	GENERATED_BODY()
 
-	FFaceSculptFigureTypeInfo(): Type(ESdFigureType::FT_NUM), DefaultValue(0), MaxValue(0), CurValue(0)
+	FFaceSculptFigureTypeInfo(): Type(ESdFigureType::FT_NUM), DefaultValue(0), MaxValue(0), MinValue(0), CurValue(0)
 	{
 	}
 
-	FFaceSculptFigureTypeInfo(ESdFigureType InType, int InCurValue, float InDefaultValue = 0.f, int InMaxValue = 0):
-		Type(InType),
+	FFaceSculptFigureTypeInfo(
+		ESdFigureType InType, int InCurValue, float InDefaultValue = 0.f, int InMaxValue = 0, int InMinValue = 0
+	):	Type(InType),
 		DefaultValue(InDefaultValue),
 		MaxValue(InMaxValue),
+		MinValue(InMinValue),
 		CurValue(InCurValue)
 	{
 	}
@@ -74,6 +78,9 @@ public:
 	USkeletalMesh* LoadDisplayMesh() const;
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category="Character", meta=(Categories="Sd.Character"))
+	FGameplayTag CharacterTag;
+	
 	UPROPERTY(EditDefaultsOnly, Category="Character")
 	FString CharacterName;
 
@@ -87,9 +94,16 @@ private:
 	TSoftClassPtr<UAnimInstance> DisplayAnimBP;
 
 	UPROPERTY(EditDefaultsOnly, Category="Character")
-	TArray<FFaceSculptFigureTypeInfo> DefaultFigureSettings; 
+	TSoftClassPtr<UAnimInstance> GameAnimBP;
+
+	UPROPERTY(EditDefaultsOnly, Category="Character")
+	TSoftObjectPtr<UCharacterAnimationSet> AnimationSet;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Character")
+	TArray<FFaceSculptFigureTypeInfo> DefaultFigureSettings;
 
 public:
+	FORCEINLINE FString GetCharacterTagStr() const { return CharacterTag.ToString(); }
 	FORCEINLINE FString GetCharacterDisplayName() const { return CharacterName; }
 	FORCEINLINE TArray<FFaceSculptFigureTypeInfo> GetDefaultFigureSettings() const { return DefaultFigureSettings; }
 };

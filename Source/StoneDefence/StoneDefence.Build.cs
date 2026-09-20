@@ -21,7 +21,11 @@ public class StoneDefence : ModuleRules
 			"CommonUI",
 			"DeveloperSettings",
 			"SimpleCharacterBrowsing",
-			"GeniuxyGAS"
+			"GeniuxyGAS",
+			"GeniuxyAnimation",
+			"GameplayAbilities",
+			"GameplayTags",
+			"GameplayTasks"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

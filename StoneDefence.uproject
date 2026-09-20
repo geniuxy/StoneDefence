@@ -34,6 +34,14 @@
 		{
 			"Name": "GeniuxyGAS",
 			"Enabled": true
+		},
+		{
+			"Name": "GeniuxyAnimation",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayAbilities",
+			"Enabled": true
 		}
 	]
 }

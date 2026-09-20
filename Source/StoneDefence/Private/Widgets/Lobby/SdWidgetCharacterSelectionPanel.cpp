@@ -18,6 +18,7 @@
 #include "SdTypes/SdMacros.h"
 #include "Settings/DeveloperSettings/SdDataDeveloperSetting.h"
 #include "Subsystems/GameInstanceSubsytems/SdGISubsystemLobby.h"
+#include "Tags/CharacterTags.h"
 #include "Widgets/Lobby/SdButtonCharacterSelection.h"
 #include "Widgets/Lobby/SdWidgetLobbyMain.h"
 #include "Widgets/Lobby/FaceSculpt/SdWidgetFaceSculpting.h"
@@ -61,8 +62,9 @@ void USdWidgetCharacterSelectionPanel::OnSetParentWidget()
 
 void USdWidgetCharacterSelectionPanel::InitSelectionListView()
 {
-	UPA_CharacterDefinition* TubakiDef =
-		USdAssetManager::Get().GetCharacterDefinition(FName("PA_CharacterDefinition_Tubaki"));
+	UPA_CharacterDefinition* TubakiDef = USdAssetManager::Get().GetCharacterDefinition(
+		CharacterTags::Sd_Character_Tubaki.GetTag().GetTagName()
+	);
 	if (!TubakiDef) return;
 
 	if (const USdDataDeveloperSetting* DataDeveloperSettings = GetDefault<USdDataDeveloperSetting>())
@@ -229,7 +231,7 @@ void USdWidgetCharacterSelectionPanel::UpdateCharacterAppearances()
 			CharacterSelectionData->SetCharacterName(CharacterAppearance->Name);
 			CharacterSelectionData->SetLastLoginTimeStr(CharacterAppearance->LastLoginTime);
 			UPA_CharacterDefinition* DisplayCharacterDefinition =
-				USdAssetManager::Get().GetCharacterDefinition(FName(CharacterAppearance->DisplayAssetName));
+				USdAssetManager::Get().GetCharacterDefinition(FName(CharacterAppearance->CharacterTagStr));
 			if (DisplayCharacterDefinition)
 			{
 				CharacterSelectionData->SetCharacterDefinition(DisplayCharacterDefinition);
@@ -240,8 +242,9 @@ void USdWidgetCharacterSelectionPanel::UpdateCharacterAppearances()
 			CharacterSelectionData->SetSlotIsEmpty(true);
 			CharacterSelectionData->SetCharacterName("");
 			CharacterSelectionData->SetLastLoginTimeStr("");
+			// 默认角色
 			if (UPA_CharacterDefinition* TubakiDef =
-				USdAssetManager::Get().GetCharacterDefinition(FName("PA_CharacterDefinition_Tubaki")))
+				USdAssetManager::Get().GetCharacterDefinition(CharacterTags::Sd_Character_Tubaki.GetTag().GetTagName()))
 			{
 				CharacterSelectionData->SetCharacterDefinition(TubakiDef);
 			}
