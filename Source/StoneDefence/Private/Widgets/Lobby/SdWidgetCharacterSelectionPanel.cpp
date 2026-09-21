@@ -88,31 +88,21 @@ void USdWidgetCharacterSelectionPanel::InitSelectionListView()
 
 void USdWidgetCharacterSelectionPanel::CharacterSelected(UObject* SelectedUObject)
 {
-	ASdPlayerStateLobby* PlayerState = GetOwningPlayerState<ASdPlayerStateLobby>();
-	if (!PlayerState) return;
 	USdGISubsystemLobby* LobbySubsystem = USdGISubsystemLobby::Get(this);
 	if (!LobbySubsystem) return;
 
 	if (const UCharacterSelectionData* CharacterSelectionData = Cast<UCharacterSelectionData>(SelectedUObject))
 	{
+		if (!CharacterSelectionData->GetCharacterDefinition()) return;
+
 		LobbySubsystem->SetCurSelectedCharacterDefinition(CharacterSelectionData->GetCharacterDefinition());
 		LobbySubsystem->SetCurSelectedSlotIndex(CharacterSelectionData->GetSlotIndex());
 
 		if (ASdActorPreview* ActorLobbyPreview = LobbySubsystem->GetActorLobbyPreview())
 		{
-			ActorLobbyPreview->ConfigureWithCharacterDefinition(CharacterSelectionData->GetCharacterDefinition());
-
-			// 根据服务器上的身材数据赋值给ActorLobbyPreview
-			FSdCharacterAppearance* CharacterAppearance = PlayerState->GetCachedCharacterAppearances().FindByPredicate(
-				[&](const FSdCharacterAppearance& InCharacterAppearance)
-				{
-					return InCharacterAppearance.SlotIndex == CharacterSelectionData->GetSlotIndex();
-				}
+			ActorLobbyPreview->LoadCharacterDefinition(
+				CharacterSelectionData->GetCharacterDefinition()->GetPrimaryAssetId()
 			);
-			if (CharacterAppearance)
-			{
-				ActorLobbyPreview->UpdateFigureTypeSize(CharacterAppearance->FigureSizeStr);
-			}
 		}
 
 		if (CharacterSelectionData->IsSlotEmpty())

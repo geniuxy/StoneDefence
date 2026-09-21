@@ -76,6 +76,7 @@ public:
 	TSubclassOf<ASdCharacterBase> LoadCharacterClass() const;
 	TSubclassOf<UAnimInstance> LoadDisplayAnimationBP() const;
 	USkeletalMesh* LoadDisplayMesh() const;
+	UCharacterAnimationSet* LoadAnimationSet() const;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category="Character", meta=(Categories="Sd.Character"))
@@ -106,4 +107,10 @@ public:
 	FORCEINLINE FString GetCharacterTagStr() const { return CharacterTag.ToString(); }
 	FORCEINLINE FString GetCharacterDisplayName() const { return CharacterName; }
 	FORCEINLINE TArray<FFaceSculptFigureTypeInfo> GetDefaultFigureSettings() const { return DefaultFigureSettings; }
+
+	FORCEINLINE TSoftObjectPtr<UTexture2D> GetCharacterIcon() const { return CharacterIcon; }
+	FORCEINLINE TSoftClassPtr<ASdCharacterBase> GetCharacterClass() const { return CharacterClass; }
+	FORCEINLINE TSoftClassPtr<UAnimInstance> GetDisplayAnimBP() const { return DisplayAnimBP; }
+	FORCEINLINE TSoftClassPtr<UAnimInstance> GetGameAnimBP() const { return GameAnimBP; }
+	FORCEINLINE TSoftObjectPtr<UCharacterAnimationSet> GetAnimationSet() const { return AnimationSet; }
 };

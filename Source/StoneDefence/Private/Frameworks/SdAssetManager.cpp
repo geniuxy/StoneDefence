@@ -20,6 +20,7 @@ USdAssetManager& USdAssetManager::Get()
 
 void USdAssetManager::LoadCharacterDefinitions(const FStreamableDelegate& LoadFinishedCallback)
 {
+	// 只会加载 `UPA_CharacterDefinition` 这个 PrimaryDataAsset 本身，不会自动加载它里面的 SoftObjectPath
 	LoadPrimaryAssetsWithType(
 		UPA_CharacterDefinition::GetCharacterDefinitionAssetType(),
 		TArray<FName>(),

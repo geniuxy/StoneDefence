@@ -4,6 +4,7 @@
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
 
 #include "Characters/SdCharacterBase.h"
+#include "Data/CharacterAnimationSet.h"
 
 FPrimaryAssetId UPA_CharacterDefinition::GetPrimaryAssetId() const
 {
@@ -38,4 +39,9 @@ USkeletalMesh* UPA_CharacterDefinition::LoadDisplayMesh() const
 	if (!Character) return nullptr;
 
 	return Character->GetMesh()->GetSkeletalMeshAsset();
+}
+
+UCharacterAnimationSet* UPA_CharacterDefinition::LoadAnimationSet() const
+{
+	return AnimationSet.LoadSynchronous();
 }

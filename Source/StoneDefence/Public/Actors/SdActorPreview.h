@@ -20,6 +20,7 @@ class STONEDEFENCE_API ASdActorPreview : public ASdActorBase
 public:
 	ASdActorPreview();
 
+	void LoadCharacterDefinition(const FPrimaryAssetId& InAssetId);
 	void ConfigureWithCharacterDefinition(const UPA_CharacterDefinition* CharacterDefinition);
 	void ClearCharacterDefinition();
 
@@ -44,6 +45,7 @@ public:
 public:
 	void UpdateFigureTypeSize(ESdFigureType InType, int32 InValue);
 	void UpdateFigureTypeSize(TArray<FFaceSculptFigureTypeInfo> InFigureSettings);
+	void UpdateFigureTypeSizeByDefault(TArray<FFaceSculptFigureTypeInfo> InFigureSettings);
 	void UpdateFigureTypeSize(const FString& InFigureSizeStr);
 	int32 GetFigureSizeByType(ESdFigureType InType);
 	
