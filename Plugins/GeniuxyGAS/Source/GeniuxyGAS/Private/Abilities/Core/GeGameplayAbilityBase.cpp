@@ -3,12 +3,38 @@
 
 #include "Abilities/Core/GeGameplayAbilityBase.h"
 
-UAbilitySystemComponent* UGeGameplayAbilityBase::GetOwnerASC()
+#include "Comps/GeAbilitySystemComponent.h"
+
+void UGeGameplayAbilityBase::ActivateAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
+{
+	if (!PreLoadMontage())
+	{
+		K2_EndAbility();
+	}
+}
+
+UGeAbilitySystemComponent* UGeGameplayAbilityBase::GetOwnerASC()
 {
 	if (!OwnerASC)
 	{
-		OwnerASC = GetAbilitySystemComponentFromActorInfo();
+		OwnerASC = Cast<UGeAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
 	}
 
 	return OwnerASC;
+}
+
+TSoftObjectPtr<UAnimMontage> UGeGameplayAbilityBase::GetMontageByTag(FGameplayTag InTag)
+{
+	if (!GetOwnerASC()) return nullptr;
+
+	const auto* FoundPtr = OwnerASC->GetMontageMap().Find(InTag);
+	if (!FoundPtr)
+	{
+		return nullptr;
+	}
+	return *FoundPtr;
 }

@@ -3,7 +3,7 @@
 
 #include "Frameworks/SdAssetManager.h"
 
-#include "SdDebugHelper.h"
+#include "GeniuxyDebugHelper.h"
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
 
 USdAssetManager& USdAssetManager::Get()

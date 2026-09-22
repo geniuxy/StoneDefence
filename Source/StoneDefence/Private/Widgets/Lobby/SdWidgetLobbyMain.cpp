@@ -3,7 +3,7 @@
 
 #include "Widgets/Lobby/SdWidgetLobbyMain.h"
 
-#include "SdDebugHelper.h"
+#include "GeniuxyDebugHelper.h"
 #include "Frameworks/GameInstance/SdGameInstance.h"
 #include "Frameworks/PlayerStates/SdPlayerStateLobby.h"
 #include "FunctionLibraries/SdFunctionLibraryCommon.h"

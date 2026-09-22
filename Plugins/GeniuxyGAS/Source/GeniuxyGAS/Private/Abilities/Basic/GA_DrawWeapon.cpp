@@ -3,9 +3,9 @@
 
 #include "Abilities/Basic/GA_DrawWeapon.h"
 
-#include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
+#include "Comps/GeAbilitySystemComponent.h"
 #include "Tags/StatsTags.h"
 
 UGA_DrawWeapon::UGA_DrawWeapon()
@@ -20,6 +20,8 @@ void UGA_DrawWeapon::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
 	if (!K2_CommitAbility() || !GetOwnerASC())
 	{
 		K2_EndAbility();
@@ -40,6 +42,14 @@ void UGA_DrawWeapon::ActivateAbility(
 	WaitInputPress = UAbilityTask_WaitInputPress::WaitInputPress(this);
 	WaitInputPress->OnPress.AddDynamic(this, &ThisClass::HandleInputPress);
 	WaitInputPress->ReadyForActivation();
+}
+
+bool UGA_DrawWeapon::PreLoadMontage()
+{
+	if (!DrawSwordMontageTag.IsValid() || !SheatheSwordMontageTag.IsValid()) return false;
+	DrawSwordMontage = GetMontageByTag(DrawSwordMontageTag).LoadSynchronous();
+	SheatheSwordMontage = GetMontageByTag(SheatheSwordMontageTag).LoadSynchronous();
+	return true;
 }
 
 void UGA_DrawWeapon::HandleInputPress(float TimeWaited)

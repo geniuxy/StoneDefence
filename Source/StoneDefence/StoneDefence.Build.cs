@@ -23,6 +23,7 @@ public class StoneDefence : ModuleRules
 			"SimpleCharacterBrowsing",
 			"GeniuxyGAS",
 			"GeniuxyAnimation",
+			"GeniuxyCommon",
 			"GameplayAbilities",
 			"GameplayTags",
 			"GameplayTasks"

@@ -235,3 +235,16 @@ void UGeAbilitySystemComponent::EnergyUpdated(const FOnAttributeChangeData& Chan
 	}
 }
 
+void UGeAbilitySystemComponent::UpdateMontageMap(FGameplayTag InTag, const TSoftObjectPtr<UAnimMontage>& InMontage)
+{
+	if (!InTag.IsValid()) return;
+	if (MontageMap.Contains(InTag))
+	{
+		MontageMap[InTag] = InMontage;
+	}
+	else
+	{
+		MontageMap.Add(InTag, InMontage);
+	}
+}
+

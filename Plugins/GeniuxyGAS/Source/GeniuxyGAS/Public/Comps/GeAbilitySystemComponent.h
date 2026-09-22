@@ -67,4 +67,16 @@ private:
 public:
 	FORCEINLINE AActor* GetLockTarget() const { return LockTarget; }
 	void SetLockTarget(AActor* NewLockTarget) { LockTarget = NewLockTarget; }
+
+	/**********************************************************************/
+	/*                          Cached Animation                          */
+	/**********************************************************************/
+private:
+	UPROPERTY()
+	TMap<FGameplayTag, TSoftObjectPtr<UAnimMontage>> MontageMap;
+
+public:
+	void UpdateMontageMap(FGameplayTag InTag, const TSoftObjectPtr<UAnimMontage>& InMontage);
+
+	FORCEINLINE TMap<FGameplayTag, TSoftObjectPtr<UAnimMontage>> GetMontageMap() const { return MontageMap; }
 };

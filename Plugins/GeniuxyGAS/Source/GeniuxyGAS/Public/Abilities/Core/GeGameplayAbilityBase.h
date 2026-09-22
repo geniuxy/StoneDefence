@@ -6,6 +6,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "GeGameplayAbilityBase.generated.h"
 
+class UGeAbilitySystemComponent;
 /**
  * 
  */
@@ -15,8 +16,20 @@ class GENIUXYGAS_API UGeGameplayAbilityBase : public UGameplayAbility
 	GENERATED_BODY()
 
 protected:
-	UAbilitySystemComponent* GetOwnerASC();
+	virtual void ActivateAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		const FGameplayEventData* TriggerEventData
+	) override;
+
+protected:
+	UGeAbilitySystemComponent* GetOwnerASC();
 
 	UPROPERTY()
-	UAbilitySystemComponent* OwnerASC;
+	UGeAbilitySystemComponent* OwnerASC;
+
+	TSoftObjectPtr<UAnimMontage> GetMontageByTag(FGameplayTag InTag);
+
+	virtual bool PreLoadMontage() { return true; }
 };

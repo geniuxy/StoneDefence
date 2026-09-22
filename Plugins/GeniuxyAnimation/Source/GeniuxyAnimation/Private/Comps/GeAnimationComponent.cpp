@@ -52,7 +52,8 @@ bool UGeAnimationComponent::PlayAction(FGameplayTag ActionTag)
 				}
 
 				WeakThis->PlayLoadedMontage(EntryCopy);
-			})
+			}
+		)
 	);
 
 	return true;

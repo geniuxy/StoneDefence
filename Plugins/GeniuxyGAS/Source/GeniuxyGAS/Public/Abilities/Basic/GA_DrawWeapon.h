@@ -25,18 +25,26 @@ public:
 		const FGameplayEventData* TriggerEventData
 	) override;
 
+	virtual bool PreLoadMontage() override;
+
 private:
 	UFUNCTION()
 	void HandleInputPress(float TimeWaited);
 	UFUNCTION()
 	void OnSheatheSwordEnd();
+
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag DrawSwordMontageTag;
 	
-	UPROPERTY(EditDefaultsOnly, Category="Anim")
-	UAnimMontage* DrawSwordMontage;
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag SheatheSwordMontageTag;
 	
-	UPROPERTY(EditDefaultsOnly, Category="Anim")
-	UAnimMontage* SheatheSwordMontage; // 收剑动作
+	UPROPERTY()
+	UAnimMontage* DrawSwordMontage = nullptr;
+	
+	UPROPERTY()
+	UAnimMontage* SheatheSwordMontage = nullptr;
 
 	UPROPERTY()
-	UAbilityTask_WaitInputPress* WaitInputPress;
+	UAbilityTask_WaitInputPress* WaitInputPress = nullptr;
 };
