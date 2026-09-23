@@ -28,8 +28,11 @@ protected:
 	/**********************************************************************/
     /*                               GAS                                  */
     /**********************************************************************/
+public:
+	UGeAbilitySystemComponent* GetAbilitySystemComponent() const;
+
 protected:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	UGeAbilitySystemComponent* AbilitySystemComp;
 
 	virtual void BindGASChangeDelegates();
@@ -38,7 +41,7 @@ protected:
 	/*                            Animation                               */
 	/**********************************************************************/
 protected:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	UGeAnimationComponent* AnimationComp;
 
 	/**********************************************************************/

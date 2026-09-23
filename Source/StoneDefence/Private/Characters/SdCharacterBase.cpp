@@ -41,6 +41,11 @@ void ASdCharacterBase::BeginPlay()
 	BindGASChangeDelegates();
 }
 
+UGeAbilitySystemComponent* ASdCharacterBase::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComp;
+}
+
 void ASdCharacterBase::BindGASChangeDelegates()
 {
 	if (AbilitySystemComp)

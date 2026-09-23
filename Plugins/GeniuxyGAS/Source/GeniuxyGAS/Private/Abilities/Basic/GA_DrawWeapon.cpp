@@ -10,7 +10,7 @@
 
 UGA_DrawWeapon::UGA_DrawWeapon()
 {
-	ActivationOwnedTags.AddTag(StatsTags::Ge_Stats_EquippingSword);
+	ActivationOwnedTags.AddTag(StatsTags::Ge_Stats_EquippingWeapon);
 	// ActivationRequiredTags.AddTag(StatsTags::Ge_Stats_EquippingSword);
 }
 

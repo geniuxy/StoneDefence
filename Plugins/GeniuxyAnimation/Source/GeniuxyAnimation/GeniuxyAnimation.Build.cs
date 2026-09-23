@@ -39,6 +39,7 @@ public class GeniuxyAnimation : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+				"GameplayAbilities",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

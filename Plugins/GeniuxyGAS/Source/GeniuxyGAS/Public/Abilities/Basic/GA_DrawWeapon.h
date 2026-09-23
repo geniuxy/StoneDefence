@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/Core/GeGameplayAbilityBase.h"
+#include "Tags/GAMontageTags.h"
 #include "GA_DrawWeapon.generated.h"
 
 class UAbilityTask_WaitInputPress;
@@ -33,11 +34,11 @@ private:
 	UFUNCTION()
 	void OnSheatheSwordEnd();
 
-	UPROPERTY(EditDefaultsOnly)
-	FGameplayTag DrawSwordMontageTag;
+	UPROPERTY(EditDefaultsOnly, meta=(Categories="Ge.Montage"))
+	FGameplayTag DrawSwordMontageTag = GAMontageTags::Ge_Montage_DrawWeapon;
 	
-	UPROPERTY(EditDefaultsOnly)
-	FGameplayTag SheatheSwordMontageTag;
+	UPROPERTY(EditDefaultsOnly, meta=(Categories="Ge.Montage"))
+	FGameplayTag SheatheSwordMontageTag = GAMontageTags::Ge_Montage_SheatheWeapon;
 	
 	UPROPERTY()
 	UAnimMontage* DrawSwordMontage = nullptr;

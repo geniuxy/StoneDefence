@@ -12,6 +12,6 @@ namespace StatsTags
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Energy_Empty, "Ge.Stats.Energy.Empty");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_InCombat, "Ge.Stats.InCombat");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_CanAttack, "Ge.Stats.CanAttack");
-	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_EquippingSword, "Ge.Stats.EquippingSword");
+	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_EquippingWeapon, "Ge.Stats.EquippingWeapon");
 	// UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Equipped_PrimaryWeapon, "Ge.Stats.Equipped.PrimaryWeapon");
 }
