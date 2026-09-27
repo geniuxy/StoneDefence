@@ -6,6 +6,8 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "GeniuxyGASType.h"
+#include "Comps/GeAbilitySystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -62,6 +64,15 @@ void ASdCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(
 			MoveInputAction, ETriggerEvent::Triggered, this, &ThisClass::HandleMoveInput
 		);
+
+		for (const TPair<EAbilityInputID, UInputAction*>& InputActionPair :
+		     AbilitySystemComp->GetGameplayAbilityInputActions())
+		{
+			EnhancedInputComponent->BindAction(
+				InputActionPair.Value, ETriggerEvent::Triggered, this,
+				&ThisClass::HandleAbilityInput, InputActionPair.Key
+			);
+		}
 	}
 }
 
@@ -100,6 +111,26 @@ void ASdCharacterHeroBase::HandleMoveInput(const FInputActionValue& InputActionV
 	{
 		FVector TargetRightDirection = ControllerRotation.RotateVector(FVector::RightVector);
 		AddMovementInput(TargetRightDirection, MoveInputVector.X);
+	}
+}
+
+void ASdCharacterHeroBase::HandleAbilityInput(const FInputActionValue& InputActionValue, EAbilityInputID InputID)
+{
+	bool bPressed = InputActionValue.Get<bool>();
+
+	// if (bPressed && bIsLearnAbilityLeaderPressedDown)
+	// {
+	// 	UpgradeAbilityWithInputID(InputID);
+	// 	return;
+	// }
+
+	if (bPressed)
+	{
+		GetAbilitySystemComponent()->AbilityLocalInputPressed((int32)InputID);
+	}
+	else
+	{
+		GetAbilitySystemComponent()->AbilityLocalInputReleased((int32)InputID);
 	}
 }
 

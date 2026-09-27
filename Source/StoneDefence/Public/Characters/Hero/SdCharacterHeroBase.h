@@ -7,6 +7,7 @@
 #include "Characters/SdCharacterBase.h"
 #include "SdCharacterHeroBase.generated.h"
 
+enum class EAbilityInputID : uint8;
 class UInputMappingContext;
 class UInputAction;
 class UCameraComponent;
@@ -57,4 +58,5 @@ private:
 
 	void HandleLookInput(const FInputActionValue& InputActionValue);
 	void HandleMoveInput(const FInputActionValue& InputActionValue);
+	void HandleAbilityInput(const FInputActionValue& InputActionValue, EAbilityInputID InputID);
 };

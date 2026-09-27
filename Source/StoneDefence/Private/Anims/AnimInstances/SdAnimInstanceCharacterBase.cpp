@@ -3,8 +3,11 @@
 
 #include "Anims/AnimInstances/SdAnimInstanceCharacterBase.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Tags/StatsTags.h"
 
 void USdAnimInstanceCharacterBase::NativeInitializeAnimation()
 {
@@ -14,6 +17,14 @@ void USdAnimInstanceCharacterBase::NativeInitializeAnimation()
 	if (OwnerCharacter)
 	{
 		OwnerMovementComp = OwnerCharacter->GetCharacterMovement();
+	}
+
+	UAbilitySystemComponent* OwnerASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TryGetPawnOwner());
+	if (OwnerASC)
+	{
+		OwnerASC->RegisterGameplayTagEvent(StatsTags::Ge_Stats_InCombat).AddUObject(
+			this, &ThisClass::OwnerCombatTagUpdated
+		);
 	}
 }
 
@@ -31,4 +42,9 @@ void USdAnimInstanceCharacterBase::NativeThreadSafeUpdateAnimation(float DeltaSe
 	{
 		bIsInAir = OwnerMovementComp->IsFalling();
 	}
+}
+
+void USdAnimInstanceCharacterBase::OwnerCombatTagUpdated(const FGameplayTag Tag, int32 NewCount)
+{
+	bIsInCombat = NewCount != 0;
 }

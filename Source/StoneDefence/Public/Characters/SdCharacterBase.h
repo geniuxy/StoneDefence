@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/Character.h"
 #include "SdCharacterBase.generated.h"
 
+class UPA_CharacterDefinition;
+struct FGameplayTag;
 class UGeAnimationComponent;
 class UGeAbilitySystemComponent;
 
@@ -25,6 +28,11 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditDefaultsOnly, meta=(Categories="Sd.Character"))
+	FGameplayTag CharacterTag;
+
+	void InitCharacterDef();
+
 	/**********************************************************************/
     /*                               GAS                                  */
     /**********************************************************************/
@@ -43,6 +51,8 @@ protected:
 protected:
 	UPROPERTY(VisibleAnywhere)
 	UGeAnimationComponent* AnimationComp;
+
+	void InitAnimationSet(const UPA_CharacterDefinition* InDefinition);
 
 	/**********************************************************************/
 	/*                             Network                                */

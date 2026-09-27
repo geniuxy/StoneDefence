@@ -7,6 +7,11 @@
 #include "Comps/GeAnimationComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "GeniuxyDebugHelper.h"
+#include "Data/CharacterAnimationSet.h"
+#include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
+#include "Frameworks/SdAssetManager.h"
+#include "Subsystems/GameInstanceSubsytems/SdGISubsystemCharacter.h"
+#include "Tags/CharacterTags.h"
 
 ASdCharacterBase::ASdCharacterBase()
 {
@@ -39,6 +44,29 @@ void ASdCharacterBase::BeginPlay()
 	GetNetworkDebugInfo();
 	
 	BindGASChangeDelegates();
+
+	InitCharacterDef();
+}
+
+void ASdCharacterBase::InitCharacterDef()
+{
+	USdGISubsystemCharacter* Subsystem = USdGISubsystemCharacter::Get(this);
+	if (!Subsystem) return;
+
+	const FPrimaryAssetId AssetId(
+		UPA_CharacterDefinition::GetCharacterDefinitionAssetType(), 
+		CharacterTag.GetTagName()
+	);
+	Subsystem->LoadCharacter(
+		AssetId,
+		FOnCharacterDefinitionLoaded::CreateWeakLambda(
+			this,
+			[this](const UPA_CharacterDefinition* Definition)
+			{
+				InitAnimationSet(Definition);
+			}
+		)
+	);
 }
 
 UGeAbilitySystemComponent* ASdCharacterBase::GetAbilitySystemComponent() const
@@ -50,6 +78,22 @@ void ASdCharacterBase::BindGASChangeDelegates()
 {
 	if (AbilitySystemComp)
 	{
+	}
+}
+
+void ASdCharacterBase::InitAnimationSet(const UPA_CharacterDefinition* InDefinition)
+{
+	if (AnimationComp)
+	{
+		AnimationComp->SetAnimationSet(InDefinition->LoadAnimationSet());
+	}
+
+	if (AbilitySystemComp)
+	{
+		for (TPair<FGameplayTag, FCharacterMontageEntry> Pair : InDefinition->LoadAnimationSet()->Montages)
+		{
+			AbilitySystemComp->UpdateMontageMap(Pair.Key, Pair.Value.Montage);
+		}
 	}
 }
 

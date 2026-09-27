@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "SdAnimInstanceBase.h"
 #include "SdAnimInstanceCharacterBase.generated.h"
 
@@ -25,6 +26,9 @@ public:
 	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
 	FORCEINLINE float GetSpeed() const { return Speed; }
 
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE bool GetIsInCombat() const { return bIsInCombat; }
+
 protected:
 	UPROPERTY()
 	ACharacter* OwnerCharacter;
@@ -34,4 +38,11 @@ protected:
 	
 	bool bIsInAir = false;
 	float Speed;
+
+	bool bIsInCombat;
+
+	/**********************************************************************/
+	/*                           Tag变化相关函数                            */
+	/**********************************************************************/
+	void OwnerCombatTagUpdated(const FGameplayTag Tag, int32 NewCount);
 };
