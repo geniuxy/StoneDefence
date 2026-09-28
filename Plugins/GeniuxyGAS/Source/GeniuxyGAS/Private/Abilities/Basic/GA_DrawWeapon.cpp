@@ -46,10 +46,28 @@ void UGA_DrawWeapon::ActivateAbility(
 
 bool UGA_DrawWeapon::PreLoadMontage()
 {
-	if (!DrawSwordMontageTag.IsValid() || !SheatheSwordMontageTag.IsValid()) return false;
-	DrawSwordMontage = GetMontageByTag(DrawSwordMontageTag).LoadSynchronous();
-	SheatheSwordMontage = GetMontageByTag(SheatheSwordMontageTag).LoadSynchronous();
-	return true;
+	if (!DrawSwordMontageTag.IsValid() || !SheatheSwordMontageTag.IsValid())
+	{
+		return false;
+	}
+	const TSoftObjectPtr<UAnimMontage> DrawMontage = GetMontageByTag(DrawSwordMontageTag);
+	const TSoftObjectPtr<UAnimMontage> SheatheMontage = GetMontageByTag(SheatheSwordMontageTag);
+	if (DrawMontage.IsNull() || SheatheMontage.IsNull())
+	{
+		return false;
+	}
+
+	if (GetOwnerASC() && GetOwnerASC()->AreMontagesLoaded())
+	{
+		DrawSwordMontage = GetMontageByTag(DrawSwordMontageTag).Get();
+		SheatheSwordMontage = GetMontageByTag(SheatheSwordMontageTag).Get();
+		return DrawSwordMontage != nullptr && SheatheSwordMontage != nullptr;
+	}
+
+	DrawSwordMontage = DrawMontage.LoadSynchronous();
+	SheatheSwordMontage = SheatheMontage.LoadSynchronous();
+
+	return DrawSwordMontage != nullptr && SheatheSwordMontage != nullptr;
 }
 
 void UGA_DrawWeapon::HandleInputPress(float TimeWaited)

@@ -9,6 +9,7 @@
 #include "AttributeSets/GeAttributeSetBase.h"
 #include "AttributeSets/GeAttributeSetHero.h"
 #include "Datas/PA_AbilitySystemGenerics.h"
+#include "Engine/AssetManager.h"
 #include "Net/UnrealNetwork.h"
 #include "Tags/EventTags.h"
 #include "Tags/StatsTags.h"
@@ -246,5 +247,36 @@ void UGeAbilitySystemComponent::UpdateMontageMap(FGameplayTag InTag, const TSoft
 	{
 		MontageMap.Add(InTag, InMontage);
 	}
+}
+
+void UGeAbilitySystemComponent::PreLoadMontages()
+{
+	TArray<FSoftObjectPath> AssetsToLoad;
+
+	for (const auto& Pair : MontageMap)
+	{
+		if (Pair.Value.IsValid())
+		{
+			AssetsToLoad.Add(Pair.Value.ToSoftObjectPath());
+		}
+	}
+
+	if (AssetsToLoad.IsEmpty())
+	{
+		return;
+	}
+
+	TSharedPtr<FStreamableHandle> MontageLoadHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(
+		AssetsToLoad,
+		FStreamableDelegate::CreateUObject(
+			this,
+			&UGeAbilitySystemComponent::OnMontagesLoaded
+		)
+	);
+}
+
+void UGeAbilitySystemComponent::OnMontagesLoaded()
+{
+	bMontagesLoaded = true;
 }
 

@@ -94,6 +94,8 @@ void ASdCharacterBase::InitAnimationSet(const UPA_CharacterDefinition* InDefinit
 		{
 			AbilitySystemComp->UpdateMontageMap(Pair.Key, Pair.Value.Montage);
 		}
+
+		AbilitySystemComp->PreLoadMontages();
 	}
 }
 

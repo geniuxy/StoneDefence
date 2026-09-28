@@ -75,8 +75,13 @@ private:
 	UPROPERTY()
 	TMap<FGameplayTag, TSoftObjectPtr<UAnimMontage>> MontageMap;
 
+	bool bMontagesLoaded = false;
+
 public:
 	void UpdateMontageMap(FGameplayTag InTag, const TSoftObjectPtr<UAnimMontage>& InMontage);
+	void PreLoadMontages();
+	void OnMontagesLoaded();
 
-	FORCEINLINE TMap<FGameplayTag, TSoftObjectPtr<UAnimMontage>> GetMontageMap() const { return MontageMap; }
+	FORCEINLINE const TMap<FGameplayTag, TSoftObjectPtr<UAnimMontage>>& GetMontageMap() const { return MontageMap; }
+	FORCEINLINE bool AreMontagesLoaded() const { return bMontagesLoaded; }
 };
