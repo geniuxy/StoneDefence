@@ -26,7 +26,6 @@ public class GeniuxyAnimation : ModuleRules
 			new string[]
 			{
 				"Core",
-				"GameplayTags",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -40,6 +39,7 @@ public class GeniuxyAnimation : ModuleRules
 				"Slate",
 				"SlateCore",
 				"GameplayAbilities",
+				"GameplayTags",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

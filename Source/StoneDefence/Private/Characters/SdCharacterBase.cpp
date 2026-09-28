@@ -7,10 +7,12 @@
 #include "Comps/GeAnimationComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "GeniuxyDebugHelper.h"
+#include "Animations/AnimNotifies/AN_DrawWeapon.h"
 #include "Data/CharacterAnimationSet.h"
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
 #include "Frameworks/SdAssetManager.h"
 #include "Subsystems/GameInstanceSubsytems/SdGISubsystemCharacter.h"
+#include "Tags/AMEventTags.h"
 #include "Tags/CharacterTags.h"
 
 ASdCharacterBase::ASdCharacterBase()
@@ -19,6 +21,13 @@ ASdCharacterBase::ASdCharacterBase()
 
 	AnimationComp = CreateDefaultSubobject<UGeAnimationComponent>(TEXT("AnimationComp"));
 	AbilitySystemComp = CreateDefaultSubobject<UGeAbilitySystemComponent>(TEXT("AbilitySystemComp"));
+
+	WeaponMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMeshComponent"));
+	WeaponMeshComponent->SetupAttachment(GetMesh());
+	WeaponMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	WeaponMeshComponent->SetCollisionProfileName(TEXT("NoCollision"));
+	WeaponMeshComponent->bCastDynamicShadow = true;
+	WeaponMeshComponent->CastShadow = true;
 }
 
 void ASdCharacterBase::ServerSideInit()
@@ -46,6 +55,15 @@ void ASdCharacterBase::BeginPlay()
 	BindGASChangeDelegates();
 
 	InitCharacterDef();
+
+	DrawWeapon(FName(TEXT("WeaponBackSocket")));
+}
+
+void ASdCharacterBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	UnBindGASChangeDelegates();
 }
 
 void ASdCharacterBase::InitCharacterDef()
@@ -78,7 +96,91 @@ void ASdCharacterBase::BindGASChangeDelegates()
 {
 	if (AbilitySystemComp)
 	{
+		DrawWeaponEventHandle = AbilitySystemComp->AddGameplayEventTagContainerDelegate(
+			FGameplayTagContainer(AMEventTags::Ge_Event_DrawWeapon),
+			FGameplayEventTagMulticastDelegate::FDelegate::CreateUObject(
+				this, &ThisClass::HandleDrawWeaponEvent
+			)
+		);
+
+		SheatheWeaponEventHandle = AbilitySystemComp->AddGameplayEventTagContainerDelegate(
+			FGameplayTagContainer(AMEventTags::Ge_Event_SheatheWeapon),
+			FGameplayEventTagMulticastDelegate::FDelegate::CreateUObject(
+				this, &ThisClass::HandleSheatheWeaponEvent
+			)
+		);
 	}
+}
+
+void ASdCharacterBase::UnBindGASChangeDelegates()
+{
+	if (IsValid(AbilitySystemComp))
+	{
+		AbilitySystemComp->RemoveGameplayEventTagContainerDelegate(
+			FGameplayTagContainer(AMEventTags::Ge_Event_DrawWeapon), DrawWeaponEventHandle
+		);
+		AbilitySystemComp->RemoveGameplayEventTagContainerDelegate(
+			FGameplayTagContainer(AMEventTags::Ge_Event_SheatheWeapon), SheatheWeaponEventHandle
+		);
+	}
+}
+
+void ASdCharacterBase::HandleDrawWeaponEvent(FGameplayTag GameplayTag, const FGameplayEventData* GameplayEventData)
+{
+	// TODO: 后面这一块放到EquipmentComp里
+	if(const USocketNameWrapper* Wrapper = Cast<USocketNameWrapper>(GameplayEventData->OptionalObject))
+	{
+		FName SocketName = Wrapper->SocketName;
+		DrawWeapon(SocketName);
+	}
+}
+
+void ASdCharacterBase::HandleSheatheWeaponEvent(FGameplayTag GameplayTag, const FGameplayEventData* GameplayEventData)
+{
+	if(const USocketNameWrapper* Wrapper = Cast<USocketNameWrapper>(GameplayEventData->OptionalObject))
+	{
+		FName SocketName = Wrapper->SocketName;
+		SheatheWeapon(SocketName);
+	}
+}
+
+void ASdCharacterBase::DrawWeapon(FName InSocketName)
+{
+	const FSoftObjectPath MeshPath = DefaultWeaponMesh.ToSoftObjectPath();
+	TWeakObjectPtr<ASdCharacterBase> WeakThis(this);
+
+	FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
+	Streamable.RequestAsyncLoad(MeshPath, [WeakThis, MeshPath, InSocketName]()
+	{
+		if (ASdCharacterBase* Character = WeakThis.Get())
+		{
+			if (USkeletalMesh* LoadedMesh = Cast<USkeletalMesh>(MeshPath.ResolveObject()))
+			{
+				Character->WeaponMeshComponent->SetSkeletalMesh(LoadedMesh);
+				Character->WeaponMeshComponent->AttachToComponent(
+					Character->GetMesh(),
+					FAttachmentTransformRules::SnapToTargetIncludingScale,
+					InSocketName
+				);
+				Character->CurrentWeaponSocket = InSocketName;
+			}
+		}
+	});
+}
+
+void ASdCharacterBase::SheatheWeapon(FName InSocketName)
+{
+	if (!WeaponMeshComponent->GetSkeletalMeshAsset())
+	{
+		return;
+	}
+
+	WeaponMeshComponent->AttachToComponent(
+		GetMesh(),
+		FAttachmentTransformRules::SnapToTargetIncludingScale,
+		InSocketName
+	);
+	CurrentWeaponSocket = InSocketName;
 }
 
 void ASdCharacterBase::InitAnimationSet(const UPA_CharacterDefinition* InDefinition)

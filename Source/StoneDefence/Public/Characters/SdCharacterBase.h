@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "Abilities/GameplayAbilityTypes.h"
 #include "GameFramework/Character.h"
 #include "SdCharacterBase.generated.h"
 
@@ -27,6 +28,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UPROPERTY(EditDefaultsOnly, meta=(Categories="Sd.Character"))
 	FGameplayTag CharacterTag;
@@ -44,6 +46,31 @@ protected:
 	UGeAbilitySystemComponent* AbilitySystemComp;
 
 	virtual void BindGASChangeDelegates();
+	virtual void UnBindGASChangeDelegates();
+
+	/**********************************************************************/
+	/*                            Equipment                               */
+	/**********************************************************************/
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USkeletalMeshComponent> WeaponMeshComponent;
+
+	// 当前武器所在的插槽，便于判断当前是拔出还是收刀状态
+	UPROPERTY(BlueprintReadOnly)
+	FName CurrentWeaponSocket = NAME_None;
+
+protected:
+	FDelegateHandle DrawWeaponEventHandle;
+	void HandleDrawWeaponEvent(FGameplayTag GameplayTag, const FGameplayEventData* GameplayEventData);
+	FDelegateHandle SheatheWeaponEventHandle;
+	void HandleSheatheWeaponEvent(FGameplayTag GameplayTag, const FGameplayEventData* GameplayEventData);
+
+	void DrawWeapon(FName InSocketName);
+	void SheatheWeapon(FName InSocketName);
+
+private:
+	UPROPERTY(EditAnywhere)
+	TSoftObjectPtr<USkeletalMesh> DefaultWeaponMesh;
 
 	/**********************************************************************/
 	/*                            Animation                               */
