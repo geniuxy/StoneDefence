@@ -42,6 +42,8 @@ void USdAnimInstanceCharacterBase::NativeThreadSafeUpdateAnimation(float DeltaSe
 	{
 		bIsInAir = OwnerMovementComp->IsFalling();
 	}
+
+	bFootIK = bCanFootIK && !bIsInAir;
 }
 
 void USdAnimInstanceCharacterBase::OwnerCombatTagUpdated(const FGameplayTag Tag, int32 NewCount)

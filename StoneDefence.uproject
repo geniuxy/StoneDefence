@@ -46,6 +46,10 @@
 		{
 			"Name": "GeniuxyCommon",
 			"Enabled": true
+		},
+		{
+			"Name": "SimpleAdvancedAnimation",
+			"Enabled": true
 		}
 	]
 }
