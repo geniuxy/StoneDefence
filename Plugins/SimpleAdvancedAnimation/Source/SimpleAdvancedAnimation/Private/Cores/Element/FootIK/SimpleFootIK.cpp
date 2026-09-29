@@ -82,7 +82,7 @@ float FSimpleFootIK::FootTrace(const FName& BoneName, float InTraceDistance)
 			ETraceTypeQuery::TraceTypeQuery1,
 			false,
 			Ignores,
-			EDrawDebugTrace::Type::ForOneFrame,
+			EDrawDebugTrace::Type::None,
 			HitResult,
 			true))
 		{

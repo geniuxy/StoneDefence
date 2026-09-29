@@ -12,11 +12,11 @@ void USdAnimInstanceBase::NativeInitializeAnimation()
 	Super::NativeInitializeAnimation();
 
 	OwnerSkeletalMeshComp = GetSkelMeshComponent();
+	bFootIK = bCanFootIK;
 	ACharacter* OwnerCharacter = Cast<ACharacter>(OwnerSkeletalMeshComp->GetOwner());
 	if (OwnerCharacter)
 	{
-		bFootIK = bCanFootIK;
-		InitFootIKId(OwnerCharacter);
+		// InitFootIKId(OwnerCharacter);
 	}
 }
 
@@ -24,7 +24,7 @@ void USdAnimInstanceBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
 
-	CalcFootIKOffset();
+	// CalcFootIKOffset();
 }
 
 void USdAnimInstanceBase::InitFootIKId(ACharacter* OwnerCharacter)
