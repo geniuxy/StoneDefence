@@ -5,6 +5,7 @@
 
 #include "Characters/Hero/SdCharacterHeroBase.h"
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
+#include "Interfaces/FaceSculpting.h"
 
 void USdAnimInstanceHeroBase::NativeInitializeAnimation()
 {
@@ -22,10 +23,13 @@ void USdAnimInstanceHeroBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds
 
 	if (OwnerHero)
 	{
-		LegSize = OwnerHero->GetFigureSizeByType(ESdFigureType::FT_LEG);
-		WaistSize = OwnerHero->GetFigureSizeByType(ESdFigureType::FT_WAIST);
-		ArmSize = OwnerHero->GetFigureSizeByType(ESdFigureType::FT_ARM);
-		HeadSize = OwnerHero->GetFigureSizeByType(ESdFigureType::FT_HEAD);
-		ChestSize = OwnerHero->GetFigureSizeByType(ESdFigureType::FT_CHEST);
+		if (IFaceSculpting* SculptableHero = Cast<IFaceSculpting>(OwnerHero))
+		{
+			LegSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_LEG);
+			WaistSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_WAIST);
+			ArmSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_ARM);
+			HeadSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_HEAD);
+			ChestSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_CHEST);
+		}
 	}
 }

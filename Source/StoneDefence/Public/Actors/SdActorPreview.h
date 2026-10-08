@@ -4,16 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Actors/SdActorBase.h"
+#include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
+#include "Interfaces/FaceSculpting.h"
 #include "StoneDefence/StoneDefence.h"
 #include "SdActorPreview.generated.h"
 
-struct FFaceSculptFigureTypeInfo;
-enum class ESdFigureType : uint8;
 class UCameraComponent;
-class UPA_CharacterDefinition;
 
 UCLASS()
-class STONEDEFENCE_API ASdActorPreview : public ASdActorBase
+class STONEDEFENCE_API ASdActorPreview : public ASdActorBase, public IFaceSculpting
 {
 	GENERATED_BODY()
 
@@ -38,17 +37,4 @@ private:
 
 public:
 	DATA_ACCESSOR(bool, IsModifying)
-
-	/**********************************************************************/
-	/*                          Figure Type Size                          */
-	/**********************************************************************/
-public:
-	void UpdateFigureTypeSize(ESdFigureType InType, int32 InValue);
-	void UpdateFigureTypeSize(TArray<FFaceSculptFigureTypeInfo> InFigureSettings);
-	void UpdateFigureTypeSizeByDefault(TArray<FFaceSculptFigureTypeInfo> InFigureSettings);
-	void UpdateFigureTypeSize(const FString& InFigureSizeStr);
-	int32 GetFigureSizeByType(ESdFigureType InType);
-	
-protected:
-	TMap<ESdFigureType, int32> FigureSizeMap;
 };

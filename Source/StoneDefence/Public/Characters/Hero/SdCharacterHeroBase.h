@@ -6,6 +6,7 @@
 #include "InputActionValue.h"
 #include "Characters/SdCharacterBase.h"
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
+#include "Interfaces/FaceSculpting.h"
 #include "SdCharacterHeroBase.generated.h"
 
 enum class EAbilityInputID : uint8;
@@ -15,7 +16,7 @@ class UCameraComponent;
 class USpringArmComponent;
 
 UCLASS()
-class STONEDEFENCE_API ASdCharacterHeroBase : public ASdCharacterBase
+class STONEDEFENCE_API ASdCharacterHeroBase : public ASdCharacterBase, public IFaceSculpting
 {
 	GENERATED_BODY()
 
@@ -60,17 +61,4 @@ private:
 	void HandleLookInput(const FInputActionValue& InputActionValue);
 	void HandleMoveInput(const FInputActionValue& InputActionValue);
 	void HandleAbilityInput(const FInputActionValue& InputActionValue, EAbilityInputID InputID);
-
-	/**********************************************************************/
-	/*                          Figure Type Size                          */
-	/**********************************************************************/
-public:
-	void UpdateFigureTypeSize(ESdFigureType InType, int32 InValue);
-	void UpdateFigureTypeSize(TArray<FFaceSculptFigureTypeInfo> InFigureSettings);
-	void UpdateFigureTypeSizeByDefault(TArray<FFaceSculptFigureTypeInfo> InFigureSettings);
-	void UpdateFigureTypeSize(const FString& InFigureSizeStr);
-	int32 GetFigureSizeByType(ESdFigureType InType);
-
-protected:
-	TMap<ESdFigureType, int32> FigureSizeMap;
 };

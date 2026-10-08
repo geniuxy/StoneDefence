@@ -21,15 +21,18 @@ void USdAnimInstancePreview::NativeInitializeAnimation()
 void USdAnimInstancePreview::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
-	
+
 	if (OwnerPreviewActor)
 	{
 		bIsModifying = OwnerPreviewActor->GetIsModifying();
 
-		LegSize = OwnerPreviewActor->GetFigureSizeByType(ESdFigureType::FT_LEG);
-		WaistSize = OwnerPreviewActor->GetFigureSizeByType(ESdFigureType::FT_WAIST);
-		ArmSize = OwnerPreviewActor->GetFigureSizeByType(ESdFigureType::FT_ARM);
-		HeadSize = OwnerPreviewActor->GetFigureSizeByType(ESdFigureType::FT_HEAD);
-		ChestSize = OwnerPreviewActor->GetFigureSizeByType(ESdFigureType::FT_CHEST);
+		if (IFaceSculpting* SculptableActor = Cast<IFaceSculpting>(OwnerPreviewActor))
+		{
+			LegSize = SculptableActor->GetFigureSizeByType(ESdFigureType::FT_LEG);
+			WaistSize = SculptableActor->GetFigureSizeByType(ESdFigureType::FT_WAIST);
+			ArmSize = SculptableActor->GetFigureSizeByType(ESdFigureType::FT_ARM);
+			HeadSize = SculptableActor->GetFigureSizeByType(ESdFigureType::FT_HEAD);
+			ChestSize = SculptableActor->GetFigureSizeByType(ESdFigureType::FT_CHEST);
+		}
 	}
 }
