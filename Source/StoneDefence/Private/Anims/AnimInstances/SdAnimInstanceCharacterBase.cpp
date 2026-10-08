@@ -5,6 +5,8 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "Characters/SdCharacterBase.h"
+#include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Tags/StatsTags.h"
@@ -13,7 +15,7 @@ void USdAnimInstanceCharacterBase::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
-	OwnerCharacter = Cast<ACharacter>(TryGetPawnOwner());
+	OwnerCharacter = Cast<ASdCharacterBase>(TryGetPawnOwner());
 	if (OwnerCharacter)
 	{
 		OwnerMovementComp = OwnerCharacter->GetCharacterMovement();

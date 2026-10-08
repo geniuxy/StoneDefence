@@ -7,6 +7,7 @@
 #include "SdAnimInstanceBase.h"
 #include "SdAnimInstanceCharacterBase.generated.h"
 
+class ASdCharacterBase;
 class UCharacterMovementComponent;
 /**
  * 
@@ -31,7 +32,7 @@ public:
 
 protected:
 	UPROPERTY()
-	ACharacter* OwnerCharacter;
+	ASdCharacterBase* OwnerCharacter;
 
 	UPROPERTY()
 	UCharacterMovementComponent* OwnerMovementComp;
@@ -44,5 +45,6 @@ protected:
 	/**********************************************************************/
 	/*                           Tag变化相关函数                            */
 	/**********************************************************************/
+protected:
 	void OwnerCombatTagUpdated(const FGameplayTag Tag, int32 NewCount);
 };
