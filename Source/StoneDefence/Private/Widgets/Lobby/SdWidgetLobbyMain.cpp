@@ -3,10 +3,10 @@
 
 #include "Widgets/Lobby/SdWidgetLobbyMain.h"
 
+#include "GeniuxyCommonBPLibrary.h"
 #include "GeniuxyDebugHelper.h"
 #include "Frameworks/GameInstance/SdGameInstance.h"
 #include "Frameworks/PlayerStates/SdPlayerStateLobby.h"
-#include "FunctionLibraries/SdFunctionLibraryCommon.h"
 #include "Kismet/GameplayStatics.h"
 #include "Widgets/Common/SdWidgetPrintMsg.h"
 #include "Widgets/Lobby/SdWidgetCharacterSelectionPanel.h"
@@ -163,7 +163,7 @@ void USdWidgetLobbyMain::HandleDeleteCharacterResponses(FSimpleChannel* Channel)
 					TEXT("Delete Character Error: UserId:%i, SlotIndex:%i, ErrorType:%s"),
 					UserId,
 					SlotIndex,
-					*USdFunctionLibraryCommon::GetDisplayValueOfEnum(DeleteCharacterResponseType).ToString()
+					*UGeniuxyCommonBPLibrary::GetDisplayValueOfEnum(DeleteCharacterResponseType).ToString()
 				)
 			);
 			break;
@@ -174,7 +174,7 @@ void USdWidgetLobbyMain::HandleDeleteCharacterResponses(FSimpleChannel* Channel)
 					TEXT("Delete Character Success: UserId:%i, SlotIndex:%i, Type:%s"),
 					UserId,
 					SlotIndex,
-					*USdFunctionLibraryCommon::GetDisplayValueOfEnum(DeleteCharacterResponseType).ToString()
+					*UGeniuxyCommonBPLibrary::GetDisplayValueOfEnum(DeleteCharacterResponseType).ToString()
 				)
 			);
 

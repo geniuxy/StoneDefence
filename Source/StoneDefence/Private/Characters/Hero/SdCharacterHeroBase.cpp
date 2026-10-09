@@ -8,6 +8,8 @@
 #include "EnhancedInputComponent.h"
 #include "GeniuxyGASType.h"
 #include "Comps/GeAbilitySystemComponent.h"
+#include "Frameworks/GameInstance/SdGameInstance.h"
+#include "Frameworks/GameModes/Gameplay/SdGameModeGameBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -79,6 +81,14 @@ void ASdCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 void ASdCharacterHeroBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		if (USdGameInstance* InGameInstance = GetWorld()->GetGameInstance<USdGameInstance>())
+		{
+			Server_UpdateFaceSculpting(InGameInstance->GetUserData().Id);
+		}
+	}
 }
 
 void ASdCharacterHeroBase::HandleLookInput(const FInputActionValue& InputActionValue)
@@ -132,4 +142,18 @@ void ASdCharacterHeroBase::HandleAbilityInput(const FInputActionValue& InputActi
 	{
 		GetAbilitySystemComponent()->AbilityLocalInputReleased((int32)InputID);
 	}
+}
+
+void ASdCharacterHeroBase::Server_UpdateFaceSculpting_Implementation(int32 InUserId)
+{
+	if (ASdGameModeGameBase* InGameMode = GetWorld()->GetAuthGameMode<ASdGameModeGameBase>())
+	{
+		CachedOwnerUserId = InUserId;
+		InGameMode->LoginCharacterUpdateFaceSculptingRequest(InUserId);
+	}
+}
+
+void ASdCharacterHeroBase::Client_UpdateFaceSculpting_Implementation(const FString& InFigureString)
+{
+	UpdateFigureTypeSize(InFigureString);
 }

@@ -34,4 +34,13 @@ protected:
 	virtual void HandleServerLinkInfo(ESimpleNetErrorType InType, const FString& InMsg);
 
 	void LinkServer();
+
+private:
+	void HandleUpdateLoginCharacterInfoResponses(FSimpleChannel* Channel);
+
+	/**********************************************************************/
+	/*                          Face Sculpting                            */
+	/**********************************************************************/
+public:
+	void LoginCharacterUpdateFaceSculptingRequest(int32 InUserId);
 };

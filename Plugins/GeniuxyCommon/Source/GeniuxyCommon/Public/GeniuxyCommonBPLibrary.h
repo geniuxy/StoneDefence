@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "GeniuxyCommonType.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "GeniuxyCommonBPLibrary.generated.h"
 
@@ -26,7 +27,52 @@ UCLASS()
 class UGeniuxyCommonBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
+	/*
+	 * 在服务器上遍历所有的PlayerController，找到符合InImplement的那个
+	 */
+	template <class T>
+	static void ServerCallAllPlayerController(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement)
+	{
+		for (FConstPlayerControllerIterator It = InWorld->GetPlayerControllerIterator(); It; ++It)
+		{
+			if (T* InPlayerController = Cast<T>(It->Get()))
+			{
+				if (InImplement(InPlayerController) == EServerCallType::SC_PROGRESS_COMPLETE)
+				{
+					break;
+				}
+			}
+		}
+	}
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Execute Sample function", Keywords = "GeniuxyCommon sample test testing"), Category = "GeniuxyCommonTesting")
-	static float GeniuxyCommonSampleFunction(float Param);
+	template <class T>
+	static void ServerCallAllPlayer(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement)
+	{
+		ServerCallAllPlayerController<APlayerController>(InWorld, [&](const APlayerController* InPlayerController)
+		{
+			if (T* InPawn = Cast<T>(InPlayerController->GetPawn()))
+			{
+				return InImplement(InPawn);
+			}
+
+			return EServerCallType::SC_INPROGRESS;
+		});
+	}
+
+	template <typename EnumType>
+	static FString GetStringValueOfEnum(EnumType InEnumType)
+	{
+		const UEnum* StaticEnumOption = StaticEnum<EnumType>();
+
+		return StaticEnumOption->GetNameStringByIndex(static_cast<int64>(InEnumType));
+	}
+
+	// Tips: 这个方法不能用于打包出来的版本
+	template <typename EnumType>
+	static FText GetDisplayValueOfEnum(EnumType InEnumType)
+	{
+		const UEnum* StaticEnumOption = StaticEnum<EnumType>();
+
+		return StaticEnumOption->GetDisplayNameTextByIndex(static_cast<int64>(InEnumType));
+	}
 };

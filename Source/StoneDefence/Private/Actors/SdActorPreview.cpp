@@ -70,7 +70,7 @@ void ASdActorPreview::ConfigureWithCharacterDefinition(const UPA_CharacterDefini
 	{
 		UpdateFigureTypeSize(CharacterAppearance->FigureSizeStr);
 	}
-	else // 说明实在新建角色，CurValue = 0,重新用默认值更新一下身材系数
+	else // 说明是在新建角色，CurValue = 0,重新用默认值更新一下身材系数
 	{
 		UpdateFigureTypeSizeByDefault(CharacterDefinition->GetDefaultFigureSettings());
 	}

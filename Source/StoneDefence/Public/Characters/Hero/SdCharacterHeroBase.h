@@ -29,6 +29,12 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY()
+	int32 CachedOwnerUserId = INDEX_NONE;
+
+public:
+	FORCEINLINE int32 GetCachedOwnerUserId() const { return CachedOwnerUserId; }
+
 	/**********************************************************************/
 	/*                           Camera View                              */
 	/**********************************************************************/
@@ -61,4 +67,15 @@ private:
 	void HandleLookInput(const FInputActionValue& InputActionValue);
 	void HandleMoveInput(const FInputActionValue& InputActionValue);
 	void HandleAbilityInput(const FInputActionValue& InputActionValue, EAbilityInputID InputID);
+
+	/**********************************************************************/
+	/*                          Face Sculpting                            */
+	/**********************************************************************/
+protected:
+	UFUNCTION(Server, Reliable)
+	void Server_UpdateFaceSculpting(int32 InUserId);
+
+public:
+	UFUNCTION(Client, Reliable)
+	void Client_UpdateFaceSculpting(const FString& InFigureString);
 };

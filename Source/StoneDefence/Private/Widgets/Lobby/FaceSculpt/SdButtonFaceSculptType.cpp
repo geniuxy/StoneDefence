@@ -3,7 +3,7 @@
 
 #include "Widgets/Lobby/FaceSculpt/SdButtonFaceSculptType.h"
 
-#include "FunctionLibraries/SdFunctionLibraryCommon.h"
+#include "GeniuxyCommonBPLibrary.h"
 
 void USdButtonFaceSculptType::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
@@ -12,6 +12,6 @@ void USdButtonFaceSculptType::NativeOnListItemObjectSet(UObject* ListItemObject)
 	FaceSculptPageData = Cast<UFaceSculptPageData>(ListItemObject);
 	if (FaceSculptPageData)
 	{
-		SetButtonText(USdFunctionLibraryCommon::GetDisplayValueOfEnum(FaceSculptPageData->GetType()));
+		SetButtonText(UGeniuxyCommonBPLibrary::GetDisplayValueOfEnum(FaceSculptPageData->GetType()));
 	}
 }

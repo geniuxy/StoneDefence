@@ -5,8 +5,8 @@
 
 #include "AnalogSlider.h"
 #include "CommonTextBlock.h"
+#include "GeniuxyCommonBPLibrary.h"
 #include "Actors/SdActorPreview.h"
-#include "FunctionLibraries/SdFunctionLibraryCommon.h"
 #include "Subsystems/GameInstanceSubsytems/SdGISubsystemLobby.h"
 
 void USdListEntryFaceSculptingFigure::NativeOnListItemObjectSet(UObject* ListItemObject)
@@ -16,7 +16,7 @@ void USdListEntryFaceSculptingFigure::NativeOnListItemObjectSet(UObject* ListIte
 	FaceSculptingFigureData = Cast<UFaceSculptingFigureData>(ListItemObject);
 	if (FaceSculptingFigureData)
 	{
-		FigureTypeText->SetText(USdFunctionLibraryCommon::GetDisplayValueOfEnum(FaceSculptingFigureData->GetType()));
+		FigureTypeText->SetText(UGeniuxyCommonBPLibrary::GetDisplayValueOfEnum(FaceSculptingFigureData->GetType()));
 		AnalogSlider_Setting->SetMaxValue(FaceSculptingFigureData->GetMaxValue());
 		AnalogSlider_Setting->SetMinValue(FaceSculptingFigureData->GetMinValue());
 		AnalogSlider_Setting->SetStepSize(1);
