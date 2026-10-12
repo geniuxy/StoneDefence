@@ -23,3 +23,8 @@ void SdRobotBase::InitDs(const FString& Host, const int32 Port)
 {
 	DsRobot.Init(Host, Port);
 }
+
+void SdRobotBase::RunLoginToDsServerRequests()
+{
+	GateRobot.RunLoginToDsServerRequests();
+}

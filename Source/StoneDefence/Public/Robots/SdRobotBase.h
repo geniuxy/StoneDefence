@@ -20,9 +20,17 @@ public:
 	void InitGate(const FString& Host, const int32 Port);
 	void InitDs(const FString& Host, const int32 Port);
 
+	SdRobotGate& GetGateRobot() { return GateRobot;}
+
 private:
 	SdRobotGate GateRobot;
 	SdRobotDs DsRobot;
 
 	FSdUserData UserData;
+
+	/**********************************************************************/
+	/*                           Run Request                              */
+	/**********************************************************************/
+public:
+	void RunLoginToDsServerRequests();
 };

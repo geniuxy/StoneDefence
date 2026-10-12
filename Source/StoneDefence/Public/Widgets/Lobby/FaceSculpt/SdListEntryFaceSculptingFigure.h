@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
-#include "StoneDefence/StoneDefence.h"
+#include "GeniuxyCommonMacro.h"
 #include "Widgets/Components/ListEntryDataObjects/SdListEntryDataObjectBase.h"
 #include "Widgets/Components/ListEntryWidgets/SdWidgetListEntryBase.h"
 #include "SdListEntryFaceSculptingFigure.generated.h"

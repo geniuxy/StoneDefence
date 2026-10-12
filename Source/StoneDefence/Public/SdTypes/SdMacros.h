@@ -1,5 +1,8 @@
 #pragma once
 
+#define SD_ROBOT_TEST 1
+#define SD_ROBOT_USERID 2
+
 #ifdef PLATFORM_WINDOWS
 #define SEND_DATA(InProtocol, ...) \
 if (USdGameInstance* ClientGameInstance = GetGameInstance<USdGameInstance>()) \

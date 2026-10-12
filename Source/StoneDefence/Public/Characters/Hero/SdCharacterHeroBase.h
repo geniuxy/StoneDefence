@@ -76,6 +76,8 @@ protected:
 	void Server_UpdateFaceSculpting(int32 InUserId);
 
 public:
+	void CallServerUpdateFaceSculpting();
+
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateFaceSculpting(const FString& InFigureString);
 };

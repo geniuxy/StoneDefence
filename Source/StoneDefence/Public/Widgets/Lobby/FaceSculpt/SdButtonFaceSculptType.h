@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Widgets/Components/ListEntryDataObjects/SdListEntryDataObjectBase.h"
-#include "StoneDefence/StoneDefence.h"
+#include "GeniuxyCommonMacro.h"
 #include "Widgets/Components/Button/SdCommonButtonSelection.h"
 #include "SdButtonFaceSculptType.generated.h"
 

@@ -7,6 +7,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "GeniuxyGASType.h"
+#include "SdTypes/SdMacros.h"
 #include "Comps/GeAbilitySystemComponent.h"
 #include "Frameworks/GameInstance/SdGameInstance.h"
 #include "Frameworks/GameModes/Gameplay/SdGameModeGameBase.h"
@@ -84,10 +85,9 @@ void ASdCharacterHeroBase::BeginPlay()
 
 	if (GetLocalRole() == ROLE_AutonomousProxy)
 	{
-		if (USdGameInstance* InGameInstance = GetWorld()->GetGameInstance<USdGameInstance>())
-		{
-			Server_UpdateFaceSculpting(InGameInstance->GetUserData().Id);
-		}
+#if !SD_ROBOT_TEST
+		CallServerUpdateFaceSculpting();
+#endif
 	}
 }
 
@@ -150,6 +150,18 @@ void ASdCharacterHeroBase::Server_UpdateFaceSculpting_Implementation(int32 InUse
 	{
 		CachedOwnerUserId = InUserId;
 		InGameMode->LoginCharacterUpdateFaceSculptingRequest(InUserId);
+	}
+}
+
+void ASdCharacterHeroBase::CallServerUpdateFaceSculpting()
+{
+	if (USdGameInstance* InGameInstance = GetWorld()->GetGameInstance<USdGameInstance>())
+	{
+#if SD_ROBOT_TEST
+		Server_UpdateFaceSculpting(SD_ROBOT_USERID);
+#else
+		Server_UpdateFaceSculpting(InGameInstance->GetUserData().Id);
+#endif
 	}
 }
 

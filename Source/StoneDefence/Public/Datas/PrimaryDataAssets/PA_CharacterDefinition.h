@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Engine/DataAsset.h"
-#include "StoneDefence/StoneDefence.h"
+#include "GeniuxyCommonMacro.h"
 #include "PA_CharacterDefinition.generated.h"
 
 class UCharacterAnimationSet;

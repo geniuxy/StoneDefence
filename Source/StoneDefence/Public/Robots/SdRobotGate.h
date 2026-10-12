@@ -12,6 +12,8 @@ class FSimpleNetManage;
 class STONEDEFENCE_API SdRobotGate
 {
 public:
+	FSimpleDelegate StartDelegate;
+	
 	SdRobotGate();
 	virtual ~SdRobotGate();
 
@@ -24,6 +26,14 @@ public:
 	virtual void HandleServerLinkInfo(ESimpleNetErrorType InType, const FString& InMsg);
 
 	virtual void BindClientRcv();
+
+	// 为了在网关注册Id
+	void RunCharacterAppearanceRequests();
+	// 为了在服务器注册一个玩家
+	void HandleCharacterAppearanceResponses(FSimpleChannel* Channel);
+	
+	void RunLoginToDsServerRequests();
+	void HandleLoginToDsServerResponses(FSimpleChannel* Channel);
 
 private:
 	FSimpleNetManage* GateClient = nullptr;
