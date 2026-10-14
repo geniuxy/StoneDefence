@@ -10,6 +10,7 @@
 #include "Widgets/Cores/SdWidgetProtocolReceiver.h"
 #include "SdWidgetGameHudMain.generated.h"
 
+class USdWidgetPartnerList;
 /**
  * 
  */
@@ -27,6 +28,10 @@ protected:
 	virtual void RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel) override;
 
 	virtual void HandleServerLinkInfo(ESimpleNetErrorType InType, const FString& InMsg) override;
+
+private:
+	UPROPERTY(meta=(BindWidget))
+	USdWidgetPartnerList* PartnerList;
 
 	/**********************************************************************/
 	/*                            Test Robot                              */

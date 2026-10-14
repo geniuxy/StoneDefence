@@ -9,10 +9,12 @@
 #include "GeniuxyGASType.h"
 #include "SdTypes/SdMacros.h"
 #include "Comps/GeAbilitySystemComponent.h"
+#include "Frameworks/SdAssetManager.h"
 #include "Frameworks/GameInstance/SdGameInstance.h"
 #include "Frameworks/GameModes/Gameplay/SdGameModeGameBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Tags/CharacterTags.h"
 
 
 ASdCharacterHeroBase::ASdCharacterHeroBase()
@@ -89,6 +91,11 @@ void ASdCharacterHeroBase::BeginPlay()
 		CallServerUpdateFaceSculpting();
 #endif
 	}
+
+	if (CharacterTag == CharacterTags::Sd_Character_Tubaki)
+	{
+		DrawWeapon(FName(TEXT("WeaponBackSocket")));
+	}
 }
 
 void ASdCharacterHeroBase::HandleLookInput(const FInputActionValue& InputActionValue)
@@ -155,6 +162,16 @@ void ASdCharacterHeroBase::Server_UpdateFaceSculpting_Implementation(int32 InUse
 
 void ASdCharacterHeroBase::CallServerUpdateFaceSculpting()
 {
+	if (!bNeedFaceSculpt)
+	{
+		UPA_CharacterDefinition* Definition = USdAssetManager::Get().GetCharacterDefinition(CharacterTag.GetTagName());
+		if (Definition)
+		{
+			UpdateFigureTypeSizeByDefault(Definition->GetDefaultFigureSettings());
+		}
+		return;
+	}
+
 	if (USdGameInstance* InGameInstance = GetWorld()->GetGameInstance<USdGameInstance>())
 	{
 #if SD_ROBOT_TEST

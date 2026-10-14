@@ -55,8 +55,6 @@ void ASdCharacterBase::BeginPlay()
 	BindGASChangeDelegates();
 
 	InitCharacterDef();
-
-	DrawWeapon(FName(TEXT("WeaponBackSocket")));
 }
 
 void ASdCharacterBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -185,6 +183,8 @@ void ASdCharacterBase::SheatheWeapon(FName InSocketName)
 
 void ASdCharacterBase::InitAnimationSet(const UPA_CharacterDefinition* InDefinition)
 {
+	if (!InDefinition) return;
+
 	if (AnimationComp)
 	{
 		AnimationComp->SetAnimationSet(InDefinition->LoadAnimationSet());

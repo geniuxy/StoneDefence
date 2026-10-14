@@ -23,7 +23,9 @@ void USdAnimInstanceHeroBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds
 
 	if (OwnerHero)
 	{
-		if (IFaceSculpting* SculptableHero = Cast<IFaceSculpting>(OwnerHero))
+		bNeedFaceSculpt = OwnerHero->IsNeedFaceSculpt();
+		IFaceSculpting* SculptableHero = Cast<IFaceSculpting>(OwnerHero);
+		if (SculptableHero && bNeedFaceSculpt)
 		{
 			LegSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_LEG);
 			WaistSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_WAIST);

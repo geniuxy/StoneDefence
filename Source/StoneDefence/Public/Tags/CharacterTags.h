@@ -10,4 +10,5 @@
 namespace CharacterTags
 {
 	STONEDEFENCE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sd_Character_Tubaki);
+	STONEDEFENCE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sd_Character_Cleric);
 }

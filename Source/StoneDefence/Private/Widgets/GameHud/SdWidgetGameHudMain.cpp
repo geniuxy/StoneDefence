@@ -4,6 +4,7 @@
 #include "Widgets/GameHud/SdWidgetGameHudMain.h"
 
 #include "Characters/Hero/SdCharacterHeroBase.h"
+#include "Widgets/GameHud/Partners/SdWidgetPartnerList.h"
 
 #define LOCTEXT_NAMESPACE "USdWidgetGameHudMain"
 

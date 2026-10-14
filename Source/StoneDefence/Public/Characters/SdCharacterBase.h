@@ -35,6 +35,9 @@ protected:
 
 	void InitCharacterDef();
 
+public:
+	FORCEINLINE FGameplayTag GetCharacterTag() const { return CharacterTag; }
+
 	/**********************************************************************/
     /*                               GAS                                  */
     /**********************************************************************/

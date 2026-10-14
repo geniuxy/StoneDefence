@@ -75,9 +75,14 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_UpdateFaceSculpting(int32 InUserId);
 
+	UPROPERTY(EditDefaultsOnly, Category="Face Sculpting")
+	bool bNeedFaceSculpt;
+
 public:
 	void CallServerUpdateFaceSculpting();
 
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateFaceSculpting(const FString& InFigureString);
+
+	FORCEINLINE bool IsNeedFaceSculpt() const { return bNeedFaceSculpt; }
 };

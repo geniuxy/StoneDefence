@@ -19,6 +19,9 @@ public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE bool GetNeedFaceSculpt() const { return bNeedFaceSculpt; }
+
 protected:
 	UPROPERTY()
 	ASdCharacterHeroBase* OwnerHero;
@@ -44,4 +47,6 @@ protected:
 	int32 ArmSize = 0;
 	int32 HeadSize = 1;
 	int32 ChestSize = 1;
+
+	bool bNeedFaceSculpt;
 };
