@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "GeniuxyCommonType.h"
+#include "Types/GeEnums.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "GeniuxyCommonBPLibrary.generated.h"
 

@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Widgets/Cores/SdCommonActivatableWidgetBase.h"
+#include "Widgets/Cores/GeCommonActivatableWidgetBase.h"
 #include "SdWidgetCharacterSelectionPanel.generated.h"
 
 class UVerticalBox;
-class USdCommonButtonImage;
+class UGeCommonButtonImage;
 class UCommonVisibilitySwitcher;
 class UCommonActivatableWidgetSwitcher;
 class UCommonTextBlock;
@@ -18,7 +18,7 @@ class UCommonListView;
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetCharacterSelectionPanel : public USdCommonActivatableWidgetBase
+class STONEDEFENCE_API USdWidgetCharacterSelectionPanel : public UGeCommonActivatableWidgetBase
 {
 	GENERATED_BODY()
 
@@ -44,10 +44,10 @@ private:
 	UCommonListView* SelectionListView;
 	
 	UPROPERTY(meta=(BindWidget))
-	USdCommonButtonImage* Button_Edit;
+	UGeCommonButtonImage* Button_Edit;
 
 	UPROPERTY(meta=(BindWidget))
-	USdCommonButtonImage* Button_Delete;
+	UGeCommonButtonImage* Button_Delete;
 	
 	UPROPERTY(meta = (BindWidget))
 	USdWidgetFaceSculpting* FaceSculptingWidget;

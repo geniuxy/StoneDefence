@@ -4,7 +4,7 @@
 #include "Widgets/Login/SdWidgetRegisterInfo.h"
 
 #include "CommonTextBlock.h"
-#include "Widgets/Components/Button/SdCommonButtonImage.h"
+#include "Widgets/Components/Button/GeCommonButtonImage.h"
 #include "Widgets/Login/SdWidgetLoginMain.h"
 
 #define LOCTEXT_NAMESPACE "USdWidgetRegisterInfo"

@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Widgets/Cores/SdCommonActivatableWidgetBase.h"
+#include "Widgets/Cores/GeCommonActivatableWidgetBase.h"
 #include "SdWidgetFaceSculptingPageTalent.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetFaceSculptingPageTalent : public USdCommonActivatableWidgetBase
+class STONEDEFENCE_API USdWidgetFaceSculptingPageTalent : public UGeCommonActivatableWidgetBase
 {
 	GENERATED_BODY()
 };

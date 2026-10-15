@@ -4,15 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/IUserObjectListEntry.h"
-#include "Widgets/Cores/SdCommonUserWidgetBase.h"
-#include "SdWidgetListEntryBase.generated.h"
+#include "Widgets/Cores/GeCommonUserWidgetBase.h"
+#include "GeWidgetListEntryBase.generated.h"
 
 class UCommonListView;
 /**
  * 
  */
-UCLASS()
-class STONEDEFENCE_API USdWidgetListEntryBase : public USdCommonUserWidgetBase, public IUserObjectListEntry
+UCLASS(Blueprintable)
+class GENIUXYCOMMON_API UGeWidgetListEntryBase : public UGeCommonUserWidgetBase, public IUserObjectListEntry
 {
 	GENERATED_BODY()
 

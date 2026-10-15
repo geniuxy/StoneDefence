@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GeniuxyCommonMacro.h"
+#include "Types/GeniuxyCommonMacro.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Widgets/Lobby/FaceSculpt/SdListEntryFaceSculptingFigure.h"
 #include "SdGISubsystemLobby.generated.h"

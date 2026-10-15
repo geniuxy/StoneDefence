@@ -3,15 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SdCommonButtonBase.h"
-#include "SdCommonButtonImage.generated.h"
+#include "GeCommonButtonBase.h"
+#include "GeCommonButtonImage.generated.h"
 
 class UCommonLazyImage;
 /**
  * 
  */
-UCLASS()
-class STONEDEFENCE_API USdCommonButtonImage : public USdCommonButtonBase
+UCLASS(Blueprintable)
+class GENIUXYCOMMON_API UGeCommonButtonImage : public UGeCommonButtonBase
 {
 	GENERATED_BODY()
 

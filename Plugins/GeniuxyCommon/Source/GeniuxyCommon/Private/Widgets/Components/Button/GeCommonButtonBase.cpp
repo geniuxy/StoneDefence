@@ -1,11 +1,11 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Widgets/Components/Button/SdCommonButtonBase.h"
+#include "Widgets/Components/Button/GeCommonButtonBase.h"
 
 #include "CommonTextBlock.h"
 
-void USdCommonButtonBase::SetButtonText(FText InText, ESdTextJustify InJustification)
+void UGeCommonButtonBase::SetButtonText(FText InText, ESdTextJustify InJustification)
 {
 	if (CommonButtonTextBlock && !InText.IsEmpty())
 	{
@@ -25,7 +25,7 @@ void USdCommonButtonBase::SetButtonText(FText InText, ESdTextJustify InJustifica
 	}
 }
 
-FText USdCommonButtonBase::GetButtonDisplayText() const
+FText UGeCommonButtonBase::GetButtonDisplayText() const
 {
 	if (CommonButtonTextBlock)
 	{
@@ -34,7 +34,7 @@ FText USdCommonButtonBase::GetButtonDisplayText() const
 	return FText();
 }
 
-void USdCommonButtonBase::NativePreConstruct()
+void UGeCommonButtonBase::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
@@ -44,7 +44,7 @@ void USdCommonButtonBase::NativePreConstruct()
 	}
 }
 
-void USdCommonButtonBase::NativeOnCurrentTextStyleChanged()
+void UGeCommonButtonBase::NativeOnCurrentTextStyleChanged()
 {
 	Super::NativeOnCurrentTextStyleChanged();
 
@@ -54,7 +54,7 @@ void USdCommonButtonBase::NativeOnCurrentTextStyleChanged()
 	}
 }
 
-void USdCommonButtonBase::NativeOnHovered()
+void UGeCommonButtonBase::NativeOnHovered()
 {
 	Super::NativeOnHovered();
 
@@ -64,7 +64,7 @@ void USdCommonButtonBase::NativeOnHovered()
 	}
 }
 
-void USdCommonButtonBase::NativeOnUnhovered()
+void UGeCommonButtonBase::NativeOnUnhovered()
 {
 	Super::NativeOnUnhovered();
 

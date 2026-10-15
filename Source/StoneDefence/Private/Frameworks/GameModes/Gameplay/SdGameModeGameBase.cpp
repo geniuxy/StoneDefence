@@ -10,6 +10,7 @@
 #include "Frameworks/GameInstance/SdGameInstance.h"
 #include "Frameworks/PlayerStates/Gameplay/SdPlayerStateGameBase.h"
 #include "SdTypes/SdMacros.h"
+#include "Types/GeEnums.h"
 #include "Protocol/GameProtocol.h"
 
 ASdGameModeGameBase::ASdGameModeGameBase()

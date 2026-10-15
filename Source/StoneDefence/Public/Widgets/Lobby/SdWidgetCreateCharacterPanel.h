@@ -3,16 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Widgets/Cores/SdCommonUserWidgetBase.h"
+#include "Widgets/Cores/GeCommonUserWidgetBase.h"
 #include "SdWidgetCreateCharacterPanel.generated.h"
 
-class USdCommonButtonImage;
+class UGeCommonButtonImage;
 class UEditableTextBox;
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetCreateCharacterPanel : public USdCommonUserWidgetBase
+class STONEDEFENCE_API USdWidgetCreateCharacterPanel : public UGeCommonUserWidgetBase
 {
 	GENERATED_BODY()
 
@@ -25,13 +25,13 @@ private:
 	UEditableTextBox* EditBox_NewName;
 
 	UPROPERTY(meta=(BindWidget))
-	USdCommonButtonImage* VerifyName;
+	UGeCommonButtonImage* VerifyName;
 
 	UPROPERTY(meta=(BindWidget))
-	USdCommonButtonImage* Button_Create;
+	UGeCommonButtonImage* Button_Create;
 
 	UPROPERTY(meta=(BindWidget))
-	USdCommonButtonImage* Button_Cancel;
+	UGeCommonButtonImage* Button_Cancel;
 
 	UPROPERTY(Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* FadeIn;

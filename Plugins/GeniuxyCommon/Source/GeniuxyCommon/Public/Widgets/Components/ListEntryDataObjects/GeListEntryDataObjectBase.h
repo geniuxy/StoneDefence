@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-#include "SdListEntryDataObjectBase.generated.h"
+#include "GeListEntryDataObjectBase.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnSelectionDataChanged);
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdListEntryDataObjectBase : public UObject
+class GENIUXYCOMMON_API UGeListEntryDataObjectBase : public UObject
 {
 	GENERATED_BODY()
 

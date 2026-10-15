@@ -6,7 +6,7 @@
 #include "Actors/SdActorBase.h"
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
 #include "Interfaces/FaceSculpting.h"
-#include "GeniuxyCommonMacro.h"
+#include "Types/GeniuxyCommonMacro.h"
 #include "SdActorPreview.generated.h"
 
 class UCameraComponent;

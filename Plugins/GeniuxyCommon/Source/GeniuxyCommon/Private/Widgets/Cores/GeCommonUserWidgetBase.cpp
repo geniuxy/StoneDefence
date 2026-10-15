@@ -1,9 +1,9 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Widgets/Cores/SdCommonUserWidgetBase.h"
+#include "Widgets/Cores/GeCommonUserWidgetBase.h"
 
-void USdCommonUserWidgetBase::SetParentWidget(UCommonUserWidget* InWidget)
+void UGeCommonUserWidgetBase::SetParentWidget(UCommonUserWidget* InWidget)
 {
 	ParentWidget = InWidget;
 	OnSetParentWidget();

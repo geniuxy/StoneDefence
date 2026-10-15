@@ -26,6 +26,9 @@ public class GeniuxyCommon : ModuleRules
 			new string[]
 			{
 				"Core",
+				"CoreUObject",
+				"UMG",
+				"CommonUI"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

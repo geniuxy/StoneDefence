@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Components/EditableTextBox.h"
-#include "Widgets/Cores/SdCommonUserWidgetBase.h"
+#include "Widgets/Cores/GeCommonUserWidgetBase.h"
 #include "SdWidgetRegisterInfo.generated.h"
 
 class UCommonTextBlock;
-class USdCommonButtonImage;
+class UGeCommonButtonImage;
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetRegisterInfo : public USdCommonUserWidgetBase
+class STONEDEFENCE_API USdWidgetRegisterInfo : public UGeCommonUserWidgetBase
 {
 	GENERATED_BODY()
 
@@ -54,10 +54,10 @@ private:
 	UCommonTextBlock* ConfirmPasswordText;
 
 	UPROPERTY(meta=(BindWidget))
-	USdCommonButtonImage* Button_Submit;
+	UGeCommonButtonImage* Button_Submit;
 
 	UPROPERTY(meta=(BindWidget))
-	USdCommonButtonImage* Button_Cancel;
+	UGeCommonButtonImage* Button_Cancel;
 
 	UPROPERTY(Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* FadeIn;

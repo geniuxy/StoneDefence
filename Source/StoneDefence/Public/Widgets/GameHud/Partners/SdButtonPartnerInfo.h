@@ -4,15 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "GeniuxyCommonMacro.h"
-#include "Widgets/Components/Button/SdCommonButtonSelection.h"
-#include "Widgets/Components/ListEntryDataObjects/SdListEntryDataObjectBase.h"
+#include "Types/GeniuxyCommonMacro.h"
+#include "Widgets/Components/Button/GeCommonButtonSelection.h"
+#include "Widgets/Components/ListEntryDataObjects/GeListEntryDataObjectBase.h"
 #include "SdButtonPartnerInfo.generated.h"
 
 class ASdCharacterHeroBase;
 
 UCLASS()
-class STONEDEFENCE_API UPartnerInfo : public USdListEntryDataObjectBase
+class STONEDEFENCE_API UPartnerInfo : public UGeListEntryDataObjectBase
 {
 	GENERATED_BODY()
 
@@ -35,7 +35,7 @@ public:
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdButtonPartnerInfo : public USdCommonButtonSelection
+class STONEDEFENCE_API USdButtonPartnerInfo : public UGeCommonButtonSelection
 {
 	GENERATED_BODY()
 

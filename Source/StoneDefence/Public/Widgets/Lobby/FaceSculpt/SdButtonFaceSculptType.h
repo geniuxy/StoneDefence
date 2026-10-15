@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Widgets/Components/ListEntryDataObjects/SdListEntryDataObjectBase.h"
-#include "GeniuxyCommonMacro.h"
-#include "Widgets/Components/Button/SdCommonButtonSelection.h"
+#include "Widgets/Components/ListEntryDataObjects/GeListEntryDataObjectBase.h"
+#include "Types/GeniuxyCommonMacro.h"
+#include "Widgets/Components/Button/GeCommonButtonSelection.h"
 #include "SdButtonFaceSculptType.generated.h"
 
 UENUM()
@@ -27,7 +27,7 @@ struct FFaceSculptPageDataInfo // 捏脸界面各个类别按钮的相关信息
 };
 
 UCLASS()
-class STONEDEFENCE_API UFaceSculptPageData : public USdListEntryDataObjectBase
+class STONEDEFENCE_API UFaceSculptPageData : public UGeListEntryDataObjectBase
 {
 	GENERATED_BODY()
 
@@ -43,7 +43,7 @@ public:
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdButtonFaceSculptType : public USdCommonButtonSelection
+class STONEDEFENCE_API USdButtonFaceSculptType : public UGeCommonButtonSelection
 {
 	GENERATED_BODY()
 

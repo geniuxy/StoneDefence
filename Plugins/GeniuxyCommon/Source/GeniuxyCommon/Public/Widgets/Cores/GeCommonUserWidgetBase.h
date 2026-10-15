@@ -3,14 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CommonActivatableWidget.h"
-#include "SdCommonActivatableWidgetBase.generated.h"
+#include "CommonUserWidget.h"
+#include "GeCommonUserWidgetBase.generated.h"
 
+class FSimpleChannel;
 /**
  * 
  */
-UCLASS()
-class STONEDEFENCE_API USdCommonActivatableWidgetBase : public UCommonActivatableWidget
+UCLASS(Blueprintable)
+class GENIUXYCOMMON_API UGeCommonUserWidgetBase : public UCommonUserWidget
 {
 	GENERATED_BODY()
 
@@ -28,7 +29,5 @@ public:
 	void SetParentWidget(UCommonUserWidget* InWidget);
 
 protected:
-	virtual void OnSetParentWidget()
-	{
-	}
+	virtual void OnSetParentWidget() {}
 };

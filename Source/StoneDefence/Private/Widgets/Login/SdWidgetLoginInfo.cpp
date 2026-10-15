@@ -5,7 +5,7 @@
 
 #include "Components/EditableTextBox.h"
 #include "Stream/SimpleIOStream.h"
-#include "Widgets/Components/Button/SdCommonButtonImage.h"
+#include "Widgets/Components/Button/GeCommonButtonImage.h"
 #include "Widgets/Login/SdWidgetLoginMain.h"
 
 #define LOCTEXT_NAMESPACE "USdWidgetLoginInfo"

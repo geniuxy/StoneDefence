@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
-#include "GeniuxyCommonMacro.h"
-#include "Widgets/Components/ListEntryDataObjects/SdListEntryDataObjectBase.h"
-#include "Widgets/Components/ListEntryWidgets/SdWidgetListEntryBase.h"
+#include "Types/GeniuxyCommonMacro.h"
+#include "Widgets/Components/ListEntryDataObjects/GeListEntryDataObjectBase.h"
+#include "Widgets/Components/ListEntryWidgets/GeWidgetListEntryBase.h"
 #include "SdListEntryFaceSculptingFigure.generated.h"
 
 class UCommonTextBlock;
 class UAnalogSlider;
 
 UCLASS()
-class STONEDEFENCE_API UFaceSculptingFigureData : public USdListEntryDataObjectBase
+class STONEDEFENCE_API UFaceSculptingFigureData : public UGeListEntryDataObjectBase
 {
 	GENERATED_BODY()
 
@@ -43,7 +43,7 @@ public:
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdListEntryFaceSculptingFigure : public USdWidgetListEntryBase
+class STONEDEFENCE_API USdListEntryFaceSculptingFigure : public UGeWidgetListEntryBase
 {
 	GENERATED_BODY()
 

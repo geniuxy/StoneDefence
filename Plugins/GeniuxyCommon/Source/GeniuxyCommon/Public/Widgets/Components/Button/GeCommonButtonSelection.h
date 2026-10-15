@@ -3,16 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SdCommonButtonImage.h"
+#include "GeCommonButtonImage.h"
 #include "Blueprint/IUserObjectListEntry.h"
-#include "SdCommonButtonSelection.generated.h"
+#include "GeCommonButtonSelection.generated.h"
 
 class UCommonListView;
 /**
  * 
  */
-UCLASS()
-class STONEDEFENCE_API USdCommonButtonSelection : public USdCommonButtonImage, public IUserObjectListEntry
+UCLASS(Blueprintable)
+class GENIUXYCOMMON_API UGeCommonButtonSelection : public UGeCommonButtonImage, public IUserObjectListEntry
 {
 	GENERATED_BODY()
 

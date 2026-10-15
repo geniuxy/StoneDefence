@@ -7,7 +7,7 @@
 #include "Widgets/Cores/SdWidgetProtocolReceiver.h"
 #include "SdWidgetLoginMain.generated.h"
 
-class USdCommonUserWidgetBase;
+class UGeCommonUserWidgetBase;
 class USdWidgetRegisterInfo;
 class USdWidgetLoginInfo;
 /**
@@ -32,7 +32,7 @@ public:
 private:
 	/** Binding Widgets */
 	UPROPERTY(meta=(BindWidget))
-	USdCommonUserWidgetBase* LinkWidget;
+	UGeCommonUserWidgetBase* LinkWidget;
 
 	UPROPERTY(meta=(BindWidget))
 	USdWidgetLoginInfo* LoginInfo;

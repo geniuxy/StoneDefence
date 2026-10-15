@@ -6,7 +6,7 @@
 #include "Cores/SimpleMove.h"
 #include "Cores/SimpleRotate.h"
 #include "Cores/SimpleZoom.h"
-#include "Widgets/Cores/SdCommonUserWidgetBase.h"
+#include "Widgets/Cores/GeCommonUserWidgetBase.h"
 #include "SdWidgetPreviewInputCapture.generated.h"
 
 class ASdPlayerControllerBase;
@@ -14,7 +14,7 @@ class ASdPlayerControllerBase;
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetPreviewInputCapture : public USdCommonUserWidgetBase
+class STONEDEFENCE_API USdWidgetPreviewInputCapture : public UGeCommonUserWidgetBase
 {
 	GENERATED_BODY()
 

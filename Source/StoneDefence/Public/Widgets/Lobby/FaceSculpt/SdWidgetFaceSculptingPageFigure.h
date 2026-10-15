@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Widgets/Cores/SdCommonActivatableWidgetBase.h"
+#include "Widgets/Cores/GeCommonActivatableWidgetBase.h"
 #include "SdWidgetFaceSculptingPageFigure.generated.h"
 
 class UCommonListView;
@@ -11,7 +11,7 @@ class UCommonListView;
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetFaceSculptingPageFigure : public USdCommonActivatableWidgetBase
+class STONEDEFENCE_API USdWidgetFaceSculptingPageFigure : public UGeCommonActivatableWidgetBase
 {
 	GENERATED_BODY()
 

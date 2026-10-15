@@ -5,12 +5,12 @@
 #include "CoreMinimal.h"
 #include "SimpleNetChannelType.h"
 #include "StoneDefenceNetCommonType.h"
-#include "Widgets/Cores/SdCommonUserWidgetBase.h"
+#include "Widgets/Cores/GeCommonUserWidgetBase.h"
 #include "Widgets/Cores/SdWidgetProtocolReceiver.h"
 #include "SdWidgetLobbyMain.generated.h"
 
 class USdWidgetPreviewInputCapture;
-class USdCommonButtonImage;
+class UGeCommonButtonImage;
 class USdWidgetCreateCharacterPanel;
 class USdWidgetCharacterSelectionPanel;
 class USdWidgetPrintMsg;
@@ -59,7 +59,7 @@ private:
 	USdWidgetCreateCharacterPanel* CreateCharacterPanel;
 
 	UPROPERTY(meta=(BindWidget))
-	USdCommonButtonImage* Button_BeginGame;
+	UGeCommonButtonImage* Button_BeginGame;
 	
 	UPROPERTY(meta=(BindWidget))
 	USdWidgetPreviewInputCapture* PreviewInputCaptureWidget;

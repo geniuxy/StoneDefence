@@ -4,15 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "CommonButtonBase.h"
-#include "SdTypes/SdEnums.h"
-#include "SdCommonButtonBase.generated.h"
+#include "Types/GeEnums.h"
+#include "GeCommonButtonBase.generated.h"
 
 class UCommonTextBlock;
 /**
  * 
  */
-UCLASS()
-class STONEDEFENCE_API USdCommonButtonBase : public UCommonButtonBase
+UCLASS(Blueprintable)
+class GENIUXYCOMMON_API UGeCommonButtonBase : public UCommonButtonBase
 {
 	GENERATED_BODY()
 

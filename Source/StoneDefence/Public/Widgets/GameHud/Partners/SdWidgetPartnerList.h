@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "Widgets/Cores/SdCommonUserWidgetBase.h"
+#include "Widgets/Cores/GeCommonUserWidgetBase.h"
 #include "SdWidgetPartnerList.generated.h"
 
 class ASdCharacterHeroBase;
@@ -13,7 +13,7 @@ class UCommonListView;
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetPartnerList : public USdCommonUserWidgetBase
+class STONEDEFENCE_API USdWidgetPartnerList : public UGeCommonUserWidgetBase
 {
 	GENERATED_BODY()
 

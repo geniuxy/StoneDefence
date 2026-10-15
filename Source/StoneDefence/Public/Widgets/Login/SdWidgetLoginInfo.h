@@ -3,16 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Widgets/Cores/SdCommonUserWidgetBase.h"
+#include "Widgets/Cores/GeCommonUserWidgetBase.h"
 #include "SdWidgetLoginInfo.generated.h"
 
-class USdCommonButtonImage;
+class UGeCommonButtonImage;
 class UEditableTextBox;
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetLoginInfo : public USdCommonUserWidgetBase
+class STONEDEFENCE_API USdWidgetLoginInfo : public UGeCommonUserWidgetBase
 {
 	GENERATED_BODY()
 
@@ -29,10 +29,10 @@ private:
 	UEditableTextBox* EditableText_Password;
 
 	UPROPERTY(meta=(BindWidget))
-	USdCommonButtonImage* Button_Enter;
+	UGeCommonButtonImage* Button_Enter;
 	
 	UPROPERTY(meta=(BindWidget))
-	USdCommonButtonImage* Button_Register;
+	UGeCommonButtonImage* Button_Register;
 	/********************/
 
 	void SignIn();

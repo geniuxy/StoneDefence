@@ -15,7 +15,7 @@
 #include "SdTypes/SdMacros.h"
 #include "Subsystems/GameInstanceSubsytems/SdGISubsystemLobby.h"
 #include "Widgets/Common/SdWidgetPreviewInputCapture.h"
-#include "Widgets/Components/Button/SdCommonButtonImage.h"
+#include "Widgets/Components/Button/GeCommonButtonImage.h"
 
 #define LOCTEXT_NAMESPACE "USdWidgetLobbyMain"
 

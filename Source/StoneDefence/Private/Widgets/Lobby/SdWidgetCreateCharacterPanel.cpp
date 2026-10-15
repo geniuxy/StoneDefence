@@ -6,7 +6,7 @@
 #include "Components/EditableTextBox.h"
 #include "Frameworks/PlayerStates/SdPlayerStateLobby.h"
 #include "Subsystems/GameInstanceSubsytems/SdGISubsystemLobby.h"
-#include "Widgets/Components/Button/SdCommonButtonImage.h"
+#include "Widgets/Components/Button/GeCommonButtonImage.h"
 #include "Widgets/Lobby/SdWidgetLobbyMain.h"
 
 class ASdPlayerStateLobby;

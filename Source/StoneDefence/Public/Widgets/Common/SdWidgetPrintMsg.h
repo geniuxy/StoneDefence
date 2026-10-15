@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Widgets/Cores/SdCommonUserWidgetBase.h"
+#include "Widgets/Cores/GeCommonUserWidgetBase.h"
 #include "SdWidgetPrintMsg.generated.h"
 
 class UCommonTextBlock;
@@ -11,7 +11,7 @@ class UCommonTextBlock;
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetPrintMsg : public USdCommonUserWidgetBase
+class STONEDEFENCE_API USdWidgetPrintMsg : public UGeCommonUserWidgetBase
 {
 	GENERATED_BODY()
 

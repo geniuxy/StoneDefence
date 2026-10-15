@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
-#include "GeniuxyCommonMacro.h"
-#include "Widgets/Components/ListEntryDataObjects/SdListEntryDataObjectBase.h"
-#include "Widgets/Components/Button/SdCommonButtonSelection.h"
+#include "Types/GeniuxyCommonMacro.h"
+#include "Widgets/Components/ListEntryDataObjects/GeListEntryDataObjectBase.h"
+#include "Widgets/Components/Button/GeCommonButtonSelection.h"
 #include "SdButtonCharacterSelection.generated.h"
 
 class USizeBox;
@@ -15,7 +15,7 @@ class UPA_CharacterDefinition;
 class UVerticalBox;
 
 UCLASS()
-class STONEDEFENCE_API UCharacterSelectionData : public USdListEntryDataObjectBase
+class STONEDEFENCE_API UCharacterSelectionData : public UGeListEntryDataObjectBase
 {
 	GENERATED_BODY()
 
@@ -47,7 +47,7 @@ public:
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdButtonCharacterSelection : public USdCommonButtonSelection
+class STONEDEFENCE_API USdButtonCharacterSelection : public UGeCommonButtonSelection
 {
 	GENERATED_BODY()
 

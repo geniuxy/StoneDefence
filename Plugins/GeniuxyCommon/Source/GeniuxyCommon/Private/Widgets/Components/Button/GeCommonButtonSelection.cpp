@@ -1,23 +1,23 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Widgets/Components/Button/SdCommonButtonSelection.h"
+#include "Widgets/Components/Button/GeCommonButtonSelection.h"
 
 #include "CommonListView.h"
-#include "Widgets/Components/ListEntryDataObjects/SdListEntryDataObjectBase.h"
+#include "Widgets/Components/ListEntryDataObjects/GeListEntryDataObjectBase.h"
 
-void USdCommonButtonSelection::NativeOnListItemObjectSet(UObject* ListItemObject)
+void UGeCommonButtonSelection::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
 
 	OwnerListView = Cast<UCommonListView>(GetOwningListView());
-	if (USdListEntryDataObjectBase* EntryDataObject = Cast<USdListEntryDataObjectBase>(ListItemObject))
+	if (UGeListEntryDataObjectBase* EntryDataObject = Cast<UGeListEntryDataObjectBase>(ListItemObject))
 	{
 		EntryDataObject->OnDataChanged.AddUObject(this, &ThisClass::OnDataChanged);
 	}
 }
 
-void USdCommonButtonSelection::NativeOnItemSelectionChanged(bool bIsSelected)
+void UGeCommonButtonSelection::NativeOnItemSelectionChanged(bool bIsSelected)
 {
 	IUserObjectListEntry::NativeOnItemSelectionChanged(bIsSelected);
 	
@@ -36,7 +36,7 @@ void USdCommonButtonSelection::NativeOnItemSelectionChanged(bool bIsSelected)
 	}
 }
 
-void USdCommonButtonSelection::NativeOnEntryReleased()
+void UGeCommonButtonSelection::NativeOnEntryReleased()
 {
 	IUserObjectListEntry::NativeOnEntryReleased();
 

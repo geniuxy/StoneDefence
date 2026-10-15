@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Widgets/Cores/SdCommonActivatableWidgetBase.h"
+#include "Widgets/Cores/GeCommonActivatableWidgetBase.h"
 #include "SdWidgetFaceSculpting.generated.h"
 
 class UCommonActivatableWidgetSwitcher;
@@ -16,7 +16,7 @@ class UCommonListView;
  * 捏脸界面
  */
 UCLASS()
-class STONEDEFENCE_API USdWidgetFaceSculpting : public USdCommonActivatableWidgetBase
+class STONEDEFENCE_API USdWidgetFaceSculpting : public UGeCommonActivatableWidgetBase
 {
 	GENERATED_BODY()
 

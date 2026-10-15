@@ -1,12 +1,12 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Widgets/Components/Button/SdCommonButtonImage.h"
+#include "Widgets/Components/Button/GeCommonButtonImage.h"
 
 #include "CommonLazyImage.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-void USdCommonButtonImage::SetButtonDisplayImage(const FSlateBrush& InBrush)
+void UGeCommonButtonImage::SetButtonDisplayImage(const FSlateBrush& InBrush)
 {
 	if (CommonLazyImage_ButtonImage)
 	{
@@ -14,7 +14,7 @@ void USdCommonButtonImage::SetButtonDisplayImage(const FSlateBrush& InBrush)
 	}
 }
 
-void USdCommonButtonImage::SetButtonDisplayImage(UTexture2D* InTexture)
+void UGeCommonButtonImage::SetButtonDisplayImage(UTexture2D* InTexture)
 {
 	if (CommonLazyImage_ButtonImage)
 	{
@@ -22,7 +22,7 @@ void USdCommonButtonImage::SetButtonDisplayImage(UTexture2D* InTexture)
 	}
 }
 
-void USdCommonButtonImage::SetButtonDisplayImage(const TSoftObjectPtr<UTexture2D>& InTexture)
+void UGeCommonButtonImage::SetButtonDisplayImage(const TSoftObjectPtr<UTexture2D>& InTexture)
 {
 	if (CommonLazyImage_ButtonImage)
 	{
@@ -30,7 +30,7 @@ void USdCommonButtonImage::SetButtonDisplayImage(const TSoftObjectPtr<UTexture2D
 	}
 }
 
-void USdCommonButtonImage::ToggleHighlightState(bool bShouldHighlight)
+void UGeCommonButtonImage::ToggleHighlightState(bool bShouldHighlight)
 {
 	if (!CommonLazyImage_ButtonImage) return;
 	
@@ -44,7 +44,7 @@ void USdCommonButtonImage::ToggleHighlightState(bool bShouldHighlight)
 	}
 }
 
-void USdCommonButtonImage::NativePreConstruct()
+void UGeCommonButtonImage::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
@@ -60,7 +60,7 @@ void USdCommonButtonImage::NativePreConstruct()
 	}
 }
 
-void USdCommonButtonImage::NativeOnInitialized()
+void UGeCommonButtonImage::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
@@ -70,7 +70,7 @@ void USdCommonButtonImage::NativeOnInitialized()
 	}
 }
 
-void USdCommonButtonImage::NativeOnHovered()
+void UGeCommonButtonImage::NativeOnHovered()
 {
 	Super::NativeOnHovered();
 
@@ -85,7 +85,7 @@ void USdCommonButtonImage::NativeOnHovered()
 	}
 }
 
-void USdCommonButtonImage::NativeOnUnhovered()
+void UGeCommonButtonImage::NativeOnUnhovered()
 {
 	Super::NativeOnUnhovered();
 

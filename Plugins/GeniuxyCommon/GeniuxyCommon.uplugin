@@ -19,5 +19,11 @@
 			"Type": "Runtime",
 			"LoadingPhase": "PreLoadingScreen"
 		}
+	],
+	"Plugins": [
+		{
+			"Name": "CommonUI",
+			"Enabled": true
+		}
 	]
 }
