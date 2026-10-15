@@ -18,6 +18,15 @@ USdGISubsystemCharacter* USdGISubsystemCharacter::Get(const UObject* WorldContex
 	return nullptr;
 }
 
+void USdGISubsystemCharacter::LoadCharacter(const FGameplayTag InCharacterTag, FOnCharacterDefinitionLoaded Callback)
+{
+	const FPrimaryAssetId AssetId(
+		UPA_CharacterDefinition::GetCharacterDefinitionAssetType(),
+		InCharacterTag.GetTagName()
+	);
+	LoadCharacter(AssetId, Callback);
+}
+
 void USdGISubsystemCharacter::LoadCharacter(const FPrimaryAssetId& InAssetId, FOnCharacterDefinitionLoaded Callback)
 {
 	UAssetManager& AssetManager = UAssetManager::Get();
@@ -32,7 +41,6 @@ void USdGISubsystemCharacter::LoadCharacter(const FPrimaryAssetId& InAssetId, FO
 					Cast<UPA_CharacterDefinition>(UAssetManager::Get().GetPrimaryAssetObject(InAssetId));
 				if (!Definition)
 				{
-					Callback.ExecuteIfBound(nullptr);
 					return;
 				}
 
@@ -59,7 +67,6 @@ void USdGISubsystemCharacter::LoadCharacter(const FPrimaryAssetId& InAssetId, FO
 				}
 				if (Paths.IsEmpty())
 				{
-					Callback.ExecuteIfBound(Definition);
 					return;
 				}
 

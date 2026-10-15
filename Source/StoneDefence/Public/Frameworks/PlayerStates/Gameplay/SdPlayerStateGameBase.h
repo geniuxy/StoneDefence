@@ -13,4 +13,6 @@ UCLASS()
 class STONEDEFENCE_API ASdPlayerStateGameBase : public ASdPlayerStateBase
 {
 	GENERATED_BODY()
+
+	// TODO: 记得记录角色队伍信息
 };

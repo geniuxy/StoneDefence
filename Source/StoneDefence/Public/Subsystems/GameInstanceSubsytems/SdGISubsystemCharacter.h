@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SdGISubsystemCharacter.generated.h"
 
@@ -21,5 +22,6 @@ class STONEDEFENCE_API USdGISubsystemCharacter : public UGameInstanceSubsystem
 public:
 	static USdGISubsystemCharacter* Get(const UObject* WorldContextObject);
 
+	void LoadCharacter(const FGameplayTag InCharacterTag, FOnCharacterDefinitionLoaded Callback);
 	void LoadCharacter(const FPrimaryAssetId& InAssetId, FOnCharacterDefinitionLoaded Callback);
 };

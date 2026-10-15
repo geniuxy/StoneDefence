@@ -69,12 +69,8 @@ void ASdCharacterBase::InitCharacterDef()
 	USdGISubsystemCharacter* Subsystem = USdGISubsystemCharacter::Get(this);
 	if (!Subsystem) return;
 
-	const FPrimaryAssetId AssetId(
-		UPA_CharacterDefinition::GetCharacterDefinitionAssetType(), 
-		CharacterTag.GetTagName()
-	);
 	Subsystem->LoadCharacter(
-		AssetId,
+		CharacterTag,
 		FOnCharacterDefinitionLoaded::CreateWeakLambda(
 			this,
 			[this](const UPA_CharacterDefinition* Definition)

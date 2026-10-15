@@ -20,15 +20,19 @@ class STONEDEFENCE_API UPartnerInfo : public UGeListEntryDataObjectBase
 	FGameplayTag CharacterTag;
 
 	UPROPERTY()
+	int SlotIndex;
+
+	UPROPERTY()
 	FString CharacterName;
 
 	UPROPERTY()
-	TSoftObjectPtr<UTexture2D> CharacterIcon;
+	UTexture2D* CharacterIcon;
 
 public:
 	DATA_ACCESSOR(FGameplayTag, CharacterTag)
+	DATA_ACCESSOR(int, SlotIndex)
 	DATA_ACCESSOR(FString, CharacterName)
-	DATA_ACCESSOR(TSoftObjectPtr<UTexture2D>, CharacterIcon)
+	DATA_ACCESSOR(UTexture2D*, CharacterIcon)
 };
 
 /**
@@ -43,6 +47,14 @@ protected:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 
 private:
+	/** Binding Widgets */
+	UPROPERTY(meta = (BindWidget))
+	UCommonLazyImage* CharacterIcon;
+
+	UPROPERTY(meta = (BindWidget))
+	UCommonTextBlock* CharacterName;
+	/********************/
+
 	UPROPERTY()
 	UPartnerInfo* PartnerInfoData;
 };
