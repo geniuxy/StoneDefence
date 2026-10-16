@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -19,6 +19,13 @@ class STONEDEFENCE_API USdAnimInstanceCharacterBase : public USdAnimInstanceBase
 
 public:
 	virtual void NativeInitializeAnimation() override;
+
+	/**
+	 * 游戏线程：读 Actor / MovementComponent 并缓存到本实例。
+	 * 动画工作线程只读缓存，见 NativeThreadSafeUpdateAnimation。
+	 */
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 
 	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))

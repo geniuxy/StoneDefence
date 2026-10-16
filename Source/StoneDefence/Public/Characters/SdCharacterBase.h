@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -6,6 +6,7 @@
 #include "GameplayTagContainer.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "GameFramework/Character.h"
+#include "Types/GeniuxyCommonMacro.h"
 #include "SdCharacterBase.generated.h"
 
 class UPA_CharacterDefinition;
@@ -36,7 +37,7 @@ protected:
 	void InitCharacterDef();
 
 public:
-	FORCEINLINE FGameplayTag GetCharacterTag() const { return CharacterTag; }
+	DATA_ACCESSOR(FGameplayTag, CharacterTag)
 
 	/**********************************************************************/
     /*                               GAS                                  */

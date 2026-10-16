@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -12,4 +12,7 @@
 namespace EventTags
 {
 	GENIUXYGAS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Event_Dead);
+
+	/** 请求切换出战角色，载荷见 USwitchCharacterPayload */
+	GENIUXYGAS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Event_SwitchCharacter);
 }

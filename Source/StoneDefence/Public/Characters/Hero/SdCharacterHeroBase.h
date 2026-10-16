@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -34,6 +34,31 @@ protected:
 
 public:
 	FORCEINLINE int32 GetCachedOwnerUserId() const { return CachedOwnerUserId; }
+
+	/**********************************************************************/
+	/*                                GAS                                 */
+	/**********************************************************************/
+protected:
+	virtual void BindGASChangeDelegates() override;
+	virtual void UnBindGASChangeDelegates() override;
+
+	/**********************************************************************/
+	/*                          Switch Character                          */
+	/**********************************************************************/
+protected:
+	/** EventTags::Ge_Event_SwitchCharacter 的处理入口（由 UGA_SwitchCharacter 发出） */
+	void HandleSwitchCharacterEvent(FGameplayTag GameplayTag, const FGameplayEventData* GameplayEventData);
+
+	/** 请求切换到 InSlotIndex 对应的队友；客户端调用会自动走 Server RPC */
+	void RequestSwitchCharacter(int32 InSlotIndex);
+
+	UFUNCTION(Server, Reliable)
+	void Server_SwitchCharacter(int32 InSlotIndex);
+
+	/** 真正执行换人：销毁自己 + 生成新角色。只在 Server 上有效 */
+	void PerformSwitchCharacter(int32 InSlotIndex);
+
+	FDelegateHandle SwitchCharacterEventHandle;
 
 	/**********************************************************************/
 	/*                           Camera View                              */

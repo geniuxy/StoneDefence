@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Anims/AnimInstances/SdAnimInstanceCharacterBase.h"
@@ -29,13 +29,15 @@ void USdAnimInstanceCharacterBase::NativeInitializeAnimation()
 	}
 }
 
-void USdAnimInstanceCharacterBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
+void USdAnimInstanceCharacterBase::NativeUpdateAnimation(float DeltaSeconds)
 {
-	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
+	Super::NativeUpdateAnimation(DeltaSeconds);
 
+	// 游戏线程：Actor / MovementComponent 的数据只能在这里读，
+	// 读出来缓存在成员里给动画工作线程用。
 	if (OwnerCharacter)
 	{
-		FVector Velocity = OwnerCharacter->GetVelocity();
+		const FVector Velocity = OwnerCharacter->GetVelocity();
 		Speed = Velocity.Length();
 	}
 
@@ -45,6 +47,14 @@ void USdAnimInstanceCharacterBase::NativeThreadSafeUpdateAnimation(float DeltaSe
 	}
 
 	bFootIK = bCanFootIK && !bIsInAir;
+}
+
+void USdAnimInstanceCharacterBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
+
+	// 注意：这个函数跑在动画工作线程上，不要在这里读 OwnerCharacter / OwnerMovementComp。
+	// 需要的值请在 NativeUpdateAnimation（游戏线程）里拷到成员变量。
 }
 
 void USdAnimInstanceCharacterBase::OwnerCombatTagUpdated(const FGameplayTag Tag, int32 NewCount)

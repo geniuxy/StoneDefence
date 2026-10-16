@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -16,17 +16,36 @@ class STONEDEFENCE_API UPartnerInfo : public UGeListEntryDataObjectBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+public:
+	/**
+	 * 这个类是 ASdPlayerStateGameBase 的"复制子对象"（AddReplicatedSubObject），
+	 * 必须返回 true。
+	 *
+	 * UObject 默认返回 false，一旦被当成可复制对象处理，就会在
+	 * FNetGUIDCache::IsDynamicObject 里的 check(Object->IsSupportedForNetworking())
+	 * 直接断言挂掉（AssignNewNetGUID_Server 调用链上）。
+	 */
+	virtual bool IsSupportedForNetworking() const override { return true; }
+
+	/**
+	 * 子对象自身的属性也要走复制。
+	 * 客户端上的对象是动态创建出来的空壳，不复制的属性会停在默认值
+	 * （Tag 无效、SlotIndex 0、名字空、图标空）。
+	 */
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+private:
+	UPROPERTY(Replicated)
 	FGameplayTag CharacterTag;
 
-	UPROPERTY()
-	int SlotIndex;
+	UPROPERTY(Replicated)
+	int32 SlotIndex = INDEX_NONE;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	FString CharacterName;
 
-	UPROPERTY()
-	UTexture2D* CharacterIcon;
+	UPROPERTY(Replicated)
+	UTexture2D* CharacterIcon = nullptr;
 
 public:
 	DATA_ACCESSOR(FGameplayTag, CharacterTag)
