@@ -35,20 +35,13 @@ void UGA_DrawWeapon::ActivateAbility(
 		return;
 	}
 
-	// 拔剑 = 进入战斗姿态。真正给 ASC 贴 InCombat / CanAttack 的是
-	// AM_DrawSword 里的 AN_ApplyGameplayEffect，这里只记录逻辑状态。
-	bCombatStance = true;
-	bStanceCleared = false;
+	bStanceNeedsCleanup = true;
 
 	if (HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))
 	{
 		UAbilityTask_PlayMontageAndWait* PlayDrawSwordMontage =
 			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, DrawSwordMontage);
-		// 只绑 OnCancelled（montage 根本没播出来）。
-		// 千万不要绑 OnInterrupted / OnBlendOut / OnCompleted：
-		// UAbilitySystemComponent::PlayMontage 内部走的是 Montage_Play(..., bStopAllMontages = true)，
-		// 收剑时播 montage 会把这段拔剑 montage 以 bInterrupted=true 顶掉。
-		PlayDrawSwordMontage->OnCancelled.AddDynamic(this, &ThisClass::OnDrawSwordCancelled);
+		PlayDrawSwordMontage->OnCancelled.AddDynamic(this, &ThisClass::K2_EndAbility);
 		PlayDrawSwordMontage->ReadyForActivation();
 	}
 
@@ -62,12 +55,7 @@ void UGA_DrawWeapon::EndAbility(
 	bool bReplicateEndAbility,
 	bool bWasCancelled)
 {
-	// 兜底：只要能力在"战斗姿态"下结束（不管是正常收剑、被取消还是被打断），
-	// 都保证把 InCombat / CanAttack 收掉，避免 tag 永久残留。
-	if (bCombatStance)
-	{
-		ClearStanceEffects();
-	}
+	ClearStanceEffects();
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -113,17 +101,11 @@ bool UGA_DrawWeapon::PreLoadMontage()
 
 void UGA_DrawWeapon::HandleInputPress(float TimeWaited)
 {
-	if (!bCombatStance)
+	if (!GetOwnerASC() || !GetOwnerASC()->HasMatchingGameplayTag(StatsTags::Ge_Stats_InCombat))
 	{
-		// 还没进入战斗姿态（拔剑流程还没走完），这次按键不算"收剑"，继续等下一次。
 		ArmInputWait();
 		return;
 	}
-
-	// 收剑期间不要再 ArmInputWait()：
-	// 否则下一次按键会在收剑 montage 还没播完时再 Montage_Play 一次，
-	// 而 ASC::PlayMontage 默认 bStopAllMontages=true，会把自己这条收剑 montage 打断。
-	WaitInputPress = nullptr;
 
 	UAbilityTask_PlayMontageAndWait* PlaySheatheSwordMontage =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, SheatheSwordMontage);
@@ -140,21 +122,14 @@ void UGA_DrawWeapon::OnSheatheSwordEnd()
 	K2_EndAbility();
 }
 
-void UGA_DrawWeapon::OnDrawSwordCancelled()
-{
-	// 拔剑 montage 播不出来（资源缺失 / 没有 AnimInstance 等），直接结束，避免能力卡住。
-	K2_EndAbility();
-}
-
 void UGA_DrawWeapon::ClearStanceEffects()
 {
 	// OnSheatheSwordEnd 和 EndAbility 都可能进来，做成幂等的。
-	bCombatStance = false;
-	if (bStanceCleared)
+	if (!bStanceNeedsCleanup)
 	{
 		return;
 	}
-	bStanceCleared = true;
+	bStanceNeedsCleanup = false;
 
 	UGeAbilitySystemComponent* ASC = GetOwnerASC();
 	if (!ASC)

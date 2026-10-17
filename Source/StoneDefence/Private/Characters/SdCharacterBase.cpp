@@ -1,16 +1,18 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Characters/SdCharacterBase.h"
 
 #include "Comps/GeAbilitySystemComponent.h"
 #include "Comps/GeAnimationComponent.h"
+#include "Engine/AssetManager.h"
+#include "Engine/StreamableManager.h"
 #include "GameFramework/PlayerState.h"
 #include "GeniuxyDebugHelper.h"
 #include "Animations/AnimNotifies/AN_DrawWeapon.h"
 #include "Data/CharacterAnimationSet.h"
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
-#include "Frameworks/SdAssetManager.h"
+#include "Net/UnrealNetwork.h"
 #include "Subsystems/GameInstanceSubsytems/SdGISubsystemCharacter.h"
 #include "Tags/AMEventTags.h"
 #include "Tags/CharacterTags.h"
@@ -62,6 +64,13 @@ void ASdCharacterBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 
 	UnBindGASChangeDelegates();
+}
+
+void ASdCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASdCharacterBase, CurrentWeaponSocket);
 }
 
 void ASdCharacterBase::InitCharacterDef()
@@ -124,8 +133,9 @@ void ASdCharacterBase::HandleDrawWeaponEvent(FGameplayTag GameplayTag, const FGa
 	// TODO: 后面这一块放到EquipmentComp里
 	if(const USocketNameWrapper* Wrapper = Cast<USocketNameWrapper>(GameplayEventData->OptionalObject))
 	{
-		FName SocketName = Wrapper->SocketName;
-		DrawWeapon(SocketName);
+		// 走"请求"，由服务器确认后再复制给所有端：
+		// 远端客户端可能根本没播到这条 montage（收不到通知），靠复制值兜底才不会再错位
+		RequestWeaponSocket(Wrapper->SocketName);
 	}
 }
 
@@ -133,48 +143,135 @@ void ASdCharacterBase::HandleSheatheWeaponEvent(FGameplayTag GameplayTag, const 
 {
 	if(const USocketNameWrapper* Wrapper = Cast<USocketNameWrapper>(GameplayEventData->OptionalObject))
 	{
-		FName SocketName = Wrapper->SocketName;
-		SheatheWeapon(SocketName);
+		RequestWeaponSocket(Wrapper->SocketName);
 	}
 }
 
 void ASdCharacterBase::DrawWeapon(FName InSocketName)
 {
-	const FSoftObjectPath MeshPath = DefaultWeaponMesh.ToSoftObjectPath();
-	TWeakObjectPtr<ASdCharacterBase> WeakThis(this);
-
-	FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
-	Streamable.RequestAsyncLoad(MeshPath, [WeakThis, MeshPath, InSocketName]()
-	{
-		if (ASdCharacterBase* Character = WeakThis.Get())
-		{
-			if (USkeletalMesh* LoadedMesh = Cast<USkeletalMesh>(MeshPath.ResolveObject()))
-			{
-				Character->WeaponMeshComponent->SetSkeletalMesh(LoadedMesh);
-				Character->WeaponMeshComponent->AttachToComponent(
-					Character->GetMesh(),
-					FAttachmentTransformRules::SnapToTargetIncludingScale,
-					InSocketName
-				);
-				Character->CurrentWeaponSocket = InSocketName;
-			}
-		}
-	});
+	// 只改本地表现，不写复制值、不发 RPC（给 BeginPlay 之类的本地兜底用）
+	ApplyWeaponSocket(InSocketName);
 }
 
 void ASdCharacterBase::SheatheWeapon(FName InSocketName)
 {
-	if (!WeaponMeshComponent->GetSkeletalMeshAsset())
+	ApplyWeaponSocket(InSocketName);
+}
+
+void ASdCharacterBase::RequestWeaponSocket(FName InSocketName)
+{
+	if (InSocketName.IsNone())
 	{
 		return;
 	}
 
+	if (HasAuthority())
+	{
+		// 服务器：更新复制值（authority 上不会触发 OnRep，所以本地表现要自己做）
+		CurrentWeaponSocket = InSocketName;
+		ApplyWeaponSocket(InSocketName);
+		return;
+	}
+
+	if (GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		// 本地立刻生效（手感），再请服务器确认并广播
+		ApplyWeaponSocket(InSocketName);
+		ServerSetWeaponSocket(InSocketName);
+		return;
+	}
+
+	// SimulatedProxy：不响应本地的 montage的 GameplayEvent 通知。
+	// 所以SimulatedProxy端的角色武器位置只认服务器的复制值（OnRep_CurrentWeaponSocket）。
+}
+
+void ASdCharacterBase::ApplyWeaponSocket(FName InSocketName)
+{
+	if (InSocketName.IsNone() || AppliedWeaponSocket == InSocketName || !WeaponMeshComponent)
+	{
+		return;
+	}
+
+	if (WeaponMeshComponent->GetSkeletalMeshAsset() == nullptr)
+	{
+		// 武器 Mesh 是软引用，每个客户端各自异步加载。
+		// 加载没完成时不能把请求丢掉（旧代码 SheatheWeapon 就是直接 return），
+		// 否则这次收剑就永久丢失，等 Mesh 加载完武器会停在旧插槽上。
+		PendingWeaponSocket = InSocketName;
+		RequestWeaponMeshLoad();
+		return;
+	}
+
+	AppliedWeaponSocket = InSocketName;
 	WeaponMeshComponent->AttachToComponent(
 		GetMesh(),
 		FAttachmentTransformRules::SnapToTargetIncludingScale,
 		InSocketName
 	);
+}
+
+void ASdCharacterBase::OnRep_CurrentWeaponSocket()
+{
+	ApplyWeaponSocket(CurrentWeaponSocket);
+}
+
+void ASdCharacterBase::ServerSetWeaponSocket_Implementation(FName InSocketName)
+{
+	if (CurrentWeaponSocket == InSocketName)
+	{
+		return;
+	}
+
 	CurrentWeaponSocket = InSocketName;
+	ApplyWeaponSocket(InSocketName);
+}
+
+void ASdCharacterBase::RequestWeaponMeshLoad()
+{
+	if (bWeaponMeshLoadRequested || DefaultWeaponMesh.IsNull())
+	{
+		return;
+	}
+
+	if (DefaultWeaponMesh.IsValid())
+	{
+		OnWeaponMeshLoaded();
+		return;
+	}
+
+	bWeaponMeshLoadRequested = true;
+
+	TWeakObjectPtr<ASdCharacterBase> WeakThis(this);
+	UAssetManager::GetStreamableManager().RequestAsyncLoad(
+		DefaultWeaponMesh.ToSoftObjectPath(),
+		FStreamableDelegate::CreateLambda([WeakThis]()
+		{
+			if (ASdCharacterBase* Character = WeakThis.Get())
+			{
+				Character->OnWeaponMeshLoaded();
+			}
+		})
+	);
+}
+
+void ASdCharacterBase::OnWeaponMeshLoaded()
+{
+	bWeaponMeshLoadRequested = false;
+
+	USkeletalMesh* LoadedMesh = DefaultWeaponMesh.Get();
+	if (!LoadedMesh || !WeaponMeshComponent)
+	{
+		return;
+	}
+
+	WeaponMeshComponent->SetSkeletalMesh(LoadedMesh);
+
+	// 换了 Mesh，之前贴的插槽作废，必须重新贴一次
+	AppliedWeaponSocket = NAME_None;
+	const FName SocketToApply = PendingWeaponSocket.IsNone() ? CurrentWeaponSocket : PendingWeaponSocket;
+	PendingWeaponSocket = NAME_None;
+
+	ApplyWeaponSocket(SocketToApply);
 }
 
 void ASdCharacterBase::InitAnimationSet(const UPA_CharacterDefinition* InDefinition)

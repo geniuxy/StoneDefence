@@ -31,6 +31,9 @@ public:
 	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
 	FORCEINLINE bool GetIsFootIK() const { return bFootIK; }
 
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE bool HasIKBone() const { return bHasIKBone; }
+
 protected:
 	UPROPERTY()
 	USkeletalMeshComponent* OwnerSkeletalMeshComp;
@@ -44,6 +47,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")
 	bool bCanFootIK;
+
+	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")
+	bool bHasIKBone;
 
 	bool bFootIK;
 
