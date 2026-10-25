@@ -41,7 +41,8 @@ public class GeniuxyGAS : ModuleRules
 				"EnhancedInput",
 				"GameplayAbilities",
 				"GameplayTags",
-				"GameplayTasks"
+				"GameplayTasks",
+				"GeniuxyCommon",
 				// ... add private dependencies that you statically link with here ...	
 			}
 		);

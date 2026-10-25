@@ -12,14 +12,14 @@ public class GeniuxyAnimation : ModuleRules
 			new string[] {
 				// ... add public include paths required here ...
 			}
-			);
+		);
 				
 		
 		PrivateIncludePaths.AddRange(
 			new string[] {
 				// ... add other private include paths required here ...
 			}
-			);
+		);
 			
 		
 		PublicDependencyModuleNames.AddRange(
@@ -28,7 +28,7 @@ public class GeniuxyAnimation : ModuleRules
 				"Core",
 				// ... add other public dependencies that you statically link with here ...
 			}
-			);
+		);
 			
 		
 		PrivateDependencyModuleNames.AddRange(
@@ -40,9 +40,11 @@ public class GeniuxyAnimation : ModuleRules
 				"SlateCore",
 				"GameplayAbilities",
 				"GameplayTags",
+				"GeniuxyCommon",
+				"SimpleAdvancedAnimation",
 				// ... add private dependencies that you statically link with here ...	
 			}
-			);
+		);
 		
 		
 		DynamicallyLoadedModuleNames.AddRange(
@@ -50,6 +52,6 @@ public class GeniuxyAnimation : ModuleRules
 			{
 				// ... add any modules that your module loads dynamically here ...
 			}
-			);
+		);
 	}
 }

@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "SdAnimInstanceBase.generated.h"
+#include "GeAnimInstanceBase.generated.h"
 
 class USkeletalMeshComponent;
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdAnimInstanceBase : public UAnimInstance
+class GENIUXYANIMATION_API UGeAnimInstanceBase : public UAnimInstance
 {
 	GENERATED_BODY()
 

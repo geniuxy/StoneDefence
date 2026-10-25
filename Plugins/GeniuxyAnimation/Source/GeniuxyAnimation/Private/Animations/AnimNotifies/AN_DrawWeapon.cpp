@@ -4,7 +4,7 @@
 #include "Animations/AnimNotifies/AN_DrawWeapon.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
-#include "Tags/AMEventTags.h"
+#include "Tags/EventTags.h"
 
 void UAN_DrawWeapon::Notify(
 	USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
@@ -23,13 +23,13 @@ void UAN_DrawWeapon::Notify(
 	if (bDrawWeapon)
 	{
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
-			MeshComp->GetOwner(), AMEventTags::Ge_Event_DrawWeapon, EventData
+			MeshComp->GetOwner(), EventTags::Ge_Event_DrawWeapon, EventData
 		);
 	}
 	else
 	{
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
-			MeshComp->GetOwner(), AMEventTags::Ge_Event_SheatheWeapon, EventData
+			MeshComp->GetOwner(), EventTags::Ge_Event_SheatheWeapon, EventData
 		);
 	}
 }

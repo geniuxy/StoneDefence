@@ -4,7 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/Core/GeGameplayAbilityBase.h"
-#include "Tags/GAMontageTags.h"
+#include "Tags/MontageTags.h"
+#include "Tags/MontageTags.h"
 #include "GA_DrawWeapon.generated.h"
 
 class UAbilityTask_WaitInputPress;
@@ -48,10 +49,10 @@ private:
 	void ClearStanceEffects();
 
 	UPROPERTY(EditDefaultsOnly, meta=(Categories="Ge.Montage"))
-	FGameplayTag DrawSwordMontageTag = GAMontageTags::Ge_Montage_DrawWeapon;
+	FGameplayTag DrawSwordMontageTag = MontageTags::Ge_Montage_DrawWeapon;
 	
 	UPROPERTY(EditDefaultsOnly, meta=(Categories="Ge.Montage"))
-	FGameplayTag SheatheSwordMontageTag = GAMontageTags::Ge_Montage_SheatheWeapon;
+	FGameplayTag SheatheSwordMontageTag = MontageTags::Ge_Montage_SheatheWeapon;
 	
 	UPROPERTY()
 	UAnimMontage* DrawSwordMontage = nullptr;

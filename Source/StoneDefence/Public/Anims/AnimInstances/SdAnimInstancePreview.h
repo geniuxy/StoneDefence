@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SdAnimInstanceBase.h"
+#include "Animations/Instances/GeAnimInstanceBase.h"
 #include "SdAnimInstancePreview.generated.h"
 
 class ASdActorPreview;
@@ -11,7 +11,7 @@ class ASdActorPreview;
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdAnimInstancePreview : public USdAnimInstanceBase
+class STONEDEFENCE_API USdAnimInstancePreview : public UGeAnimInstanceBase
 {
 	GENERATED_BODY()
 	

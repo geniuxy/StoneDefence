@@ -1,13 +1,13 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Anims/AnimInstances/SdAnimInstanceBase.h"
+#include "Animations/Instances/GeAnimInstanceBase.h"
 
 #include "SimpleAdvancedAnimationBPLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
 
-void USdAnimInstanceBase::NativeInitializeAnimation()
+void UGeAnimInstanceBase::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
@@ -20,14 +20,14 @@ void USdAnimInstanceBase::NativeInitializeAnimation()
 	}
 }
 
-void USdAnimInstanceBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
+void UGeAnimInstanceBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
 
 	// CalcFootIKOffset();
 }
 
-void USdAnimInstanceBase::InitFootIKId(ACharacter* OwnerCharacter)
+void UGeAnimInstanceBase::InitFootIKId(ACharacter* OwnerCharacter)
 {
 	BoneNames.Empty();
 	if (GetIsFootIK())
@@ -39,7 +39,7 @@ void USdAnimInstanceBase::InitFootIKId(ACharacter* OwnerCharacter)
 	}
 }
 
-void USdAnimInstanceBase::CalcFootIKOffset()
+void UGeAnimInstanceBase::CalcFootIKOffset()
 {
 	if (GetIsFootIK() && FootIKId != INDEX_NONE)
 	{
@@ -58,7 +58,7 @@ void USdAnimInstanceBase::CalcFootIKOffset()
 	}
 }
 
-float USdAnimInstanceBase::GetFootIKOffset(const FName& InBoneName)
+float UGeAnimInstanceBase::GetFootIKOffset(const FName& InBoneName)
 {
 	if (FootIKId != INDEX_NONE)
 	{

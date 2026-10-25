@@ -14,7 +14,7 @@
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
 #include "Net/UnrealNetwork.h"
 #include "Subsystems/GameInstanceSubsytems/SdGISubsystemCharacter.h"
-#include "Tags/AMEventTags.h"
+#include "Tags/EventTags.h"
 #include "Tags/CharacterTags.h"
 
 ASdCharacterBase::ASdCharacterBase()
@@ -100,14 +100,14 @@ void ASdCharacterBase::BindGASChangeDelegates()
 	if (AbilitySystemComp)
 	{
 		DrawWeaponEventHandle = AbilitySystemComp->AddGameplayEventTagContainerDelegate(
-			FGameplayTagContainer(AMEventTags::Ge_Event_DrawWeapon),
+			FGameplayTagContainer(EventTags::Ge_Event_DrawWeapon),
 			FGameplayEventTagMulticastDelegate::FDelegate::CreateUObject(
 				this, &ThisClass::HandleDrawWeaponEvent
 			)
 		);
 
 		SheatheWeaponEventHandle = AbilitySystemComp->AddGameplayEventTagContainerDelegate(
-			FGameplayTagContainer(AMEventTags::Ge_Event_SheatheWeapon),
+			FGameplayTagContainer(EventTags::Ge_Event_SheatheWeapon),
 			FGameplayEventTagMulticastDelegate::FDelegate::CreateUObject(
 				this, &ThisClass::HandleSheatheWeaponEvent
 			)
@@ -120,10 +120,10 @@ void ASdCharacterBase::UnBindGASChangeDelegates()
 	if (IsValid(AbilitySystemComp))
 	{
 		AbilitySystemComp->RemoveGameplayEventTagContainerDelegate(
-			FGameplayTagContainer(AMEventTags::Ge_Event_DrawWeapon), DrawWeaponEventHandle
+			FGameplayTagContainer(EventTags::Ge_Event_DrawWeapon), DrawWeaponEventHandle
 		);
 		AbilitySystemComp->RemoveGameplayEventTagContainerDelegate(
-			FGameplayTagContainer(AMEventTags::Ge_Event_SheatheWeapon), SheatheWeaponEventHandle
+			FGameplayTagContainer(EventTags::Ge_Event_SheatheWeapon), SheatheWeaponEventHandle
 		);
 	}
 }

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "SdAnimInstanceBase.h"
+#include "Animations/Instances/GeAnimInstanceBase.h"
 #include "SdAnimInstanceCharacterBase.generated.h"
 
 class ASdCharacterBase;
@@ -13,7 +13,7 @@ class UCharacterMovementComponent;
  * 
  */
 UCLASS()
-class STONEDEFENCE_API USdAnimInstanceCharacterBase : public USdAnimInstanceBase
+class STONEDEFENCE_API USdAnimInstanceCharacterBase : public UGeAnimInstanceBase
 {
 	GENERATED_BODY()
 
