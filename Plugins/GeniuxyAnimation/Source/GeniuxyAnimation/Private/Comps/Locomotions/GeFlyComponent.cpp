@@ -3,33 +3,44 @@
 
 #include "Comps/Locomotions/GeFlyComponent.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Tags/StatsTags.h"
 
-// Sets default values for this component's properties
 UGeFlyComponent::UGeFlyComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
-
-// Called when the game starts
 void UGeFlyComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	OwnerCharacter = Cast<ACharacter>(GetOwner());
+	if (!OwnerCharacter) return;
+
+	OwnerASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OwnerCharacter);
+	if (OwnerASC)
+	{
+		OwnerASC->RegisterGameplayTagEvent(StatsTags::Ge_Stats_Fly).AddUObject(
+			this, &ThisClass::OwnerFlyTagUpdated
+		);
+	}
+	OwnerMovementComp = OwnerCharacter->GetCharacterMovement();
 }
 
-
-// Called every frame
-void UGeFlyComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UGeFlyComponent::OwnerFlyTagUpdated(const FGameplayTag Tag, int32 NewCount)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	if (!OwnerMovementComp) return;
+	if (NewCount > 0)
+	{
+		OwnerMovementComp->SetMovementMode(MOVE_Flying);
+	}
+	else
+	{
+		OwnerMovementComp->SetMovementMode(MOVE_Walking);
+	}
 }
 

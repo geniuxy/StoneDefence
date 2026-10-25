@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Components/ActorComponent.h"
 #include "GeFlyComponent.generated.h"
 
+class UCharacterMovementComponent;
+class UAbilitySystemComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class GENIUXYANIMATION_API UGeFlyComponent : public UActorComponent
@@ -13,15 +16,18 @@ class GENIUXYANIMATION_API UGeFlyComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UGeFlyComponent();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
+protected:
+	UPROPERTY()
+	ACharacter* OwnerCharacter;
+	UPROPERTY()
+	UAbilitySystemComponent* OwnerASC;
+	UPROPERTY()
+	UCharacterMovementComponent* OwnerMovementComp;
+	
+	void OwnerFlyTagUpdated(const FGameplayTag Tag, int32 NewCount);
 };
