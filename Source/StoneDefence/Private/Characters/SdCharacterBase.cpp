@@ -10,6 +10,7 @@
 #include "GameFramework/PlayerState.h"
 #include "GeniuxyDebugHelper.h"
 #include "Animations/AnimNotifies/AN_DrawWeapon.h"
+#include "Comps/Locomotions/GeFlyComponent.h"
 #include "Data/CharacterAnimationSet.h"
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
 #include "Net/UnrealNetwork.h"
@@ -30,6 +31,8 @@ ASdCharacterBase::ASdCharacterBase()
 	WeaponMeshComponent->SetCollisionProfileName(TEXT("NoCollision"));
 	WeaponMeshComponent->bCastDynamicShadow = true;
 	WeaponMeshComponent->CastShadow = true;
+
+	FlyComp = CreateDefaultSubobject<UGeFlyComponent>(TEXT("FlyComp"));
 }
 
 void ASdCharacterBase::ServerSideInit()

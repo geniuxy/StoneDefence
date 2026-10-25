@@ -9,6 +9,7 @@
 #include "Types/GeniuxyCommonMacro.h"
 #include "SdCharacterBase.generated.h"
 
+class UGeFlyComponent;
 class UPA_CharacterDefinition;
 struct FGameplayTag;
 class UGeAnimationComponent;
@@ -53,6 +54,13 @@ protected:
 
 	virtual void BindGASChangeDelegates();
 	virtual void UnBindGASChangeDelegates();
+
+	/**********************************************************************/
+	/*                               Fly                                  */
+	/**********************************************************************/
+protected:
+	UPROPERTY(VisibleAnywhere)
+	UGeFlyComponent* FlyComp;
 
 	/**********************************************************************/
 	/*                            Equipment                               */
