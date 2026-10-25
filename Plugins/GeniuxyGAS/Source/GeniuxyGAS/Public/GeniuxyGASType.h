@@ -22,7 +22,8 @@ enum class EAbilityInputID : uint8
 	Sprint UMETA(DisplayName="Sprint"),
 	LockTarget UMETA(DisplayName="LockTarget"),
 	SummonMount UMETA(DisplayName="SummonMount"),
-	Tab UMETA(DisplayName="Tab")
+	Tab UMETA(DisplayName="Tab"),
+	Fly UMETA(DisplayName="Fly"),
 };
 
 USTRUCT(BlueprintType)

@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayTagContainer.h"
 #include "Animations/Instances/GeAnimInstanceBase.h"
 #include "SdAnimInstanceCharacterBase.generated.h"
 
@@ -28,30 +27,17 @@ public:
 
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 
-	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
-	FORCEINLINE bool GetIsInAir() const { return bIsInAir; }
-
-	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
-	FORCEINLINE float GetSpeed() const { return Speed; }
-
-	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
-	FORCEINLINE bool GetIsInCombat() const { return bIsInCombat; }
-
 protected:
 	UPROPERTY()
 	ASdCharacterBase* OwnerCharacter;
 
 	UPROPERTY()
 	UCharacterMovementComponent* OwnerMovementComp;
-	
-	bool bIsInAir = false;
-	float Speed;
 
-	bool bIsInCombat;
+public:
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE bool GetIsInAir() const { return bIsInAir; }
 
-	/**********************************************************************/
-	/*                           Tag变化相关函数                            */
-	/**********************************************************************/
 protected:
-	void OwnerCombatTagUpdated(const FGameplayTag Tag, int32 NewCount);
+	bool bIsInAir = false;
 };

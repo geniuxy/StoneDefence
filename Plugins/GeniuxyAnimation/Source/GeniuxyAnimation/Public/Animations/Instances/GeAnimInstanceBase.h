@@ -3,9 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
+#include "GeniuxyAnimationType.h"
 #include "Animation/AnimInstance.h"
 #include "GeAnimInstanceBase.generated.h"
 
+enum class ECharacterActionState : uint8;
+class UCharacterMovementComponent;
 class USkeletalMeshComponent;
 /**
  * 
@@ -17,8 +21,44 @@ class GENIUXYANIMATION_API UGeAnimInstanceBase : public UAnimInstance
 
 public:
 	virtual void NativeInitializeAnimation() override;
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
+
+protected:
+	UPROPERTY()
+	USkeletalMeshComponent* OwnerSkeletalMeshComp;
+
+	/**********************************************************************/
+	/*                             Locomotion                             */
+	/**********************************************************************/
+public:
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE float GetSpeed() const { return Speed; }
+
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE ECharacterActionState GetActionState() const { return ActionState; }
+
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE bool GetIsInCombat() const { return ActionState == ECharacterActionState::COMBAT; }
+
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE bool GetIsFlying() const { return ActionState == ECharacterActionState::FLIGHT; }
+
+protected:
+	UPROPERTY()
+	APawn* OwnerPawn;
 	
+	float Speed;
+	ECharacterActionState ActionState;
+
+protected:
+	void OwnerCombatTagUpdated(const FGameplayTag Tag, int32 NewCount);
+	void OwnerFlyTagUpdated(const FGameplayTag Tag, int32 NewCount);
+
+	/**********************************************************************/
+	/*                              Foot IK                               */
+	/**********************************************************************/
+public:
 	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
 	FORCEINLINE float GetLeftOffset() const { return LeftOffset; }
 
@@ -34,13 +74,6 @@ public:
 	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
 	FORCEINLINE bool HasIKBone() const { return bHasIKBone; }
 
-protected:
-	UPROPERTY()
-	USkeletalMeshComponent* OwnerSkeletalMeshComp;
-
-	/**********************************************************************/
-	/*                              Foot IK                               */
-	/**********************************************************************/
 protected:
 	virtual void InitFootIKId(ACharacter* OwnerCharacter);
 	void CalcFootIKOffset();

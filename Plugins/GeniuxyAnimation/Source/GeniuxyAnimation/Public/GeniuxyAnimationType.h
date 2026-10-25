@@ -25,3 +25,13 @@ struct FCharacterMontageEntry
 	UPROPERTY(EditDefaultsOnly)
 	FGameplayTagContainer RequiredTags;
 };
+
+UENUM(BlueprintType)
+enum class ECharacterActionState : uint8
+{
+	NORMAL UMETA(DisplayName="Normal"),
+	COMBAT UMETA(DisplayName="Combat"),
+	FLIGHT UMETA(DisplayName="Flight"),
+	SWIMMING UMETA(DisplayName="Swimming"),
+	CLIMBING UMETA(DisplayName="Climbing")
+};
