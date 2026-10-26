@@ -6,17 +6,10 @@
 #include "GeAnimInstanceBase.h"
 #include "GeAnimInstanceLocoBase.generated.h"
 
-class UBlendSpace;
 class UCharacterMovementComponent;
-class UGeLocomotionComponent;
-class UGeLocomotionAnimSet;
 
 /**
  * 所有「移动层」实例的公共基类。
- *
- * 飞行 / 游泳 / 攀爬 三层的输入长得几乎一样：
- *   一个 -1~1 的三轴速度 + 当前模式的最大速度
- * 所以统一在这里算，Fly / Swim / Climb 只负责「用哪个混合空间、有没有本模式特有的开关」。
  */
 UCLASS()
 class GENIUXYANIMATION_API UGeAnimInstanceLocoBase : public UGeAnimInstanceBase
@@ -38,37 +31,70 @@ public:
 	FORCEINLINE FVector GetNormalizedVelocity() const { return NormalizedVelocity; }
 
 	/**********************************************************************/
-	/*                      BlendSpace 取值（给 ABP 引脚）                  */
+	/*                                Fly                                 */
 	/**********************************************************************/
-	/** 没配 GeLocomotionAnimSet 时返回 nullptr，ABP 里要判空 */
+public:
+	/** 归一化飞行速度。和 GetNormalizedVelocity() 完全等价，只是飞行层里读着顺手 */
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	UBlendSpace* GetFlyBlendSpace() const;
+	FORCEINLINE FVector GetFlySpeed() const { return NormalizedVelocity; }
 
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	UBlendSpace* GetSwimBlendSpace() const;
+	FORCEINLINE bool GetIsAscending() const { return bIsAscending; }
 
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	UBlendSpace* GetClimbBlendSpace() const;
+	FORCEINLINE bool GetIsDescending() const { return bIsDescending; }
 
-	/** 移动动画集合；没配就是 nullptr，ABP 里要判空 */
+protected:
+	bool bIsAscending = false;
+	bool bIsDescending = false;
+
+	/**********************************************************************/
+	/*                                Swim                                */
+	/**********************************************************************/
+public:
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	FORCEINLINE UGeLocomotionAnimSet* GetLocomotionAnimSet() const { return LocomotionAnimSet; }
+	FORCEINLINE FVector GetSwimSpeed() const { return NormalizedVelocity; }
+
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsDiving() const { return bIsDiving; }
+
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsSurfaceSwimming() const { return !bIsDiving; }
+
+protected:
+	bool bIsDiving = false;
+
+	/**********************************************************************/
+	/*                                Climb                               */
+	/**********************************************************************/
+public:
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE FVector GetClimbSpeed() const { return NormalizedVelocity; }
+
+	/** 只取水平分量，给「四向攀爬」这种只需要左右两轴的混合空间用 */
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE FVector2D GetClimbSpeed2D() const
+	{
+		return FVector2D(NormalizedVelocity.X, NormalizedVelocity.Y);
+	}
+
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsClimbUp() const { return bIsClimbUp; }
+
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsClimbDown() const { return bIsClimbDown; }
+
+protected:
+	bool bIsClimbUp = false;
+	bool bIsClimbDown = false;
 
 protected:
 	virtual void CacheDerivedState() override;
 
-	/** 移动模式 + 战斗状态 + 移动动画集合的唯一数据源，缓存在这里 */
-	UPROPERTY()
-	UGeLocomotionComponent* LocomotionComp;
-
-	/** 移动动画集合，从 LocomotionComp 上取，本模式层实例共用同一份 */
-	UPROPERTY()
-	UGeLocomotionAnimSet* LocomotionAnimSet;
-
 	UPROPERTY()
 	UCharacterMovementComponent* OwnerMovementComp;
 
-	/** 只在 CacheDerivedState（游戏线程）里写 */
+	/** 下面这些只在 CacheDerivedState（游戏线程）里写，工作线程只读 */
 	float MaxSpeed = 0.f;
 	FVector NormalizedVelocity = FVector::ZeroVector;
 };

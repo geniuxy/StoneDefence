@@ -10,7 +10,10 @@
 
 class UCharacterMovementComponent;
 class UAbilitySystemComponent;
-class UGeLocomotionAnimSet;
+class UGeAnimationSetup;
+
+/** 动画配置变化（非同动态委托，C++ 侧用） */
+DECLARE_MULTICAST_DELEGATE(FOnGeAnimationSetupChanged);
 
 /** 模式变化（蓝图侧） */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
@@ -27,8 +30,7 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(
  * - 它只做「状态」和「MovementMode 切换」，不碰动画图；
  * - 它是移动模式的唯一数据源。AnimInstance 每帧来这里读一次，不要在 AnimInstance 里
  *   再注册一遍 GAS tag 事件（旧的 AnimInstance 和飞行组件各注册过一份，是重复监听）；
- * - 它持有 UGeLocomotionAnimSet，主实例和所有 layer 实例都从这里取动画资产，
- *   这样「跨 AnimInstance 传数据」的问题就退化成了「读同一个组件的指针」。
+ * - 它同时也是脚部 IK 开关的数据源（角色配置推过来，AnimInstance 读它）。
  *
  * 模式来源优先级：GAS tag（Fly / Swim / Climb）驱动进出栈；也可以直接调 SetMode/PushMode。
  */
@@ -78,14 +80,49 @@ public:
 	bool IsInCombat() const { return bInCombat; }
 
 	/**********************************************************************/
-	/*                            Animation Set                           */
+	/*                           Animation Setup                          */
 	/**********************************************************************/
-	/** 设置移动动画集合（会顺带调用 PreloadAll，游戏线程） */
-	UFUNCTION(BlueprintCallable, Category = "Geniuxy|Animation")
-	void SetAnimationSet(UGeLocomotionAnimSet* InAnimSet);
+	/**
+	 * 每角色的动画配置（层实现类 + 脚部 IK 开关）。
+	 *
+	 * 放在组件上而不是角色上，理由：
+	 * - 它和「移动模式」属于同一类数据，都是 AnimInstance 要读的东西；
+	 * - 主实例和 layer 实例本来就都从本组件取数据，不用再多绕一层角色；
+	 * - 换配置时的重新绑层也能由组件广播事件驱动，角色只当转发者。
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Geniuxy|Animation")
+	UGeAnimationSetup* AnimationSetup;
 
 	UFUNCTION(BlueprintPure, Category = "Geniuxy|Animation")
-	UGeLocomotionAnimSet* GetAnimationSet() const { return AnimationSet; }
+	UGeAnimationSetup* GetAnimationSetup() const { return AnimationSetup; }
+
+	/** 设置动画配置：同步脚部 IK 开关，并广播 OnAnimationSetupChanged 让 AnimInstance 重新绑层 */
+	UFUNCTION(BlueprintCallable, Category = "Geniuxy|Animation")
+	void SetAnimationSetup(UGeAnimationSetup* InSetup);
+
+	/** 配置变化时广播（角色据此让 AnimInstance 重新 LinkAnimClassLayers） */
+	FOnGeAnimationSetupChanged OnAnimationSetupChanged;
+
+	/**********************************************************************/
+	/*                              Foot IK                               */
+	/**********************************************************************/
+	/**
+	 * 是否允许脚部 IK。
+	 *
+	 * 这是**运行时值**，手工配置只有一个入口：UGeAnimationSetup::bCanFootIK
+	 * （SetAnimationSetup / BeginPlay 时同步过来）。故意不做成 EditDefaultsOnly，
+	 * 就是为了避免「两个地方都能填、最后不知道该看哪个」。
+	 *
+	 * 为什么不放在 AnimInstance 的 Class Defaults 里：
+	 * 主实例和 layer 实例是两个独立 UAnimInstance，各有一份类默认值；
+	 * 在 layer ABP 上改永远影响不到主 ABP，而主 ABP 只有一份，也没法按武将区分。
+	 */
+	UFUNCTION(BlueprintPure, Category = "Geniuxy|FootIK")
+	bool IsFootIKEnabled() const { return bFootIKEnabled; }
+
+	/** 运行时临时开关（一般不用手动调，配 UGeAnimationSetup 即可） */
+	UFUNCTION(BlueprintCallable, Category = "Geniuxy|FootIK")
+	void SetFootIKEnabled(bool bInEnabled) { bFootIKEnabled = bInEnabled; }
 
 	/**********************************************************************/
 	/*                             Delegates                              */
@@ -144,8 +181,11 @@ protected:
 	UPROPERTY()
 	UCharacterMovementComponent* OwnerMovementComp;
 
-	UPROPERTY()
-	UGeLocomotionAnimSet* AnimationSet;
+	/**
+	 * 脚部 IK 的运行时值。默认 true。
+	 * 手工配置的唯一入口是 UGeAnimationSetup::bCanFootIK，这里刻意不加 EditDefaultsOnly。
+	 */
+	bool bFootIKEnabled = true;
 
 	EGeLocomotionMode Mode = EGeLocomotionMode::Ground;
 	EGeLocomotionMode PreviousMode = EGeLocomotionMode::Ground;

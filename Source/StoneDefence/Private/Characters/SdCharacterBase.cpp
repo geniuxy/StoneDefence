@@ -6,8 +6,6 @@
 #include "Comps/GeAbilitySystemComponent.h"
 #include "Comps/GeAnimationComponent.h"
 #include "Anims/AnimInstances/SdAnimInstanceHeroBase.h"
-#include "Anims/Data/SdAnimationSetup.h"
-#include "Data/GeLocomotionAnimSet.h"
 #include "Types/GeAnimationPayloads.h"
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
@@ -63,15 +61,21 @@ void ASdCharacterBase::BeginPlay()
 	
 	BindGASChangeDelegates();
 
-	// 把每武将的动画配置推给组件和 AnimInstance。
-	// AnimInstance 可能还没建好 —— 那种情况由 OnAnimInitialized 回调补上。
-	SetAnimationSetup(AnimationSetup);
-
 	if (USkeletalMeshComponent* MeshComp = GetMesh())
 	{
 		// 绑层必须等动画图节点初始化完成之后再做，OnAnimInitialized 是引擎提供的正确时机。
 		MeshComp->OnAnimInitialized.AddDynamic(this, &ThisClass::HandleAnimInitialized);
 	}
+
+	if (LocomotionComp)
+	{
+		// 动画配置挂在组件上（见 UGeLocomotionComponent::AnimationSetup），
+		// 配置被换掉时由组件广播，这里转成"让 AnimInstance 重新绑层"。
+		LocomotionComp->OnAnimationSetupChanged.AddUObject(this, &ThisClass::HandleAnimationSetupChanged);
+	}
+
+	// AnimInstance 若在 BeginPlay 之前就已创建，OnAnimInitialized 不会再来一次，这里补一次。
+	RefreshHeroLocomotionLayers();
 
 	InitCharacterDef();
 }
@@ -83,6 +87,11 @@ void ASdCharacterBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (USkeletalMeshComponent* MeshComp = GetMesh())
 	{
 		MeshComp->OnAnimInitialized.RemoveDynamic(this, &ThisClass::HandleAnimInitialized);
+	}
+
+	if (LocomotionComp)
+	{
+		LocomotionComp->OnAnimationSetupChanged.RemoveAll(this);
 	}
 
 	Super::EndPlay(EndPlayReason);
@@ -296,21 +305,21 @@ void ASdCharacterBase::OnWeaponMeshLoaded()
 	ApplyWeaponSocket(SocketToApply);
 }
 
-void ASdCharacterBase::SetAnimationSetup(USdAnimationSetup* InSetup)
+void ASdCharacterBase::HandleAnimInitialized()
 {
-	AnimationSetup = InSetup;
+	// 此刻动画图节点（包括 Linked Anim Layer 节点）已经初始化完成，
+	// 是 LinkAnimClassLayers 的安全时机。
+	RefreshHeroLocomotionLayers();
+}
 
-	// 1) 把移动动画集合推给组件 —— 主实例和所有 layer 实例都从组件读，
-	//    这样「跨 AnimInstance 传资产」就退化成了「读同一个指针」。
-	UGeLocomotionAnimSet* LoadedAnimSet = AnimationSetup ? AnimationSetup->LoadLocomotionAnimSet() : nullptr;
-	if (LocomotionComp)
-	{
-		LocomotionComp->SetAnimationSet(LoadedAnimSet);
-	}
+void ASdCharacterBase::HandleAnimationSetupChanged()
+{
+	// 运行时换了动画配置：层实现类可能变了，重新绑一次。
+	RefreshHeroLocomotionLayers();
+}
 
-	// 2) 让当前 AnimInstance 重新绑移动层。
-	//    AnimInstance 可能还没创建（BeginPlay 早于 Mesh 初始化完成），
-	//    那种情况下它自己的 NativeInitializeAnimation 会按当前 AnimationSetup 再绑一次，不会漏。
+void ASdCharacterBase::RefreshHeroLocomotionLayers()
+{
 	USdAnimInstanceHeroBase* HeroAnimInstance = GetMesh()
 		? Cast<USdAnimInstanceHeroBase>(GetMesh()->GetAnimInstance())
 		: nullptr;
@@ -319,14 +328,6 @@ void ASdCharacterBase::SetAnimationSetup(USdAnimationSetup* InSetup)
 	{
 		HeroAnimInstance->RefreshLocomotionLayers();
 	}
-}
-
-void ASdCharacterBase::HandleAnimInitialized()
-{
-	// 此刻动画图节点（包括 Linked Anim Layer 节点）已经初始化完成，
-	// 是 LinkAnimClassLayers 的安全时机。
-	// 重跑一次 SetAnimationSetup 即可：既推动画集合，也重绑移动层。
-	SetAnimationSetup(AnimationSetup);
 }
 
 void ASdCharacterBase::InitAnimationSet(const UPA_CharacterDefinition* InDefinition)

@@ -21,7 +21,33 @@ void UGeAnimInstanceBase::NativeInitializeAnimation()
 	// tag -> 模式 的转换统一由 UGeLocomotionComponent 负责，AnimInstance 只读结果，
 	// 避免同一个 tag 被注册两次、以及实例销毁时忘记反注册造成的悬空委托。
 
+	// 按骨架自动判定有没有 IK 脚骨骼（Tubaki 有 ik_foot_*，Cleric 没有）。
+	// 这样主 ABP 的 FootIK 分支就不依赖「按武将手填类默认值」——那在架构上本来就做不到。
+	DetectIKBoneSupport();
+
 	bFootIK = bCanFootIK;
+}
+
+void UGeAnimInstanceBase::DetectIKBoneSupport()
+{
+	if (!bAutoDetectIKBone) return;
+
+	if (!OwnerSkeletalMeshComp)
+	{
+		OwnerSkeletalMeshComp = GetSkelMeshComponent();
+	}
+	if (!OwnerSkeletalMeshComp) return;
+
+	// USkinnedMeshComponent::GetBoneIndex 内部就是
+	// GetSkinnedAsset()->GetRefSkeleton().FindBoneIndex(BoneName)，
+	// 不依赖骨骼映射是否已经初始化，初始化阶段调用是安全的。
+	//
+	// 两具骨架都有 foot_l / foot_r，区别只在带 IK 的骨架额外有 ik_foot_l / ik_foot_r，
+	// 所以用 IK 骨骼名判断，而不是 foot_l / foot_r。
+	const bool bHasLeftIK = OwnerSkeletalMeshComp->GetBoneIndex(IKFootLeftBoneName) != INDEX_NONE;
+	const bool bHasRightIK = OwnerSkeletalMeshComp->GetBoneIndex(IKFootRightBoneName) != INDEX_NONE;
+
+	bHasIKBone = bHasLeftIK && bHasRightIK;
 }
 
 void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
@@ -51,15 +77,20 @@ void UGeAnimInstanceBase::CacheOwnerState()
 		bIsInAir = MovementComp ? MovementComp->IsFalling() : false;
 	}
 
-	// 移动模式 / 战斗状态：本类不持有组件指针（那两个成员在 UGeAnimInstanceLocoBase 上），每帧局部取一次即可。
-	if (const UGeLocomotionComponent* Comp = UGeLocomotionComponent::Find(OwnerPawn))
+	// 移动模式 / 战斗状态 / 脚部 IK 开关：本类不持有组件指针
+	// （LocomotionComp 成员在 UGeAnimInstanceLocoBase 上），每帧局部取一次即可。
+	const UGeLocomotionComponent* Comp = UGeLocomotionComponent::Find(OwnerPawn);
+	if (Comp)
 	{
 		LocomotionMode = Comp->GetMode();
 		bInCombat = Comp->IsInCombat();
 	}
 
-	// 足部 IK：腾空时关掉
-	bFootIK = bCanFootIK && !bIsInAir;
+	// 脚部 IK：角色级开关（UGeAnimationSetup -> UGeLocomotionComponent）优先；
+	// 拿不到组件时（例如预览 Actor）才回退到本类 Class Defaults 的 bCanFootIK。
+	// 腾空时一律关掉。
+	const bool bFootIKAllowed = Comp ? Comp->IsFootIKEnabled() : bCanFootIK;
+	bFootIK = bFootIKAllowed && !bIsInAir;
 }
 
 void UGeAnimInstanceBase::CacheDerivedState()

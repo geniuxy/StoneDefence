@@ -5,7 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "Data/GeLocomotionAnimSet.h"
+#include "Data/GeAnimationSetup.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Tags/StatsTags.h"
@@ -37,7 +37,30 @@ void UGeLocomotionComponent::BeginPlay()
 	OwnerMovementComp = OwnerCharacter->GetCharacterMovement();
 	OwnerASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OwnerCharacter);
 
+	// 配置里指定了脚部 IK 开关就以它为准（BeginPlay 时就同步一次，
+	// 不用等角色主动调 SetAnimationSetup）。
+	if (AnimationSetup)
+	{
+		bFootIKEnabled = AnimationSetup->bCanFootIK;
+	}
+
 	BindAbilitySystemTags();
+}
+
+void UGeLocomotionComponent::SetAnimationSetup(UGeAnimationSetup* InSetup)
+{
+	if (AnimationSetup == InSetup) return;
+
+	AnimationSetup = InSetup;
+
+	// 手工配置的唯一入口：同步脚部 IK 开关
+	if (AnimationSetup)
+	{
+		bFootIKEnabled = AnimationSetup->bCanFootIK;
+	}
+
+	// 通知角色：层实现类可能变了，让 AnimInstance 重新 LinkAnimClassLayers
+	OnAnimationSetupChanged.Broadcast();
 }
 
 void UGeLocomotionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -54,19 +77,6 @@ bool UGeLocomotionComponent::ShouldDriveMovement() const
 	// 模拟端（SimulatedProxy）不主动改 MovementMode，只跟随服务器复制过来的结果，
 	// 否则客户端和服务器会互相覆盖，出现「本地看着在飞、服务器认为在走」的抖动。
 	return OwnerCharacter->HasAuthority() || OwnerCharacter->IsLocallyControlled();
-}
-
-void UGeLocomotionComponent::SetAnimationSet(UGeLocomotionAnimSet* InAnimSet)
-{
-	if (AnimationSet == InAnimSet) return;
-
-	AnimationSet = InAnimSet;
-
-	if (AnimationSet)
-	{
-		// 软引用在这里（游戏线程）一次性解析，动画线程只读缓存指针。
-		AnimationSet->PreloadAll();
-	}
 }
 
 /**********************************************************************/

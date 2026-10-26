@@ -3,8 +3,6 @@
 
 #include "Animations/Instances/GeAnimInstanceLocoBase.h"
 
-#include "Comps/Locomotions/GeLocomotionComponent.h"
-#include "Data/GeLocomotionAnimSet.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -16,23 +14,11 @@ void UGeAnimInstanceLocoBase::NativeInitializeAnimation()
 	{
 		OwnerMovementComp = OwnerCharacter->GetCharacterMovement();
 	}
-
-	LocomotionComp = UGeLocomotionComponent::Find(OwnerPawn);
 }
 
 void UGeAnimInstanceLocoBase::CacheDerivedState()
 {
 	Super::CacheDerivedState();
-
-	// 组件可能比 AnimInstance 晚就绪（换模型 / 重新 Possess），按需补查。
-	if (!LocomotionComp)
-	{
-		LocomotionComp = UGeLocomotionComponent::Find(OwnerPawn);
-	}
-
-	// 动画资产也在这里（游戏线程）取一次，之后 BlendSpace 的取值函数只读这个缓存指针，
-	// 动画工作线程不会去碰组件。
-	LocomotionAnimSet = LocomotionComp ? LocomotionComp->GetAnimationSet() : nullptr;
 
 	if (!OwnerMovementComp)
 	{
@@ -61,19 +47,22 @@ void UGeAnimInstanceLocoBase::CacheDerivedState()
 	{
 		NormalizedVelocity = FVector::ZeroVector;
 	}
-}
 
-UBlendSpace* UGeAnimInstanceLocoBase::GetFlyBlendSpace() const
-{
-	return LocomotionAnimSet ? LocomotionAnimSet->GetFlyBlendSpace() : nullptr;
-}
+	// ── 各模式的开关 ────────────────────────────────────────────────
+	// 全部基于已经缓存好的 LocalVelocity，不读 Actor，工作线程安全。
+	// 三个阈值只是「判定死区」，避免贴地/贴墙时因微小速度抖动来回切换。
 
-UBlendSpace* UGeAnimInstanceLocoBase::GetSwimBlendSpace() const
-{
-	return LocomotionAnimSet ? LocomotionAnimSet->GetSwimBlendSpace() : nullptr;
-}
+	// 飞行：明显在上升 / 下降
+	constexpr float FlyVerticalDeadZone = 0.15f;
+	bIsAscending = LocalVelocity.Z > FlyVerticalDeadZone;
+	bIsDescending = LocalVelocity.Z < -FlyVerticalDeadZone;
 
-UBlendSpace* UGeAnimInstanceLocoBase::GetClimbBlendSpace() const
-{
-	return LocomotionAnimSet ? LocomotionAnimSet->GetClimbBlendSpace() : nullptr;
+	// 游泳：向下游算潜水
+	constexpr float DiveDeadZone = 0.2f;
+	bIsDiving = LocalVelocity.Z < -DiveDeadZone;
+
+	// 攀爬：向上 / 向下爬
+	constexpr float ClimbVerticalDeadZone = 0.15f;
+	bIsClimbUp = LocalVelocity.Z > ClimbVerticalDeadZone;
+	bIsClimbDown = LocalVelocity.Z < -ClimbVerticalDeadZone;
 }

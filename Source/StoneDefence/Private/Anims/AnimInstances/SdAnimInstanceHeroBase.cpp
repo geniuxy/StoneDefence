@@ -3,7 +3,8 @@
 
 #include "Anims/AnimInstances/SdAnimInstanceHeroBase.h"
 
-#include "Anims/Data/SdAnimationSetup.h"
+#include "Comps/Locomotions/GeLocomotionComponent.h"
+#include "Data/GeAnimationSetup.h"
 #include "Characters/Hero/SdCharacterHeroBase.h"
 #include "Interfaces/FaceSculpting.h"
 
@@ -73,10 +74,11 @@ void USdAnimInstanceHeroBase::RefreshLocomotionLayers()
 
 	TArray<TSubclassOf<UAnimInstance>> DesiredLayerClasses;
 
-	// 优先用武将自己的配置
-	if (OwnerHero)
+	// 优先用角色自己的配置。配置挂在 UGeLocomotionComponent 上（不是角色上），
+	// 这样主实例和 layer 实例读的是同一份数据，也不用多绕一层角色。
+	if (const UGeLocomotionComponent* Comp = UGeLocomotionComponent::Find(OwnerPawn))
 	{
-		if (const USdAnimationSetup* Setup = OwnerHero->GetAnimationSetup())
+		if (const UGeAnimationSetup* Setup = Comp->GetAnimationSetup())
 		{
 			DesiredLayerClasses = Setup->LoadLocomotionLayerClasses();
 		}

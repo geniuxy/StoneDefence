@@ -7,7 +7,7 @@
 #include "SdAnimInstanceHeroBase.generated.h"
 
 class ASdCharacterHeroBase;
-class USdAnimationSetup;
+class UGeAnimationSetup;
 
 /**
  * 所有武将共用的 AnimInstance 类。**不要**再为单个武将派生新的 AnimInstance 类或新的主 ABP。
@@ -22,9 +22,12 @@ class USdAnimationSetup;
  *   而子 ABP 能覆盖的只有 ParentAssetOverrides 里的 UAnimationAsset，
  *   所以「在主 ABP 的 ChildABP 里改掉嵌套子 ABP 的类」永远做不到。
  *
- * 武将之间的差异全部落在 USdAnimationSetup 这个数据资产上：
+ * 武将之间的差异全部落在 UGeAnimationSetup（插件里的数据资产）上：
  *   - LocomotionLayerClasses ：选哪套层实现（默认用插件的 ABP_GeLoco）
- *   - LocomotionAnimSet      ：用哪套飞行/游泳/攀爬动画
+ *   - bCanFootIK             ：这个角色要不要脚部 IK
+ *
+ * 动画资产本身不走数据：各角色的差异用「层 ABP 的 ParentAssetOverrides」覆盖
+ * 父 ABP 里的 Sequence / BlendSpace（两者都是 UAnimationAsset，都能覆写）。
  */
 UCLASS()
 class STONEDEFENCE_API USdAnimInstanceHeroBase : public USdAnimInstanceCharacterBase
@@ -36,11 +39,11 @@ public:
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 
 	/**
-	 * 按当前 USdAnimationSetup 重新绑定移动层。
+	 * 按当前 UGeAnimationSetup 重新绑定移动层。
 	 *
 	 * 什么时候会被调用：
 	 * - NativeInitializeAnimation 时（如果配置已经就绪）
-	 * - 角色的 USdAnimationSetup 后到时，由 ASdCharacterBase 主动调一次
+	 * - UGeLocomotionComponent 上的 UGeAnimationSetup 被换掉时，由组件广播事件触发
 	 *
 	 * 不要每帧调：LinkAnimClassLayers 会重建 linked instance。
 	 */
@@ -57,7 +60,7 @@ protected:
 	 * 兜底的层实现类。
 	 *
 	 * 在 ABP_SdHeroBase 的 Class Defaults 里填一次即可（通常就填插件的 ABP_GeLoco）。
-	 * 当某个武将的 USdAnimationSetup 没有指定 LocomotionLayerClasses 时用这一组。
+	 * 当某个武将的 UGeAnimationSetup 没有指定 LocomotionLayerClasses 时用这一组。
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Locomotion")
 	TArray<TSoftClassPtr<UAnimInstance>> DefaultLocomotionLayerClasses;

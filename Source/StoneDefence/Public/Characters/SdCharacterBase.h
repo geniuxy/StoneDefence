@@ -10,7 +10,6 @@
 #include "SdCharacterBase.generated.h"
 
 class UGeLocomotionComponent;
-class USdAnimationSetup;
 class UPA_CharacterDefinition;
 struct FGameplayTag;
 class UGeAnimationComponent;
@@ -139,26 +138,6 @@ protected:
 	void InitAnimationSet(const UPA_CharacterDefinition* InDefinition);
 
 	/**
-	 * 每武将的动画配置：用哪套移动层实现类 + 哪套移动动画集合。
-	 *
-	 * 加一个武将时只需要填这个资产，**不需要**再做一个主 ABP。
-	 * 主 ABP（ABP_SdHeroBase）永远只有一份。
-	 */
-	UPROPERTY(EditDefaultsOnly, Category="Animation")
-	USdAnimationSetup* AnimationSetup;
-
-public:
-	FORCEINLINE USdAnimationSetup* GetAnimationSetup() const { return AnimationSetup; }
-
-	/**
-	 * 设置/替换动画配置。
-	 * 会把移动动画集合推进 UGeLocomotionComponent，并让当前 AnimInstance 重新绑移动层。
-	 * 在 BeginPlay、异步加载完成、换人之后调用都安全。
-	 */
-	UFUNCTION(BlueprintCallable, Category="Animation")
-	void SetAnimationSetup(USdAnimationSetup* InSetup);
-
-	/**
 	 * AnimInstance 初始化完成的回调（USkeletalMeshComponent::OnAnimInitialized）。
 	 *
 	 * 绑层必须放在这里而不是 UAnimInstance::NativeInitializeAnimation：
@@ -167,6 +146,17 @@ public:
 	 */
 	UFUNCTION()
 	void HandleAnimInitialized();
+
+	/** UGeLocomotionComponent::OnAnimationSetupChanged 的回调（非动态委托，无需 UFUNCTION） */
+	void HandleAnimationSetupChanged();
+
+	/**
+	 * 让当前 AnimInstance 按最新配置重新 LinkAnimClassLayers。
+	 *
+	 * 注意 UGeAnimationSetup 本身不在角色上，而在 UGeLocomotionComponent 上：
+	 * 它和「移动模式」属于同一类数据，AnimInstance 本来就从组件读，不用多绕一层角色。
+	 */
+	void RefreshHeroLocomotionLayers();
 
 	/**********************************************************************/
 	/*                             Network                                */
