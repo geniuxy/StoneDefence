@@ -1,9 +1,10 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Animations/AnimNotifies/AN_DrawWeapon.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Types/GeAnimationPayloads.h"
 #include "Tags/EventTags.h"
 
 void UAN_DrawWeapon::Notify(

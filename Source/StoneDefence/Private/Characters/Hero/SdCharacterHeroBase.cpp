@@ -10,7 +10,7 @@
 #include "GeniuxyGASType.h"
 #include "SdTypes/SdMacros.h"
 #include "Comps/GeAbilitySystemComponent.h"
-#include "Datas/SwitchCharacterPayload.h"
+#include "Types/GeGameplayPayloads.h"
 #include "Frameworks/PlayerStates/Gameplay/SdPlayerStateGameBase.h"
 #include "Frameworks/SdAssetManager.h"
 #include "Frameworks/GameInstance/SdGameInstance.h"

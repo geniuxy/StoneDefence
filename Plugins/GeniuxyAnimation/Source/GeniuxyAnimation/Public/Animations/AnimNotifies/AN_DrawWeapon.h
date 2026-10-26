@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -6,16 +6,8 @@
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "AN_DrawWeapon.generated.h"
 
-
-UCLASS(Blueprintable)
-class GENIUXYANIMATION_API USocketNameWrapper : public UObject
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(BlueprintReadWrite)
-	FName SocketName;
-};
+// USocketNameWrapper（本 Notify 发出的 EventData 载荷）
+// 已统一收到本插件的 Types/GeAnimationPayloads.h 里，用到它时 include 那个头文件。
 
 /**
  * 

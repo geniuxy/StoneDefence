@@ -5,12 +5,16 @@
 
 #include "Comps/GeAbilitySystemComponent.h"
 #include "Comps/GeAnimationComponent.h"
+#include "Anims/AnimInstances/SdAnimInstanceHeroBase.h"
+#include "Anims/Data/SdAnimationSetup.h"
+#include "Data/GeLocomotionAnimSet.h"
+#include "Types/GeAnimationPayloads.h"
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
 #include "GameFramework/PlayerState.h"
 #include "GeniuxyDebugHelper.h"
-#include "Animations/AnimNotifies/AN_DrawWeapon.h"
-#include "Comps/Locomotions/GeFlyComponent.h"
+#include "Comps/Locomotions/GeLocomotionComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Data/CharacterAnimationSet.h"
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
 #include "Net/UnrealNetwork.h"
@@ -32,7 +36,7 @@ ASdCharacterBase::ASdCharacterBase()
 	WeaponMeshComponent->bCastDynamicShadow = true;
 	WeaponMeshComponent->CastShadow = true;
 
-	FlyComp = CreateDefaultSubobject<UGeFlyComponent>(TEXT("FlyComp"));
+	LocomotionComp = CreateDefaultSubobject<UGeLocomotionComponent>(TEXT("LocomotionComp"));
 }
 
 void ASdCharacterBase::ServerSideInit()
@@ -59,14 +63,29 @@ void ASdCharacterBase::BeginPlay()
 	
 	BindGASChangeDelegates();
 
+	// 把每武将的动画配置推给组件和 AnimInstance。
+	// AnimInstance 可能还没建好 —— 那种情况由 OnAnimInitialized 回调补上。
+	SetAnimationSetup(AnimationSetup);
+
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		// 绑层必须等动画图节点初始化完成之后再做，OnAnimInitialized 是引擎提供的正确时机。
+		MeshComp->OnAnimInitialized.AddDynamic(this, &ThisClass::HandleAnimInitialized);
+	}
+
 	InitCharacterDef();
 }
 
 void ASdCharacterBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	Super::EndPlay(EndPlayReason);
-
 	UnBindGASChangeDelegates();
+
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		MeshComp->OnAnimInitialized.RemoveDynamic(this, &ThisClass::HandleAnimInitialized);
+	}
+
+	Super::EndPlay(EndPlayReason);
 }
 
 void ASdCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -275,6 +294,39 @@ void ASdCharacterBase::OnWeaponMeshLoaded()
 	PendingWeaponSocket = NAME_None;
 
 	ApplyWeaponSocket(SocketToApply);
+}
+
+void ASdCharacterBase::SetAnimationSetup(USdAnimationSetup* InSetup)
+{
+	AnimationSetup = InSetup;
+
+	// 1) 把移动动画集合推给组件 —— 主实例和所有 layer 实例都从组件读，
+	//    这样「跨 AnimInstance 传资产」就退化成了「读同一个指针」。
+	UGeLocomotionAnimSet* LoadedAnimSet = AnimationSetup ? AnimationSetup->LoadLocomotionAnimSet() : nullptr;
+	if (LocomotionComp)
+	{
+		LocomotionComp->SetAnimationSet(LoadedAnimSet);
+	}
+
+	// 2) 让当前 AnimInstance 重新绑移动层。
+	//    AnimInstance 可能还没创建（BeginPlay 早于 Mesh 初始化完成），
+	//    那种情况下它自己的 NativeInitializeAnimation 会按当前 AnimationSetup 再绑一次，不会漏。
+	USdAnimInstanceHeroBase* HeroAnimInstance = GetMesh()
+		? Cast<USdAnimInstanceHeroBase>(GetMesh()->GetAnimInstance())
+		: nullptr;
+
+	if (HeroAnimInstance)
+	{
+		HeroAnimInstance->RefreshLocomotionLayers();
+	}
+}
+
+void ASdCharacterBase::HandleAnimInitialized()
+{
+	// 此刻动画图节点（包括 Linked Anim Layer 节点）已经初始化完成，
+	// 是 LinkAnimClassLayers 的安全时机。
+	// 重跑一次 SetAnimationSetup 即可：既推动画集合，也重绑移动层。
+	SetAnimationSetup(AnimationSetup);
 }
 
 void ASdCharacterBase::InitAnimationSet(const UPA_CharacterDefinition* InDefinition)

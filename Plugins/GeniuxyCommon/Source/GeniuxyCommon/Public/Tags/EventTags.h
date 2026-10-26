@@ -13,7 +13,6 @@ namespace EventTags
 {
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Event_Dead);
 
-	/** 请求切换出战角色，载荷见 USwitchCharacterPayload */
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Event_SwitchCharacter);
 
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Event_DrawWeapon);

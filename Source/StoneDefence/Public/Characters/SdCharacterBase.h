@@ -9,7 +9,8 @@
 #include "Types/GeniuxyCommonMacro.h"
 #include "SdCharacterBase.generated.h"
 
-class UGeFlyComponent;
+class UGeLocomotionComponent;
+class USdAnimationSetup;
 class UPA_CharacterDefinition;
 struct FGameplayTag;
 class UGeAnimationComponent;
@@ -56,11 +57,18 @@ protected:
 	virtual void UnBindGASChangeDelegates();
 
 	/**********************************************************************/
-	/*                               Fly                                  */
+	/*                            Locomotion                              */
 	/**********************************************************************/
 protected:
+	/**
+	 * 移动模式（Ground/Fly/Swim/Climb）+ 战斗状态 + 移动动画集合的唯一数据源。
+	 * AnimInstance（主实例和所有 layer 实例）都从这里读，不要再在 AnimInstance 里注册 GAS tag。
+	 */
 	UPROPERTY(VisibleAnywhere)
-	UGeFlyComponent* FlyComp;
+	UGeLocomotionComponent* LocomotionComp;
+
+public:
+	FORCEINLINE UGeLocomotionComponent* GetLocomotionComponent() const { return LocomotionComp; }
 
 	/**********************************************************************/
 	/*                            Equipment                               */
@@ -129,6 +137,36 @@ protected:
 	UGeAnimationComponent* AnimationComp;
 
 	void InitAnimationSet(const UPA_CharacterDefinition* InDefinition);
+
+	/**
+	 * 每武将的动画配置：用哪套移动层实现类 + 哪套移动动画集合。
+	 *
+	 * 加一个武将时只需要填这个资产，**不需要**再做一个主 ABP。
+	 * 主 ABP（ABP_SdHeroBase）永远只有一份。
+	 */
+	UPROPERTY(EditDefaultsOnly, Category="Animation")
+	USdAnimationSetup* AnimationSetup;
+
+public:
+	FORCEINLINE USdAnimationSetup* GetAnimationSetup() const { return AnimationSetup; }
+
+	/**
+	 * 设置/替换动画配置。
+	 * 会把移动动画集合推进 UGeLocomotionComponent，并让当前 AnimInstance 重新绑移动层。
+	 * 在 BeginPlay、异步加载完成、换人之后调用都安全。
+	 */
+	UFUNCTION(BlueprintCallable, Category="Animation")
+	void SetAnimationSetup(USdAnimationSetup* InSetup);
+
+	/**
+	 * AnimInstance 初始化完成的回调（USkeletalMeshComponent::OnAnimInitialized）。
+	 *
+	 * 绑层必须放在这里而不是 UAnimInstance::NativeInitializeAnimation：
+	 * 后者执行时动画图节点还没初始化，引擎会告警 "Performing linked layer operations
+	 * in initialization may produce unexpected results"。
+	 */
+	UFUNCTION()
+	void HandleAnimInitialized();
 
 	/**********************************************************************/
 	/*                             Network                                */

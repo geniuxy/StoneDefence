@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Comps/GeAbilitySystemComponent.h"
@@ -8,7 +8,7 @@
 #include "GeniuxyGASType.h"
 #include "AttributeSets/GeAttributeSetBase.h"
 #include "AttributeSets/GeAttributeSetHero.h"
-#include "Datas/PA_AbilitySystemGenerics.h"
+#include "Data/PA_AbilitySystemGenerics.h"
 #include "Engine/AssetManager.h"
 #include "Net/UnrealNetwork.h"
 #include "Tags/EventTags.h"

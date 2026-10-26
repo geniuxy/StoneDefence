@@ -7,29 +7,65 @@
 #include "SdAnimInstanceHeroBase.generated.h"
 
 class ASdCharacterHeroBase;
+class USdAnimationSetup;
+
 /**
- * 
+ * 所有武将共用的 AnimInstance 类。**不要**再为单个武将派生新的 AnimInstance 类或新的主 ABP。
+ *
+ * 它是怎么做到「主 ABP 一份、武将换数据」的：
+ *   主 ABP（ABP_SdHeroBase）的 AnimGraph 里放的是 Linked **Anim Layer** 节点，
+ *   这些节点只声明「我要 ALI_GeLocomotion 的 FlyLocomotion 层」，
+ *   具体由哪个类实现，是在这里用 LinkAnimClassLayers() 在**运行时**指定的。
+ *
+ * 对比一下为什么旧的 Linked Anim Graph 不行：
+ *   FAnimNode_LinkedAnimGraph::InstanceClass 是普通节点属性，
+ *   而子 ABP 能覆盖的只有 ParentAssetOverrides 里的 UAnimationAsset，
+ *   所以「在主 ABP 的 ChildABP 里改掉嵌套子 ABP 的类」永远做不到。
+ *
+ * 武将之间的差异全部落在 USdAnimationSetup 这个数据资产上：
+ *   - LocomotionLayerClasses ：选哪套层实现（默认用插件的 ABP_GeLoco）
+ *   - LocomotionAnimSet      ：用哪套飞行/游泳/攀爬动画
  */
 UCLASS()
 class STONEDEFENCE_API USdAnimInstanceHeroBase : public USdAnimInstanceCharacterBase
 {
 	GENERATED_BODY()
-	
+
 public:
 	virtual void NativeInitializeAnimation() override;
-
-	/**
-	 * 游戏线程：从角色身上把捏脸数据拷进本实例的缓存。
-	 * 动画工作线程只读缓存，绝不去读 Actor（见 NativeThreadSafeUpdateAnimation）。
-	 */
-	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 
-	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	/**
+	 * 按当前 USdAnimationSetup 重新绑定移动层。
+	 *
+	 * 什么时候会被调用：
+	 * - NativeInitializeAnimation 时（如果配置已经就绪）
+	 * - 角色的 USdAnimationSetup 后到时，由 ASdCharacterBase 主动调一次
+	 *
+	 * 不要每帧调：LinkAnimClassLayers 会重建 linked instance。
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Geniuxy|Locomotion")
+	void RefreshLocomotionLayers();
+
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE bool GetNeedFaceSculpt() const { return bNeedFaceSculpt; }
 
 protected:
+	virtual void CacheDerivedState() override;
+
+	/**
+	 * 兜底的层实现类。
+	 *
+	 * 在 ABP_SdHeroBase 的 Class Defaults 里填一次即可（通常就填插件的 ABP_GeLoco）。
+	 * 当某个武将的 USdAnimationSetup 没有指定 LocomotionLayerClasses 时用这一组。
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Locomotion")
+	TArray<TSoftClassPtr<UAnimInstance>> DefaultLocomotionLayerClasses;
+
+	/** 当前生效的层实现类，用于判重，避免重复 Link */
+	UPROPERTY(Transient)
+	TArray<TSubclassOf<UAnimInstance>> AppliedLayerClasses;
+
 	UPROPERTY()
 	ASdCharacterHeroBase* OwnerHero;
 
@@ -37,15 +73,15 @@ protected:
 	/*                          Figure Type Size                          */
 	/**********************************************************************/
 public:
-	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE int32 GetLegSize() const { return LegSize; }
-	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE int32 GetWaistSize() const { return WaistSize; }
-	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE int32 GetArmSize() const { return ArmSize; }
-	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE int32 GetHeadSize() const { return HeadSize; }
-	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE int32 GetChestSize() const { return ChestSize; }
 
 protected:
