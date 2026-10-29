@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Pawn.h"
 #include "SimpleAdvancedAnimationBPLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UGeAnimInstanceBase::NativeInitializeAnimation()
 {
@@ -54,12 +55,6 @@ void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	CacheOwnerState();
-	CacheDerivedState();
-}
-
-void UGeAnimInstanceBase::CacheOwnerState()
-{
 	// 全部在游戏线程完成，写进成员变量，工作线程只读。
 	if (!OwnerPawn) return;
 
@@ -86,16 +81,23 @@ void UGeAnimInstanceBase::CacheOwnerState()
 		bInCombat = Comp->IsInCombat();
 	}
 
+	FRotator BodyRot = OwnerPawn->GetActorRotation();
+	FRotator BodyRotDelta = UKismetMathLibrary::NormalizedDeltaRotator(BodyRot, BodyPrevRot);
+	BodyPrevRot = BodyRot;
+		
+	YawSpeed = BodyRotDelta.Yaw / DeltaSeconds;
+	float YawLerpSpeed = YawSpeedSmoothLerpSpeed;
+	if (YawSpeed == 0)
+	{
+		YawLerpSpeed = YawSpeedLerpToZeroSpeed;
+	}
+	SmoothedYawSpeed = UKismetMathLibrary::FInterpTo(SmoothedYawSpeed, YawSpeed, DeltaSeconds, YawLerpSpeed);
+
 	// 脚部 IK：角色级开关（UGeAnimationSetup -> UGeLocomotionComponent）优先；
 	// 拿不到组件时（例如预览 Actor）才回退到本类 Class Defaults 的 bCanFootIK。
 	// 腾空时一律关掉。
 	const bool bFootIKAllowed = Comp ? Comp->IsFootIKEnabled() : bCanFootIK;
 	bFootIK = bFootIKAllowed && !bIsInAir;
-}
-
-void UGeAnimInstanceBase::CacheDerivedState()
-{
-	// 派生类在这里追加自己的缓存逻辑
 }
 
 void UGeAnimInstanceBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)

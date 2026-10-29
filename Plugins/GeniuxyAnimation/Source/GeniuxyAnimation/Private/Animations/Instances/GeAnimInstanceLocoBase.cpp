@@ -16,9 +16,9 @@ void UGeAnimInstanceLocoBase::NativeInitializeAnimation()
 	}
 }
 
-void UGeAnimInstanceLocoBase::CacheDerivedState()
+void UGeAnimInstanceLocoBase::NativeUpdateAnimation(float DeltaSeconds)
 {
-	Super::CacheDerivedState();
+	Super::NativeUpdateAnimation(DeltaSeconds);
 
 	if (!OwnerMovementComp)
 	{

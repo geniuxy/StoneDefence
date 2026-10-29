@@ -5,7 +5,6 @@
 
 #include "Actors/SdActorPreview.h"
 #include "Interfaces/FaceSculpting.h"
-#include "Subsystems/GameInstanceSubsytems/SdGISubsystemLobby.h"
 
 void USdAnimInstancePreview::NativeInitializeAnimation()
 {

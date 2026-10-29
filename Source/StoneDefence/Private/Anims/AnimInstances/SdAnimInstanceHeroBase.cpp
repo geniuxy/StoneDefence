@@ -66,6 +66,43 @@ void USdAnimInstanceHeroBase::NativeInitializeAnimation()
 	//   2. USkeletalMeshComponent::OnAnimInitialized 回调（AnimInstance 后创建的情况）
 }
 
+void USdAnimInstanceHeroBase::NativeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeUpdateAnimation(DeltaSeconds);
+
+	// 这里跑在游戏线程（由 UGeAnimInstanceBase::NativeUpdateAnimation 调用），
+	// 可以安全地读角色数据，读出来的值缓存在本实例，工作线程只读缓存。
+	if (!OwnerHero)
+	{
+		return;
+	}
+
+	bNeedFaceSculpt = OwnerHero->IsNeedFaceSculpt();
+
+	if (IFaceSculpting* SculptableHero = Cast<IFaceSculpting>(OwnerHero))
+	{
+		if (bNeedFaceSculpt)
+		{
+			LegSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_LEG);
+			WaistSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_WAIST);
+			ArmSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_ARM);
+			HeadSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_HEAD);
+			ChestSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_CHEST);
+		}
+	}
+}
+
+void USdAnimInstanceHeroBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
+
+	// 注意：这个函数跑在动画工作线程上。
+	// 所有需要的数据都必须在 NativeUpdateAnimation（游戏线程）里拷好，
+	// 这里绝对不要去读 OwnerHero / FigureSizeMap，那是数据竞争。
+	//
+	// 同理：LinkAnimClassLayers() 也绝对不能在这里调。
+}
+
 void USdAnimInstanceHeroBase::RefreshLocomotionLayers()
 {
 	// 先解绑：把所有 Layer 节点还原成主 ABP 里配置的 Instance Class（兜底）。
@@ -115,41 +152,4 @@ void USdAnimInstanceHeroBase::RefreshLocomotionLayers()
 			LinkAnimClassLayers(LayerClass);
 		}
 	}
-}
-
-void USdAnimInstanceHeroBase::CacheDerivedState()
-{
-	Super::CacheDerivedState();
-
-	// 这里跑在游戏线程（由 UGeAnimInstanceBase::NativeUpdateAnimation 调用），
-	// 可以安全地读角色数据，读出来的值缓存在本实例，工作线程只读缓存。
-	if (!OwnerHero)
-	{
-		return;
-	}
-
-	bNeedFaceSculpt = OwnerHero->IsNeedFaceSculpt();
-
-	if (IFaceSculpting* SculptableHero = Cast<IFaceSculpting>(OwnerHero))
-	{
-		if (bNeedFaceSculpt)
-		{
-			LegSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_LEG);
-			WaistSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_WAIST);
-			ArmSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_ARM);
-			HeadSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_HEAD);
-			ChestSize = SculptableHero->GetFigureSizeByType(ESdFigureType::FT_CHEST);
-		}
-	}
-}
-
-void USdAnimInstanceHeroBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
-{
-	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
-
-	// 注意：这个函数跑在动画工作线程上。
-	// 所有需要的数据都必须在 NativeUpdateAnimation（游戏线程）里拷好，
-	// 这里绝对不要去读 OwnerHero / FigureSizeMap，那是数据竞争。
-	//
-	// 同理：LinkAnimClassLayers() 也绝对不能在这里调。
 }

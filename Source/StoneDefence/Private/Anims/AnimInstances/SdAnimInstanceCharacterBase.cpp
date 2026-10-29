@@ -22,17 +22,6 @@ void USdAnimInstanceCharacterBase::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	// 这里跑在游戏线程，可以安全地读角色上的数据；
-	// 读出来缓存在本实例的成员里，工作线程只读缓存。
-	//
-	// bIsInAir / bFootIK 已经由 UGeAnimInstanceBase::CacheOwnerState 算好了，
-	// 这里不需要再算一遍。
-}
-
-void USdAnimInstanceCharacterBase::CacheDerivedState()
-{
-	Super::CacheDerivedState();
-
 	// 组件可能比 AnimInstance 晚就绪，补一次。
 	if (!OwnerMovementComp && OwnerCharacter)
 	{

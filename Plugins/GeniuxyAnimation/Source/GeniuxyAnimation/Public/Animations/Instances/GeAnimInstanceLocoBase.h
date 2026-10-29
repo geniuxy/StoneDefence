@@ -18,6 +18,7 @@ class GENIUXYANIMATION_API UGeAnimInstanceLocoBase : public UGeAnimInstanceBase
 
 public:
 	virtual void NativeInitializeAnimation() override;
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 	/** 当前移动模式对应的最大速度（走 MaxWalkSpeed / MaxFlySpeed / MaxSwimSpeed） */
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
@@ -29,6 +30,9 @@ public:
 	 */
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE FVector GetNormalizedVelocity() const { return NormalizedVelocity; }
+
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE float GetNormalizedSpeed() const { return NormalizedVelocity.Size(); }
 
 	/**********************************************************************/
 	/*                                Fly                                 */
@@ -89,8 +93,6 @@ protected:
 	bool bIsClimbDown = false;
 
 protected:
-	virtual void CacheDerivedState() override;
-
 	UPROPERTY()
 	UCharacterMovementComponent* OwnerMovementComp;
 

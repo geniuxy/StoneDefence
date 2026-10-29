@@ -39,12 +39,6 @@ protected:
 	UPROPERTY()
 	APawn* OwnerPawn;
 
-	/** 每帧从 OwnerPawn 缓存一次，供派生类在自己的 NativeUpdateAnimation 里复用 */
-	virtual void CacheOwnerState();
-
-	/** 派生类可以重载它来追加自己的缓存逻辑（跑在游戏线程） */
-	virtual void CacheDerivedState();
-
 	/**********************************************************************/
 	/*                             Locomotion                             */
 	/**********************************************************************/
@@ -69,7 +63,6 @@ public:
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE bool GetIsGrounded() const { return LocomotionMode == EGeLocomotionMode::Ground; }
 
-	/** 兼容旧 ABP 引脚：等价于 LocomotionMode == Fly */
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE bool GetIsFlying() const { return LocomotionMode == EGeLocomotionMode::Fly; }
 
@@ -87,7 +80,6 @@ public:
 	FORCEINLINE bool GetIsInAir() const { return bIsInAir; }
 
 protected:
-	/** 下面这些只在 NativeUpdateAnimation（游戏线程）里写 */
 	float Speed = 0.f;
 	float Speed2D = 0.f;
 	FVector WorldVelocity = FVector::ZeroVector;
@@ -96,6 +88,26 @@ protected:
 	EGeLocomotionMode LocomotionMode = EGeLocomotionMode::Ground;
 	bool bInCombat = false;
 	bool bIsInAir = false;
+
+	/**********************************************************************/
+	/*                           Yaw Rotation                             */
+	/**********************************************************************/
+public:
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE float GetYawSpeed() const { return YawSpeed; }
+
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE float GetSmoothedYawSpeed() const { return SmoothedYawSpeed; }
+
+protected:
+	FRotator BodyPrevRot;
+	float YawSpeed;
+	float SmoothedYawSpeed;
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	float YawSpeedSmoothLerpSpeed = 1.f;
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	float YawSpeedLerpToZeroSpeed = 30.f;
 
 	/**********************************************************************/
 	/*                              Foot IK                               */

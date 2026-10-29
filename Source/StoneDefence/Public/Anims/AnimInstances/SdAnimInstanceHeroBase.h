@@ -36,6 +36,7 @@ class STONEDEFENCE_API USdAnimInstanceHeroBase : public USdAnimInstanceCharacter
 
 public:
 	virtual void NativeInitializeAnimation() override;
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 
 	/**
@@ -52,9 +53,6 @@ public:
 
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE bool GetNeedFaceSculpt() const { return bNeedFaceSculpt; }
-
-protected:
-	virtual void CacheDerivedState() override;
 
 	/**
 	 * 兜底的层实现类。

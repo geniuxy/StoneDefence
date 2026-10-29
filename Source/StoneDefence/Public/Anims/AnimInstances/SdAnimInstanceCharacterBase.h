@@ -36,9 +36,6 @@ public:
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 
 protected:
-	virtual void CacheDerivedState() override;
-
-protected:
 	UPROPERTY()
 	ASdCharacterBase* OwnerCharacter;
 
