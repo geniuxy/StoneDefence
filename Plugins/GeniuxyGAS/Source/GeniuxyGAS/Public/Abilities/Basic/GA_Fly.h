@@ -16,4 +16,15 @@ class GENIUXYGAS_API UGA_Fly : public UGeGameplayAbilityBase
 
 public:
 	UGA_Fly();
+
+	virtual void ActivateAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		const FGameplayEventData* TriggerEventData
+	) override;
+
+private:
+	UFUNCTION()
+	void HandleInputPress(float TimeWaited);
 };

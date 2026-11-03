@@ -10,6 +10,7 @@
 #include "GeniuxyGASType.h"
 #include "SdTypes/SdMacros.h"
 #include "Comps/GeAbilitySystemComponent.h"
+#include "Comps/Locomotions/GeLocomotionComponent.h"
 #include "Types/GeGameplayPayloads.h"
 #include "Frameworks/PlayerStates/Gameplay/SdPlayerStateGameBase.h"
 #include "Frameworks/SdAssetManager.h"
@@ -121,20 +122,31 @@ void ASdCharacterHeroBase::HandleLookInput(const FInputActionValue& InputActionV
 
 void ASdCharacterHeroBase::HandleMoveInput(const FInputActionValue& InputActionValue)
 {
-	FVector2D MoveInputVector = InputActionValue.Get<FVector2D>();
+	const FVector2D MoveInput = InputActionValue.Get<FVector2D>();
+	const FRotator YawRotation(0.f, GetControlRotation().Yaw, 0.f);
 
-	const FRotator ControllerRotation(0.f, GetControlRotation().Yaw, 0.f);
+	FVector MoveDirection = FVector::ZeroVector;
 
-	if (MoveInputVector.Y != 0.f)
+	if (GetLocomotionComponent()->IsInMode(EGeLocomotionMode::Fly))
 	{
-		FVector TargetForwardDirection = ControllerRotation.RotateVector(FVector::ForwardVector);
-		AddMovementInput(TargetForwardDirection, MoveInputVector.Y);
+		// 前后沿视线，含 Pitch
+		const FVector Forward = GetControlRotation().Vector();
+
+		// 左右保持水平，不受 Roll/Pitch 影响
+		const FVector Right = YawRotation.RotateVector(FVector::RightVector);
+
+		MoveDirection = Forward * MoveInput.Y + Right * MoveInput.X;
+	}
+	else
+	{
+		MoveDirection =
+			YawRotation.RotateVector(FVector::ForwardVector) * MoveInput.Y +
+			YawRotation.RotateVector(FVector::RightVector) * MoveInput.X;
 	}
 
-	if (MoveInputVector.X != 0.f)
+	if (!MoveDirection.IsNearlyZero())
 	{
-		FVector TargetRightDirection = ControllerRotation.RotateVector(FVector::RightVector);
-		AddMovementInput(TargetRightDirection, MoveInputVector.X);
+		AddMovementInput(MoveDirection.GetClampedToMaxSize(1.f));
 	}
 }
 

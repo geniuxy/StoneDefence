@@ -97,7 +97,7 @@ void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 	// 拿不到组件时（例如预览 Actor）才回退到本类 Class Defaults 的 bCanFootIK。
 	// 腾空时一律关掉。
 	const bool bFootIKAllowed = Comp ? Comp->IsFootIKEnabled() : bCanFootIK;
-	bFootIK = bFootIKAllowed && !bIsInAir;
+	bFootIK = bFootIKAllowed && !bIsInAir && LocomotionMode != EGeLocomotionMode::Fly;
 }
 
 void UGeAnimInstanceBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
