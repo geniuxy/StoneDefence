@@ -67,6 +67,9 @@ public:
 	FORCEINLINE bool GetIsFlying() const { return LocomotionMode == EGeLocomotionMode::Fly; }
 
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsFlyingFast() const { return bIsFlyingFast; }
+
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE bool GetIsSwimming() const { return LocomotionMode == EGeLocomotionMode::Swim; }
 
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
@@ -87,10 +90,11 @@ protected:
 
 	EGeLocomotionMode LocomotionMode = EGeLocomotionMode::Ground;
 	bool bInCombat = false;
+	bool bIsFlyingFast = false;
 	bool bIsInAir = false;
 
 	/**********************************************************************/
-	/*                           Yaw Rotation                             */
+	/*                        Yaw/Pitch Rotation                          */
 	/**********************************************************************/
 public:
 	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
@@ -99,15 +103,52 @@ public:
 	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
 	FORCEINLINE float GetSmoothedYawSpeed() const { return SmoothedYawSpeed; }
 
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE float GetPitchSpeed() const { return PitchSpeed; }
+
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE float GetSmoothedPitchSpeed() const { return SmoothedPitchSpeed; }
+
 protected:
-	FRotator BodyPrevRot;
-	float YawSpeed;
-	float SmoothedYawSpeed;
+	/**
+	 * 取「Pitch 角速度」用的采样源。
+	 */
+	FRotator GetPitchSourceRotation() const;
+
+	/** 重新对齐上一帧采样、并把所有角速度归零。初始化时调用（否则首帧 Yaw 会出现巨大尖峰） */
+	void ResetRotationSpeedTracking();
+
+	/** Yaw 用 Actor 朝向（地面移动时只有 Yaw 会变），Pitch 用 GetPitchSourceRotation() */
+	FRotator BodyPrevRot = FRotator::ZeroRotator;
+	FRotator PitchSourcePrevRot = FRotator::ZeroRotator;
+
+	float YawSpeed = 0.f;
+	float SmoothedYawSpeed = 0.f;
+	float PitchSpeed = 0.f;
+	float SmoothedPitchSpeed = 0.f;
+
+	/** 上次成功采样的世界时间；< 0 表示还没采过样 */
+	float LastRotationSampleTime = -1.f;
 
 	UPROPERTY(EditAnywhere, Category = "Animation")
-	float YawSpeedSmoothLerpSpeed = 1.f;
+	float SpeedSmoothLerpSpeed = 1.f;
 	UPROPERTY(EditAnywhere, Category = "Animation")
-	float YawSpeedLerpToZeroSpeed = 30.f;
+	float SpeedLerpToZeroSpeed = 30.f;
+
+	/** 每秒角速度低于这个值就当作没动，直接把目标置 0（替代原来 == 0 的浮点精确比较） */
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	float RotationSpeedDeadZone = 0.5f;
+
+	/**
+	 * 两次采样的最大间隔（秒）。超过就当采样断了（URO、动画被隐藏/暂停、切关卡等），
+	 * 这一帧直接置 0 并重新对齐，避免恢复瞬间算出一个天文数字。
+	 */
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	float MaxRotationSampleInterval = 0.25f;
+
+	/** 打开后每帧打印角速度（只在本地控制端、非 Shipping 生效，用固定 key 替换而不是刷屏） */
+	UPROPERTY(EditAnywhere, Category = "Animation|Debug")
+	bool bDebugRotationSpeed = false;
 
 	/**********************************************************************/
 	/*                              Foot IK                               */

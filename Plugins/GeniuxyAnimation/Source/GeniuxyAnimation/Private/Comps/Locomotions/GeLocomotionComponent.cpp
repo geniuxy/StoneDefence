@@ -194,6 +194,9 @@ void UGeLocomotionComponent::BindAbilitySystemTags()
 	FlyTagHandle = OwnerASC->RegisterGameplayTagEvent(StatsTags::Ge_Stats_Fly).AddUObject(
 		this, &ThisClass::HandleFlyTagChanged
 	);
+	FlyFastTagHandle = OwnerASC->RegisterGameplayTagEvent(StatsTags::Ge_Stats_Fly_Fast).AddUObject(
+		this, &ThisClass::HandleFlyFastTagChanged
+	);
 
 	SwimTagHandle = OwnerASC->RegisterGameplayTagEvent(StatsTags::Ge_Stats_Swim).AddUObject(
 		this, &ThisClass::HandleSwimTagChanged
@@ -241,6 +244,11 @@ void UGeLocomotionComponent::HandleFlyTagChanged(const FGameplayTag Tag, int32 N
 {
 	bFlyTagActive = NewCount > 0;
 	RefreshModeFromTags();
+}
+
+void UGeLocomotionComponent::HandleFlyFastTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	bFlyFastTagActive = NewCount > 0;
 }
 
 void UGeLocomotionComponent::HandleSwimTagChanged(const FGameplayTag Tag, int32 NewCount)

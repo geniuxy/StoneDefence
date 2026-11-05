@@ -14,6 +14,7 @@ namespace StatsTags
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_CanAttack, "Ge.Stats.CanAttack");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_EquippingWeapon, "Ge.Stats.EquippingWeapon");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Fly, "Ge.Stats.Fly");
+	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Fly_Fast, "Ge.Stats.Fly.Fast");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Climb, "Ge.Stats.Climb");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Swim, "Ge.Stats.Swim");
 	// UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Equipped_PrimaryWeapon, "Ge.Stats.Equipped.PrimaryWeapon");

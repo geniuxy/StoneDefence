@@ -164,6 +164,7 @@ private:
 	void UnbindAbilitySystemTags();
 
 	void HandleFlyTagChanged(const FGameplayTag Tag, int32 NewCount);
+	void HandleFlyFastTagChanged(const FGameplayTag Tag, int32 NewCount);
 	void HandleSwimTagChanged(const FGameplayTag Tag, int32 NewCount);
 	void HandleClimbTagChanged(const FGameplayTag Tag, int32 NewCount);
 	void HandleCombatTagChanged(const FGameplayTag Tag, int32 NewCount);
@@ -197,11 +198,17 @@ protected:
 
 	/** 来自 GAS tag 的原始状态，供 RefreshModeFromTags 做优先级推导 */
 	bool bFlyTagActive = false;
+	bool bFlyFastTagActive = false;
 	bool bSwimTagActive = false;
 	bool bClimbTagActive = false;
 
 	FDelegateHandle FlyTagHandle;
+	FDelegateHandle FlyFastTagHandle;
 	FDelegateHandle SwimTagHandle;
 	FDelegateHandle ClimbTagHandle;
 	FDelegateHandle CombatTagHandle;
+
+public:
+	UFUNCTION(BlueprintPure, Category = "Geniuxy|Combat")
+	bool IsFlyingFast() const { return bFlyFastTagActive; }
 };

@@ -85,6 +85,16 @@ void ASdCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 				InputActionPair.Value, ETriggerEvent::Started, this,
 				&ThisClass::HandleAbilityInput, InputActionPair.Key
 			);
+			// 释放 / 取消也必须绑，否则 AbilityLocalInputReleased 永远不会被调用，
+			// WaitInputRelease 之类的 Task 就永远等不到回调。
+			EnhancedInputComponent->BindAction(
+				InputActionPair.Value, ETriggerEvent::Completed, this,
+				&ThisClass::HandleAbilityInput, InputActionPair.Key
+			);
+			EnhancedInputComponent->BindAction(
+				InputActionPair.Value, ETriggerEvent::Canceled, this,
+				&ThisClass::HandleAbilityInput, InputActionPair.Key
+			);
 		}
 	}
 }

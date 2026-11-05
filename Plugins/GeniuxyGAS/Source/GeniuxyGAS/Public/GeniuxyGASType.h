@@ -24,6 +24,7 @@ enum class EAbilityInputID : uint8
 	SummonMount UMETA(DisplayName="SummonMount"),
 	Tab UMETA(DisplayName="Tab"),
 	Fly UMETA(DisplayName="Fly"),
+	Ctrl UMETA(DisplayName="Ctrl"),
 };
 
 USTRUCT(BlueprintType)

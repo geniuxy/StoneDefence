@@ -3,13 +3,14 @@
 
 #include "Animations/Instances/GeAnimInstanceBase.h"
 
+#include "GeniuxyDebugHelper.h"
 #include "Comps/Locomotions/GeLocomotionComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Pawn.h"
 #include "SimpleAdvancedAnimationBPLibrary.h"
-#include "Kismet/KismetMathLibrary.h"
+#include "Engine/World.h"
 
 void UGeAnimInstanceBase::NativeInitializeAnimation()
 {
@@ -27,28 +28,11 @@ void UGeAnimInstanceBase::NativeInitializeAnimation()
 	DetectIKBoneSupport();
 
 	bFootIK = bCanFootIK;
-}
 
-void UGeAnimInstanceBase::DetectIKBoneSupport()
-{
-	if (!bAutoDetectIKBone) return;
-
-	if (!OwnerSkeletalMeshComp)
-	{
-		OwnerSkeletalMeshComp = GetSkelMeshComponent();
-	}
-	if (!OwnerSkeletalMeshComp) return;
-
-	// USkinnedMeshComponent::GetBoneIndex 内部就是
-	// GetSkinnedAsset()->GetRefSkeleton().FindBoneIndex(BoneName)，
-	// 不依赖骨骼映射是否已经初始化，初始化阶段调用是安全的。
-	//
-	// 两具骨架都有 foot_l / foot_r，区别只在带 IK 的骨架额外有 ik_foot_l / ik_foot_r，
-	// 所以用 IK 骨骼名判断，而不是 foot_l / foot_r。
-	const bool bHasLeftIK = OwnerSkeletalMeshComp->GetBoneIndex(IKFootLeftBoneName) != INDEX_NONE;
-	const bool bHasRightIK = OwnerSkeletalMeshComp->GetBoneIndex(IKFootRightBoneName) != INDEX_NONE;
-
-	bHasIKBone = bHasLeftIK && bHasRightIK;
+	// 关键：把「上一帧采样」对齐到当前朝向。
+	// 不做这一步，BodyPrevRot 会是 (0,0,0)，首帧 BodyRotDelta 就是角色当前整个朝向，
+	// YawSpeed 会算出几千度/秒的尖峰，然后被平滑慢慢拖回来。
+	ResetRotationSpeedTracking();
 }
 
 void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
@@ -79,19 +63,68 @@ void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		LocomotionMode = Comp->GetMode();
 		bInCombat = Comp->IsInCombat();
+		bIsFlyingFast = Comp->IsFlyingFast();
 	}
 
-	FRotator BodyRot = OwnerPawn->GetActorRotation();
-	FRotator BodyRotDelta = UKismetMathLibrary::NormalizedDeltaRotator(BodyRot, BodyPrevRot);
-	BodyPrevRot = BodyRot;
-		
-	YawSpeed = BodyRotDelta.Yaw / DeltaSeconds;
-	float YawLerpSpeed = YawSpeedSmoothLerpSpeed;
-	if (YawSpeed == 0)
+	/**********************************************************************/
+	/*                        Yaw / Pitch 角速度                          */
+	/**********************************************************************/
+	// Yaw 用 Actor 朝向：地面移动时 Actor 只有 Yaw 在变（bOrientRotationToMovement）。
+	// Pitch 用 GetPitchSourceRotation()：抬头/低头只在 Controller 的 ControlRotation 上，
+	// Actor 的 Pitch 被 CMC / FaceRotation 钉死为 0，用它会永远算出 0。
+	const UWorld* World = GetWorld();
+	const float Now = World ? World->GetTimeSeconds() : 0.f;
+
+	// DeltaSeconds 可能为 0（暂停/同一帧内多次更新），直接除会出 inf/NaN。
+	// 采样间隔过大说明动画中间停过（URO、隐藏、切关卡），这一帧的差值不可信。
+	const bool bSampleValid =
+		LastRotationSampleTime >= 0.f &&
+		DeltaSeconds > KINDA_SMALL_NUMBER &&
+		(Now - LastRotationSampleTime) <= MaxRotationSampleInterval;
+
+	const FRotator BodyRot = OwnerPawn->GetActorRotation();
+	const FRotator PitchRot = GetPitchSourceRotation();
+
+	if (bSampleValid)
 	{
-		YawLerpSpeed = YawSpeedLerpToZeroSpeed;
+		// FindDeltaAngleDegrees = 环绕安全的两角之差（等价于 NormalizedDeltaRotator 的逐轴版本）
+		YawSpeed = FMath::FindDeltaAngleDegrees(BodyPrevRot.Yaw, BodyRot.Yaw) / DeltaSeconds;
+		PitchSpeed = FMath::FindDeltaAngleDegrees(PitchSourcePrevRot.Pitch, PitchRot.Pitch) / DeltaSeconds;
 	}
-	SmoothedYawSpeed = UKismetMathLibrary::FInterpTo(SmoothedYawSpeed, YawSpeed, DeltaSeconds, YawLerpSpeed);
+	else
+	{
+		// 采样断了就重新起步，不要从旧值滑过去
+		YawSpeed = 0.f;
+		PitchSpeed = 0.f;
+		SmoothedYawSpeed = 0.f;
+		SmoothedPitchSpeed = 0.f;
+	}
+
+	BodyPrevRot = BodyRot;
+	PitchSourcePrevRot = PitchRot;
+	LastRotationSampleTime = Now;
+
+	// 先按死区判定目标值，再决定用哪个插值速度。
+	const float YawTarget = FMath::Abs(YawSpeed) < RotationSpeedDeadZone ? 0.f : YawSpeed;
+	const float PitchTarget = FMath::Abs(PitchSpeed) < RotationSpeedDeadZone ? 0.f : PitchSpeed;
+
+	SmoothedYawSpeed = FMath::FInterpTo(
+		SmoothedYawSpeed, YawTarget, DeltaSeconds,
+		YawTarget == 0.f ? SpeedLerpToZeroSpeed : SpeedSmoothLerpSpeed);
+
+	SmoothedPitchSpeed = FMath::FInterpTo(
+		SmoothedPitchSpeed, PitchTarget, DeltaSeconds, SpeedSmoothLerpSpeed);
+
+#if !UE_BUILD_SHIPPING
+	if (bDebugRotationSpeed && OwnerPawn && OwnerPawn->IsLocallyControlled())
+	{
+		Debug::Print(
+			FString::Printf(
+				TEXT("%s  Yaw %.1f/%.1f  Pitch %.1f/%.1f"),
+				*GetClass()->GetName(), YawSpeed, SmoothedYawSpeed, PitchSpeed, SmoothedPitchSpeed),
+			9001, 0.f, FColor::Yellow);
+	}
+#endif
 
 	// 脚部 IK：角色级开关（UGeAnimationSetup -> UGeLocomotionComponent）优先；
 	// 拿不到组件时（例如预览 Actor）才回退到本类 Class Defaults 的 bCanFootIK。
@@ -106,6 +139,50 @@ void UGeAnimInstanceBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 
 	// 跑在动画工作线程：只能读上面缓存好的成员，绝对不要在这里读 Actor / Component。
 	// CalcFootIKOffset();
+}
+
+FRotator UGeAnimInstanceBase::GetPitchSourceRotation() const
+{
+	if (!OwnerPawn) return FRotator::ZeroRotator;
+
+	// 说明见头文件里的注释：Actor 的 Pitch 在本项目恒为 0，抬头/低头只在 Controller 上。
+	return OwnerPawn->GetBaseAimRotation();
+}
+
+void UGeAnimInstanceBase::ResetRotationSpeedTracking()
+{
+	YawSpeed = 0.f;
+	PitchSpeed = 0.f;
+	SmoothedYawSpeed = 0.f;
+	SmoothedPitchSpeed = 0.f;
+
+	BodyPrevRot = OwnerPawn ? OwnerPawn->GetActorRotation() : FRotator::ZeroRotator;
+	PitchSourcePrevRot = GetPitchSourceRotation();
+
+	const UWorld* World = GetWorld();
+	LastRotationSampleTime = World ? World->GetTimeSeconds() : -1.f;
+}
+
+void UGeAnimInstanceBase::DetectIKBoneSupport()
+{
+	if (!bAutoDetectIKBone) return;
+
+	if (!OwnerSkeletalMeshComp)
+	{
+		OwnerSkeletalMeshComp = GetSkelMeshComponent();
+	}
+	if (!OwnerSkeletalMeshComp) return;
+
+	// USkinnedMeshComponent::GetBoneIndex 内部就是
+	// GetSkinnedAsset()->GetRefSkeleton().FindBoneIndex(BoneName)，
+	// 不依赖骨骼映射是否已经初始化，初始化阶段调用是安全的。
+	//
+	// 两具骨架都有 foot_l / foot_r，区别只在带 IK 的骨架额外有 ik_foot_l / ik_foot_r，
+	// 所以用 IK 骨骼名判断，而不是 foot_l / foot_r。
+	const bool bHasLeftIK = OwnerSkeletalMeshComp->GetBoneIndex(IKFootLeftBoneName) != INDEX_NONE;
+	const bool bHasRightIK = OwnerSkeletalMeshComp->GetBoneIndex(IKFootRightBoneName) != INDEX_NONE;
+
+	bHasIKBone = bHasLeftIK && bHasRightIK;
 }
 
 void UGeAnimInstanceBase::InitFootIKId(ACharacter* OwnerCharacter)
