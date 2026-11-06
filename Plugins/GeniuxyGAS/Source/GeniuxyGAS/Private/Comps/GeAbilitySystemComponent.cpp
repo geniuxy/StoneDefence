@@ -106,6 +106,7 @@ void UGeAbilitySystemComponent::InitializeBaseAttributes()
 	SetNumericAttributeBase(UGeAttributeSetBase::GetAttackDamageAttribute(), BaseStats->BaseAttackDamage);
 	SetNumericAttributeBase(UGeAttributeSetBase::GetArmorAttribute(), BaseStats->BaseArmor);
 	SetNumericAttributeBase(UGeAttributeSetBase::GetMoveSpeedAttribute(), BaseStats->BaseMoveSpeed);
+	SetNumericAttributeBase(UGeAttributeSetBase::GetFlySpeedAttribute(), BaseStats->BaseFlySpeed);
 	SetNumericAttributeBase(UGeAttributeSetBase::GetMoveAccelerationAttribute(), BaseStats->BaseMoveAcceleration);
 	SetNumericAttributeBase(UGeAttributeSetBase::GetWeightLimitAttribute(), BaseStats->BaseWeightLimit);
 	SetNumericAttributeBase(UGeAttributeSetBase::GetGoldAttribute(), BaseStats->BaseGold);

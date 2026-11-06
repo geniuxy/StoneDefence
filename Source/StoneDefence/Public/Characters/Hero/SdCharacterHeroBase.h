@@ -9,6 +9,7 @@
 #include "Interfaces/FaceSculpting.h"
 #include "SdCharacterHeroBase.generated.h"
 
+class UGeAttributeSetHero;
 enum class EAbilityInputID : uint8;
 class UInputMappingContext;
 class UInputAction;
@@ -41,6 +42,9 @@ public:
 protected:
 	virtual void BindGASChangeDelegates() override;
 	virtual void UnBindGASChangeDelegates() override;
+
+	UPROPERTY()
+	UGeAttributeSetHero* HeroAttributeSet;
 
 	/**********************************************************************/
 	/*                          Switch Character                          */

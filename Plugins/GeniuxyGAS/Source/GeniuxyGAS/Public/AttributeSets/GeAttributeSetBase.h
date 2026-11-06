@@ -26,6 +26,7 @@ public:
 	ATTRIBUTE_ACCESSORS(UGeAttributeSetBase, AttackDamage);
 	ATTRIBUTE_ACCESSORS(UGeAttributeSetBase, Armor);
 	ATTRIBUTE_ACCESSORS(UGeAttributeSetBase, MoveSpeed);
+	ATTRIBUTE_ACCESSORS(UGeAttributeSetBase, FlySpeed);
 	ATTRIBUTE_ACCESSORS(UGeAttributeSetBase, MoveAcceleration);
 	ATTRIBUTE_ACCESSORS(UGeAttributeSetBase, CarryWeight);
 	ATTRIBUTE_ACCESSORS(UGeAttributeSetBase, WeightLimit);
@@ -56,6 +57,8 @@ protected:
 	FGameplayAttributeData Armor;
 	UPROPERTY(ReplicatedUsing = OnRep_MoveSpeed)
 	FGameplayAttributeData MoveSpeed;
+	UPROPERTY(ReplicatedUsing = OnRep_FlySpeed)
+	FGameplayAttributeData FlySpeed;
 	UPROPERTY(ReplicatedUsing = OnRep_MoveAcceleration)
 	FGameplayAttributeData MoveAcceleration;
 	UPROPERTY(ReplicatedUsing = OnRep_CarryWeight)
@@ -90,6 +93,9 @@ protected:
 
 	UFUNCTION()
 	void OnRep_MoveSpeed(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	void OnRep_FlySpeed(const FGameplayAttributeData& OldValue);
 	
 	UFUNCTION()
 	void OnRep_MoveAcceleration(const FGameplayAttributeData& OldValue);

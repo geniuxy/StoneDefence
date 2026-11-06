@@ -9,6 +9,7 @@
 #include "Types/GeniuxyCommonMacro.h"
 #include "SdCharacterBase.generated.h"
 
+class UGeAttributeSetBase;
 class UGeLocomotionComponent;
 class UPA_CharacterDefinition;
 struct FGameplayTag;
@@ -52,8 +53,14 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UGeAbilitySystemComponent* AbilitySystemComp;
 
+	UPROPERTY(VisibleAnywhere, Category= "GAS")
+	TObjectPtr<UGeAttributeSetBase> AttributeSet;
+
 	virtual void BindGASChangeDelegates();
 	virtual void UnBindGASChangeDelegates();
+
+	void MoveSpeedUpdated(const FOnAttributeChangeData& Data);
+	void FlySpeedUpdated(const FOnAttributeChangeData& Data);
 
 	/**********************************************************************/
 	/*                            Locomotion                              */

@@ -63,6 +63,9 @@ struct FHeroBaseStats : public FTableRowBase
 	float BaseMoveSpeed = 0.f;
 
 	UPROPERTY(EditAnywhere)
+	float BaseFlySpeed = 600.f;
+
+	UPROPERTY(EditAnywhere)
 	float BaseMoveAcceleration = 2048.f;
 
 	UPROPERTY(EditAnywhere)

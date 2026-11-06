@@ -23,8 +23,21 @@ public:
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData
 	) override;
+	
+	virtual void EndAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		bool bReplicateEndAbility,
+		bool bWasCancelled
+	) override;
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category="Effects")
+	TSubclassOf<UGameplayEffect> IncreaseMoveSpeedEffect;
+
+	FActiveGameplayEffectHandle IncreaseMoveSpeedEffectHandle;
+
 	UFUNCTION()
 	void HandleInputRelease(float TimeWaited);
 };

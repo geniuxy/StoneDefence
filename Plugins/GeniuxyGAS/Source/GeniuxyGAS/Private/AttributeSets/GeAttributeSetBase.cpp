@@ -17,6 +17,7 @@ void UGeAttributeSetBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME_CONDITION_NOTIFY(UGeAttributeSetBase, AttackDamage, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGeAttributeSetBase, Armor, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGeAttributeSetBase, MoveSpeed, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGeAttributeSetBase, FlySpeed, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGeAttributeSetBase, MoveAcceleration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGeAttributeSetBase, CarryWeight, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGeAttributeSetBase, WeightLimit, COND_None, REPNOTIFY_Always);
@@ -108,6 +109,11 @@ void UGeAttributeSetBase::OnRep_Armor(const FGameplayAttributeData& OldValue)
 void UGeAttributeSetBase::OnRep_MoveSpeed(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGeAttributeSetBase, MoveSpeed, OldValue);
+}
+
+void UGeAttributeSetBase::OnRep_FlySpeed(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGeAttributeSetBase, FlySpeed, OldValue);
 }
 
 void UGeAttributeSetBase::OnRep_MoveAcceleration(const FGameplayAttributeData& OldValue)

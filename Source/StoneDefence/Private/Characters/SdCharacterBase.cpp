@@ -11,10 +11,12 @@
 #include "Engine/StreamableManager.h"
 #include "GameFramework/PlayerState.h"
 #include "GeniuxyDebugHelper.h"
+#include "AttributeSets/GeAttributeSetBase.h"
 #include "Comps/Locomotions/GeLocomotionComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Data/CharacterAnimationSet.h"
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Subsystems/GameInstanceSubsytems/SdGISubsystemCharacter.h"
 #include "Tags/EventTags.h"
@@ -26,6 +28,7 @@ ASdCharacterBase::ASdCharacterBase()
 
 	AnimationComp = CreateDefaultSubobject<UGeAnimationComponent>(TEXT("AnimationComp"));
 	AbilitySystemComp = CreateDefaultSubobject<UGeAbilitySystemComponent>(TEXT("AbilitySystemComp"));
+	AttributeSet = CreateDefaultSubobject<UGeAttributeSetBase>(TEXT("AttributeSet"));
 
 	WeaponMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMeshComponent"));
 	WeaponMeshComponent->SetupAttachment(GetMesh());
@@ -143,6 +146,17 @@ void ASdCharacterBase::BindGASChangeDelegates()
 				this, &ThisClass::HandleSheatheWeaponEvent
 			)
 		);
+
+		AbilitySystemComp->GetGameplayAttributeValueChangeDelegate(
+			UGeAttributeSetBase::GetMoveSpeedAttribute()
+		).AddUObject(
+			this, &ThisClass::MoveSpeedUpdated
+		);
+		AbilitySystemComp->GetGameplayAttributeValueChangeDelegate(
+			UGeAttributeSetBase::GetFlySpeedAttribute()
+		).AddUObject(
+			this, &ThisClass::FlySpeedUpdated
+		);
 	}
 }
 
@@ -157,6 +171,16 @@ void ASdCharacterBase::UnBindGASChangeDelegates()
 			FGameplayTagContainer(EventTags::Ge_Event_SheatheWeapon), SheatheWeaponEventHandle
 		);
 	}
+}
+
+void ASdCharacterBase::MoveSpeedUpdated(const FOnAttributeChangeData& Data)
+{
+	GetCharacterMovement()->MaxWalkSpeed = Data.NewValue;
+}
+
+void ASdCharacterBase::FlySpeedUpdated(const FOnAttributeChangeData& Data)
+{
+	GetCharacterMovement()->MaxFlySpeed = Data.NewValue;
 }
 
 void ASdCharacterBase::HandleDrawWeaponEvent(FGameplayTag GameplayTag, const FGameplayEventData* GameplayEventData)

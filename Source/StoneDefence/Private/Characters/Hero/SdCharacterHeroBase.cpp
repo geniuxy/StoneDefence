@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "GeniuxyDebugHelper.h"
 #include "GeniuxyGASType.h"
+#include "AttributeSets/GeAttributeSetHero.h"
 #include "SdTypes/SdMacros.h"
 #include "Comps/GeAbilitySystemComponent.h"
 #include "Comps/Locomotions/GeLocomotionComponent.h"
@@ -42,6 +43,8 @@ ASdCharacterHeroBase::ASdCharacterHeroBase()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 300.f, 0.f);
+
+	HeroAttributeSet = CreateDefaultSubobject<UGeAttributeSetHero>("HeroAttributeSet");
 }
 
 void ASdCharacterHeroBase::PawnClientRestart()
