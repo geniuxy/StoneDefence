@@ -112,8 +112,12 @@ void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 		SmoothedYawSpeed, YawTarget, DeltaSeconds,
 		YawTarget == 0.f ? SpeedLerpToZeroSpeed : SpeedSmoothLerpSpeed);
 
+	NormalizedYawSpeed = SmoothedYawSpeed / 180.f;
+
 	SmoothedPitchSpeed = FMath::FInterpTo(
 		SmoothedPitchSpeed, PitchTarget, DeltaSeconds, SpeedSmoothLerpSpeed);
+
+	NormalizedPitchSpeed = SmoothedPitchSpeed / 90.f;
 
 #if !UE_BUILD_SHIPPING
 	if (bDebugRotationSpeed && OwnerPawn && OwnerPawn->IsLocallyControlled())

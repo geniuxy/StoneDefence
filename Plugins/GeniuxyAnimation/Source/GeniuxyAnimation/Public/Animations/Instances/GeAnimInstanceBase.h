@@ -53,6 +53,9 @@ public:
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE FVector GetWorldVelocity() const { return WorldVelocity; }
 
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool IsMoving() const { return Speed != 0.f; }
+
 	/** 角色本地空间的速度，X=前 Y=右 Z=上。混合空间直接接这个比接世界速度省事 */
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE FVector GetLocalVelocity() const { return LocalVelocity; }
@@ -104,10 +107,16 @@ public:
 	FORCEINLINE float GetSmoothedYawSpeed() const { return SmoothedYawSpeed; }
 
 	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE float GetNormalizedYawSpeed() const { return NormalizedYawSpeed; }
+
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
 	FORCEINLINE float GetPitchSpeed() const { return PitchSpeed; }
 
 	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
 	FORCEINLINE float GetSmoothedPitchSpeed() const { return SmoothedPitchSpeed; }
+
+	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
+	FORCEINLINE float GetNormalizedPitchSpeed() const { return NormalizedPitchSpeed; }
 
 protected:
 	/**
@@ -124,8 +133,10 @@ protected:
 
 	float YawSpeed = 0.f;
 	float SmoothedYawSpeed = 0.f;
+	float NormalizedYawSpeed = 0.f;
 	float PitchSpeed = 0.f;
 	float SmoothedPitchSpeed = 0.f;
+	float NormalizedPitchSpeed = 0.f;
 
 	/** 上次成功采样的世界时间；< 0 表示还没采过样 */
 	float LastRotationSampleTime = -1.f;

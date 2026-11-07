@@ -34,6 +34,14 @@ public:
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE float GetNormalizedSpeed() const { return NormalizedVelocity.Size(); }
 
+protected:
+	UPROPERTY()
+	UCharacterMovementComponent* OwnerMovementComp;
+
+	/** 下面这些只在 CacheDerivedState（游戏线程）里写，工作线程只读 */
+	float MaxSpeed = 0.f;
+	FVector NormalizedVelocity = FVector::ZeroVector;
+
 	/**********************************************************************/
 	/*                                Fly                                 */
 	/**********************************************************************/
@@ -92,11 +100,65 @@ protected:
 	bool bIsClimbUp = false;
 	bool bIsClimbDown = false;
 
-protected:
-	UPROPERTY()
-	UCharacterMovementComponent* OwnerMovementComp;
+	/**********************************************************************/
+	/*                                Lean                                */
+	/**********************************************************************/
+public:
+	/** 2D Lean BlendSpace 的两个轴：X = 左右，Y = 上下，范围 [-1,1] */
+	UPROPERTY(BlueprintReadOnly, Category = "Animation|Lean", meta = (BlueprintThreadSafe))
+	float LeanX = 0.f;
 
-	/** 下面这些只在 CacheDerivedState（游戏线程）里写，工作线程只读 */
-	float MaxSpeed = 0.f;
-	FVector NormalizedVelocity = FVector::ZeroVector;
+	UPROPERTY(BlueprintReadOnly, Category = "Animation|Lean", meta = (BlueprintThreadSafe))
+	float LeanY = 0.f;
+
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE float GetLeanX() const { return LeanX; }
+
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE float GetLeanY() const { return LeanY; }
+
+	/** 倾斜到满幅度所需速度（cm/s）。低于它时倾斜按比例衰减（悬停=0） */
+	UPROPERTY(EditAnywhere, Category = "Animation|Lean", meta = (ClampMin = "1.0", UIMin = "1.0"))
+	float LeanFullSpeed = 600.f;
+
+	/** 平滑速度，对应参考 ABP 里 FInterpTo 的 InterpSpeed */
+	UPROPERTY(EditAnywhere, Category = "Animation|Lean", meta = (ClampMin = "0.0", UIMin = "0.0"))
+	float LeanInterpSpeed = 5.f;
+
+	/** 死区：目标值低于它就当 0，避免悬停时速度抖动带出细微倾斜 */
+	UPROPERTY(EditAnywhere, Category = "Animation|Lean", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float LeanDeadZone = 0.02f;
+
+protected:
+	/** 游戏线程：把本地空间速度拆成左右/上下两个倾斜分量并平滑，写入 Lean / LeanX / LeanY */
+	void UpdateLean(float DeltaSeconds);
+
+	/**********************************************************************/
+	/*                               LookAt                               */
+	/**********************************************************************/
+public:
+	UPROPERTY(BlueprintReadOnly, Category = "Animation|LookAt", meta = (BlueprintThreadSafe))
+	FVector LookAtLocation = FVector::ZeroVector;
+
+	/** 和 LookAtLocation 同值。给 C++ 用，风格与本类其它缓存量的 Get*() 保持一致 */
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE FVector GetLookAtLocation() const { return LookAtLocation; }
+
+	/**
+	 * 目标点到眼睛的距离（cm，默认 100m）。
+	 * 只用来把「方向」变成「点」，所以取大一点最好：眼睛和头骨之间那点位置差，
+	 * 换算成角度会变成几度的抬头/低头误差，距离越远影响越小。
+	 */
+	UPROPERTY(EditAnywhere, Category = "Animation|LookAt", meta = (ClampMin = "100.0", UIMin = "100.0"))
+	float LookAtDistance = 10000.f;
+
+protected:
+	/**
+	 * 游戏线程：把瞄准方向折算成世界空间目标点，写入 LookAtLocation。
+	 *
+	 * 想改成「锁定某个敌人」这类外部目标时，在这里改就行：
+	 * 拿 Target 的 GetActorLocation() 直接赋给 LookAtLocation 即可，
+	 * 不要再额外加一个同名的变量，Look At 节点只认这一个。
+	 */
+	void UpdateLookAtLocation();
 };
