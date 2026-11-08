@@ -86,15 +86,8 @@ bool UGA_DrawWeapon::PreLoadMontage()
 		return false;
 	}
 
-	if (GetOwnerASC() && GetOwnerASC()->AreMontagesLoaded())
-	{
-		DrawSwordMontage = GetMontageByTag(DrawSwordMontageTag).Get();
-		SheatheSwordMontage = GetMontageByTag(SheatheSwordMontageTag).Get();
-		return DrawSwordMontage != nullptr && SheatheSwordMontage != nullptr;
-	}
-
-	DrawSwordMontage = DrawMontage.LoadSynchronous();
-	SheatheSwordMontage = SheatheMontage.LoadSynchronous();
+	DrawSwordMontage = LoadMontageByTag(DrawSwordMontageTag);
+	SheatheSwordMontage = LoadMontageByTag(SheatheSwordMontageTag);
 
 	return DrawSwordMontage != nullptr && SheatheSwordMontage != nullptr;
 }

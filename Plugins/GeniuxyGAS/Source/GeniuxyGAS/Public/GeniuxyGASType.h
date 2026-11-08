@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -25,6 +25,24 @@ enum class EAbilityInputID : uint8
 	Tab UMETA(DisplayName="Tab"),
 	Fly UMETA(DisplayName="Fly"),
 	Ctrl UMETA(DisplayName="Ctrl"),
+	Dodge UMETA(DisplayName="Dodge"),
+};
+
+/**
+ * 四向闪避的方向。方向是相对「视角」算的，不是相对角色。
+ *
+ * - 地面闪避：前 / 后 / 左 / 右（只看水平面）
+ * - 飞行闪避：上 / 下 / 左 / 右（Forward 就是飞行蒙太奇里的 U，Backward 是 D）
+ */
+UENUM(BlueprintType)
+enum class EDodgeDirection : uint8
+{
+	/** 地面：向前；飞行：向上（U） */
+	Forward UMETA(DisplayName = "Forward / Up"),
+	/** 地面：向后；飞行：向下（D） */
+	Backward UMETA(DisplayName = "Backward / Down"),
+	Left UMETA(DisplayName = "Left"),
+	Right UMETA(DisplayName = "Right")
 };
 
 USTRUCT(BlueprintType)

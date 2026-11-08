@@ -256,7 +256,7 @@ void UGeAbilitySystemComponent::PreLoadMontages()
 
 	for (const auto& Pair : MontageMap)
 	{
-		if (Pair.Value.IsValid())
+		if (!Pair.Value.IsNull())
 		{
 			AssetsToLoad.Add(Pair.Value.ToSoftObjectPath());
 		}

@@ -456,6 +456,6 @@ void ASdCharacterBase::GetNetworkDebugInfo() const
 		GetPlayerState() ? *GetPlayerState()->GetPlayerName() : TEXT("NULL")
 	);
 
-	Debug::Print(Info, -1, 30.f);
+	Debug::Print(Info, "NetworkDebug", 30.f);
 }
 

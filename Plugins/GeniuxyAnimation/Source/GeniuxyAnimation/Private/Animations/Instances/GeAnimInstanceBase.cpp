@@ -136,7 +136,7 @@ void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 			FString::Printf(
 				TEXT("%s  Yaw %.1f/%.1f  Pitch %.1f/%.1f"),
 				*GetClass()->GetName(), YawSpeed, SmoothedYawSpeed, PitchSpeed, SmoothedPitchSpeed),
-			9001, 0.f, FColor::Yellow);
+			"DebugRotationSpeed", 0.f, FColor::Yellow);
 	}
 #endif
 

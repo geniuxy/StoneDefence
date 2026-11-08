@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -23,5 +23,6 @@ namespace StatsTags
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Stats_Fly_Fast);
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Stats_Climb);
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Stats_Swim);
+	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Stats_Dodging);
 	// GENIUXYGAS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Stats_Equipped_PrimaryWeapon);
 }

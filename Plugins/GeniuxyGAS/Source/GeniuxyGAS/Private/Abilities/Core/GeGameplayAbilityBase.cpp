@@ -1,8 +1,9 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Abilities/Core/GeGameplayAbilityBase.h"
 
+#include "Animation/AnimMontage.h"
 #include "Comps/GeAbilitySystemComponent.h"
 
 void UGeGameplayAbilityBase::ActivateAbility(
@@ -37,4 +38,26 @@ TSoftObjectPtr<UAnimMontage> UGeGameplayAbilityBase::GetMontageByTag(FGameplayTa
 		return nullptr;
 	}
 	return *FoundPtr;
+}
+
+UAnimMontage* UGeGameplayAbilityBase::LoadMontageByTag(FGameplayTag InTag)
+{
+	if (!InTag.IsValid())
+	{
+		return nullptr;
+	}
+
+	const TSoftObjectPtr<UAnimMontage> SoftMontage = GetMontageByTag(InTag);
+	if (SoftMontage.IsNull())
+	{
+		return nullptr;
+	}
+
+	// 已经在内存里就直接用，否则同步读一次（不要依赖预加载标记）
+	if (UAnimMontage* LoadedMontage = SoftMontage.Get())
+	{
+		return LoadedMontage;
+	}
+
+	return SoftMontage.LoadSynchronous();
 }
