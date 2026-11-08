@@ -43,6 +43,7 @@ ASdCharacterHeroBase::ASdCharacterHeroBase()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 300.f, 0.f);
+	GetCharacterMovement()->BrakingDecelerationFlying = 1400.f; // 为了能够在飞行状态，没有输入的情况下，可以迅速停下来
 
 	HeroAttributeSet = CreateDefaultSubobject<UGeAttributeSetHero>("HeroAttributeSet");
 }
