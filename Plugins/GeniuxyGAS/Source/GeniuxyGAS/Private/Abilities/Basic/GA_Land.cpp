@@ -12,14 +12,6 @@
 #include "Tags/EventTags.h"
 #include "Tags/StatsTags.h"
 
-namespace
-{
-	/** 屏幕消息的键名：Debug::Print 内部维护「键名 -> InKey」，同名消息原地刷新 */
-	const TCHAR* Key_PreLoad = TEXT("Land.PreLoad");
-	const TCHAR* Key_Land = TEXT("Land.Play");
-	const TCHAR* Key_Skip = TEXT("Land.Skip");
-}
-
 UGA_Land::UGA_Land()
 {
 	FAbilityTriggerData TriggerData;
@@ -62,7 +54,7 @@ void UGA_Land::OnActivateAbility(
 	{
 		Debug::Print(
 			FString::Printf(TEXT("[GA_Land] 下坠速度 %.1f < %.1f，当贴地，不落地"), FallSpeed, MinFallSpeed),
-			Key_Skip, 3.f, FColor::Silver);
+			"Land.Skip", 3.f, FColor::Silver);
 		K2_EndAbility();
 		return;
 	}
@@ -80,7 +72,7 @@ void UGA_Land::OnActivateAbility(
 	{
 		Debug::Print(
 			FString::Printf(TEXT("[GA_Land] %s落地没有可用蒙太奇，直接收尾"), bHardLanding ? TEXT("硬") : TEXT("软")),
-			Key_PreLoad, 5.f, FColor::Yellow);
+			"Land.PreLoad", 5.f, FColor::Yellow);
 		K2_EndAbility();
 		return;
 	}
@@ -106,7 +98,7 @@ bool UGA_Land::PreLoadMontage()
 				*GetName(),
 				*HardLandMontageTag.ToString(), HardLandMontage ? TEXT("OK") : TEXT("NULL"),
 				*SoftLandMontageTag.ToString(), SoftLandMontage ? TEXT("OK") : TEXT("NULL")),
-			Key_PreLoad, 8.f, FColor::Yellow);
+			"Land.PreLoad", 8.f, FColor::Yellow);
 	}
 
 	return true;
