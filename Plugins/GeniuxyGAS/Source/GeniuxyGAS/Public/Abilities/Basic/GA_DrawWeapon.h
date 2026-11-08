@@ -20,7 +20,7 @@ class GENIUXYGAS_API UGA_DrawWeapon : public UGeGameplayAbilityBase
 public:
 	UGA_DrawWeapon();
 	
-	virtual void ActivateAbility(
+	virtual void OnActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,

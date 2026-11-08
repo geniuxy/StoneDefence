@@ -4,12 +4,14 @@
 #include "Abilities/Basic/GA_Fly_Fast.h"
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Animation/AnimMontage.h"
 #include "Comps/GeAbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GeniuxyDebugHelper.h"
+#include "Tags/EventTags.h"
 #include "Tags/StatsTags.h"
 
 UGA_Fly_Fast::UGA_Fly_Fast()
@@ -18,19 +20,12 @@ UGA_Fly_Fast::UGA_Fly_Fast()
 	ActivationRequiredTags.AddTag(StatsTags::Ge_Stats_Fly);
 }
 
-void UGA_Fly_Fast::ActivateAbility(
+void UGA_Fly_Fast::OnActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	if (!IsActive())
-	{
-		return;
-	}
-
 	if (!IncreaseMoveSpeedEffect)
 	{
 		K2_EndAbility();
@@ -53,9 +48,25 @@ void UGA_Fly_Fast::ActivateAbility(
 		);
 	}
 
+	// 撞地（Ge.Event.Land）就退出加速飞行：GA_Fly 也监听同一事件，
+	// 两个能力各自结束自己，Fly tag 一摘掉 LocomotionComp 就回 Ground。
+	UAbilityTask_WaitGameplayEvent* WaitLandEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this, EventTags::Ge_Event_FlyLand, /*OptionalExternalTarget=*/nullptr,
+		/*OnlyTriggerOnce=*/true, /*OnlyMatchExact=*/true);
+	WaitLandEvent->EventReceived.AddDynamic(this, &ThisClass::HandleLandEvent);
+	WaitLandEvent->ReadyForActivation();
+
 	UAbilityTask_WaitInputRelease* WaitInputRelease = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
 	WaitInputRelease->OnRelease.AddDynamic(this, &ThisClass::HandleInputRelease);
 	WaitInputRelease->ReadyForActivation();
+}
+
+void UGA_Fly_Fast::HandleLandEvent(FGameplayEventData Payload)
+{
+	Debug::Print(TEXT("[GA_Fly_Fast] 收到 Ge.Event.Land，退出加速飞行"),
+	             TEXT("FlyFast.Land"), 3.f, FColor::Orange);
+
+	K2_EndAbility();
 }
 
 void UGA_Fly_Fast::EndAbility(

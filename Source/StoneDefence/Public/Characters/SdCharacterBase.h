@@ -173,4 +173,33 @@ protected:
 	bool bDebugNetworkInfo = false;
 
 	void GetNetworkDebugInfo() const;
+
+	/**********************************************************************/
+	/*                              Landing                               */
+	/**********************************************************************/
+protected:
+	/**
+	 * 撞到东西时的回调（CMC 在 HandleImpact 里调用）。
+	 *
+	 * 这里只负责「报告撞地」：判定是可走地面 + 正在飞行 + 下坠速度够 → 发 Ge.Event.Land，
+	 * 具体播硬落地还是软落地、以及退出飞行，交给 GA_Land / GA_Fly 那套能力处理。
+	 *
+	 * 为什么用它而不是每帧 trace：blocking hit 只在真的顶到地面时才有，
+	 * 平飞擦着地面不会触发 —— 正好满足「贴地低飞不算落地」。
+	 */
+	virtual void MoveBlockedBy(const FHitResult& Impact) override;
+
+	/** 落地候选的最小下坠速度：低于它当「贴地低飞」，直接忽略 */
+	UPROPERTY(EditDefaultsOnly, Category="Landing", meta=(ClampMin="0"))
+	float MinLandFallSpeed = 250.f;
+
+	/** 两次落地事件的最小间隔，防止贴着地面时每个 tick 都发一次 */
+	UPROPERTY(EditDefaultsOnly, Category="Landing", meta=(ClampMin="0"))
+	float LandEventCooldown = 0.35f;
+
+	/** 发落地事件：EventMagnitude = 撞击瞬间的下坠速度 */
+	void NotifyLandingEvent(float FallSpeed);
+
+	/** 上一次发落地事件的世界时间 */
+	float LastLandEventTime = -1.f;
 };

@@ -37,7 +37,13 @@ class GENIUXYGAS_API UGA_Dodge : public UGeGameplayAbilityBase
 public:
 	UGA_Dodge();
 
-	virtual void ActivateAbility(
+	/**
+	 * 蒙太奇是按闪避方向取的，所以方向必须在 PreLoadMontage() 之前算好。
+	 * 走基类的 PrepareActivation 钩子，而不是覆盖 ActivateAbility。
+	 */
+	virtual bool PrepareActivation() override;
+
+	virtual void OnActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,

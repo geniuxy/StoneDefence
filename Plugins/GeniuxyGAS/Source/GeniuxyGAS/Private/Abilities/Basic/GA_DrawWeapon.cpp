@@ -14,21 +14,12 @@ UGA_DrawWeapon::UGA_DrawWeapon()
 	// ActivationRequiredTags.AddTag(StatsTags::Ge_Stats_EquippingSword);
 }
 
-void UGA_DrawWeapon::ActivateAbility(
+void UGA_DrawWeapon::OnActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	// 基类 ActivateAbility 在 PreLoadMontage() 失败时会 K2_EndAbility()，
-	// 但它不会 return —— 派生类必须自己判活，否则会在一个已经结束的能力上继续建任务。
-	if (!IsActive())
-	{
-		return;
-	}
-
 	if (!K2_CommitAbility() || !GetOwnerASC())
 	{
 		K2_EndAbility();

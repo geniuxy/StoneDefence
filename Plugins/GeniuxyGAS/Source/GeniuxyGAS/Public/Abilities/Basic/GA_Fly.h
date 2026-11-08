@@ -19,7 +19,7 @@ class GENIUXYGAS_API UGA_Fly : public UGeGameplayAbilityBase
 public:
 	UGA_Fly();
 
-	virtual void ActivateAbility(
+	virtual void OnActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
@@ -31,6 +31,13 @@ public:
 private:
 	UFUNCTION()
 	void HandleInputPress(float TimeWaited);
+
+	/**
+	 * 收到 Ge.Event.Land：撞地了，退出飞行。
+	 * 结束方式就是 K2_EndAbility —— Fly tag 一摘掉，LocomotionComp 自动回 Ground。
+	 */
+	UFUNCTION()
+	void HandleLandEvent(FGameplayEventData Payload);
 
 	void PlayHoverStartMontage();
 

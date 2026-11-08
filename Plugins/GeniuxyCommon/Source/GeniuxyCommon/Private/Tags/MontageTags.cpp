@@ -20,4 +20,7 @@ namespace MontageTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Montage_Fly_HoverStart, "Ge.Montage.Fly.HoverStart");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Montage_Fly_FastStart, "Ge.Montage.Fly.FastStart");
+
+	UE_DEFINE_GAMEPLAY_TAG(Ge_Montage_Fly_Land_Hard, "Ge.Montage.Fly.Land.Hard");
+	UE_DEFINE_GAMEPLAY_TAG(Ge_Montage_Fly_Land_Soft, "Ge.Montage.Fly.Land.Soft");
 }

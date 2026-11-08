@@ -17,4 +17,7 @@ namespace EventTags
 
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Event_DrawWeapon);
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Event_SheatheWeapon);
+
+	/** 飞行中撞到地面（由 ASdCharacterBase::MoveBlockedBy 发出，EventMagnitude = 撞击下坠速度） */
+	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Event_FlyLand);
 }

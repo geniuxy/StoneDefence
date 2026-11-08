@@ -3,12 +3,14 @@
 
 #include "Characters/SdCharacterBase.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "Comps/GeAbilitySystemComponent.h"
 #include "Comps/GeAnimationComponent.h"
 #include "Anims/AnimInstances/SdAnimInstanceHeroBase.h"
 #include "Types/GeAnimationPayloads.h"
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
+#include "Engine/World.h"
 #include "GameFramework/PlayerState.h"
 #include "GeniuxyDebugHelper.h"
 #include "AttributeSets/GeAttributeSetBase.h"
@@ -21,6 +23,7 @@
 #include "Subsystems/GameInstanceSubsytems/SdGISubsystemCharacter.h"
 #include "Tags/EventTags.h"
 #include "Tags/CharacterTags.h"
+#include "Tags/StatsTags.h"
 
 ASdCharacterBase::ASdCharacterBase()
 {
@@ -457,5 +460,89 @@ void ASdCharacterBase::GetNetworkDebugInfo() const
 	);
 
 	Debug::Print(Info, "NetworkDebug", 30.f);
+}
+
+/**********************************************************************/
+/*                              Landing                               */
+/**********************************************************************/
+
+void ASdCharacterBase::MoveBlockedBy(const FHitResult& Impact)
+{
+	Super::MoveBlockedBy(Impact);
+
+	// 只处理真正“顶到地面”的情况：
+	// 1) 命中面得是可走地面（撞墙、撞斜面不算落地）
+	if (!Impact.IsValidBlockingHit() || Impact.ImpactNormal.Z < 0.7f)
+	{
+		return;
+	}
+
+	// 2) 只有自己算得准的端才发事件：服务器（move replay）和本地控制端。
+	//    模拟端发了也没意义，反而可能出现“只有本机播了落地”的错位。
+	if (!HasAuthority() && !IsLocallyControlled())
+	{
+		return;
+	}
+
+	UGeAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (!ASC)
+	{
+		return;
+	}
+
+	// 3) 必须是飞行状态；跳跃落地那种走别的流程
+	if (!ASC->HasMatchingGameplayTag(StatsTags::Ge_Stats_Fly))
+	{
+		return;
+	}
+
+	// 4) 已经在落地中 / 还在冷却里 → 忽略（贴着地面时每个 tick 都会来一次 blocking hit）
+	if (ASC->HasMatchingGameplayTag(StatsTags::Ge_Stats_Landing))
+	{
+		return;
+	}
+
+	// 5) 正在闪避就等它结束：闪避的位移任务还在推，这时候插落地蒙太奇会打架。
+	//    闪避结束后如果还压着地面，下一个 tick 的 blocking hit 会再来一次。
+	if (ASC->HasMatchingGameplayTag(StatsTags::Ge_Stats_Dodging))
+	{
+		return;
+	}
+
+	// 6) 下坠速度不够 → 当“贴地低飞”，不算落地
+	const float FallSpeed = -GetVelocity().Z;
+	if (FallSpeed < MinLandFallSpeed)
+	{
+		return;
+	}
+
+	// 7) 冷却
+	const float Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
+	if (LastLandEventTime >= 0.f && (Now - LastLandEventTime) < LandEventCooldown)
+	{
+		return;
+	}
+
+	NotifyLandingEvent(FallSpeed);
+}
+
+void ASdCharacterBase::NotifyLandingEvent(float FallSpeed)
+{
+	const float Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
+	LastLandEventTime = Now;
+
+	FGameplayEventData EventData;
+	EventData.EventTag = EventTags::Ge_Event_FlyLand;
+	EventData.Instigator = this;
+	EventData.Target = this;
+	// 用 EventMagnitude 把撞击瞬间的下坠速度带过去：GA_Land 靠它分硬 / 软落地。
+	// （碰撞后 Velocity.Z 会被滑移修正掉，能力里再读就来不及了。）
+	EventData.EventMagnitude = FallSpeed;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventTags::Ge_Event_FlyLand, EventData);
+
+	Debug::Print(
+		FString::Printf(TEXT("[SdCharacter] 撞地：下坠速度=%.1f 发 Ge.Event.Land"), FallSpeed),
+		TEXT("Land.Event"), 3.f, FColor::Orange);
 }
 

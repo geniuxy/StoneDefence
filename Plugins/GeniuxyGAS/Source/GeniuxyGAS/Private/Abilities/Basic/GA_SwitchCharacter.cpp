@@ -19,14 +19,12 @@ UGA_SwitchCharacter::UGA_SwitchCharacter()
 	// TODO: 可以加上冷却cd 1s
 }
 
-void UGA_SwitchCharacter::ActivateAbility(
+void UGA_SwitchCharacter::OnActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
 	AActor* Avatar = GetAvatarActorFromActorInfo();
 	if (!Avatar || !GetOwnerASC())
 	{

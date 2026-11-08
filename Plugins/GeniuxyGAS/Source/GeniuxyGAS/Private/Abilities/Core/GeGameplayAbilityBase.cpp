@@ -12,10 +12,26 @@ void UGeGameplayAbilityBase::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
+	// 蓝图事件（K2_ActivateAbility / K2_ActivateAbilityFromEvent）由引擎基类派发
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	// 1) 子类前置准备（例如闪避要先算方向，因为蒙太奇按方向取）
+	if (!PrepareActivation())
+	{
+		K2_EndAbility();
+		return;
+	}
+
+	// 2) 预加载蒙太奇：失败就结束，并且**在这里 return**。
+	//    子类的 OnActivateAbility() 不会被调用，所以子类不用再判活。
 	if (!PreLoadMontage())
 	{
 		K2_EndAbility();
+		return;
 	}
+
+	// 3) 子类真正的激活逻辑
+	OnActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
 UGeAbilitySystemComponent* UGeGameplayAbilityBase::GetOwnerASC()

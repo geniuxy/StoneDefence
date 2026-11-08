@@ -49,6 +49,9 @@ UGA_Dodge::UGA_Dodge()
 	// 死了不能闪避
 	ActivationBlockedTags.AddTag(StatsTags::Ge_Stats_Dead);
 
+	// 落地过程中不能闪避（Ge.Stats.Landing 由 GA_Land 挂着）
+	ActivationBlockedTags.AddTag(StatsTags::Ge_Stats_Landing);
+
 	// 「什么时候能闪」是条件式的（地面随时 / 飞行中只有加速飞行），表达不成静态 Tag，
 	// 放在下面的 CanActivateAbility 里判断。
 
@@ -64,28 +67,18 @@ UGA_Dodge::UGA_Dodge()
 	FlyDodgeMontageTags.Add(EDodgeDirection::Right, MontageTags::Ge_Montage_Dodge_Fly_Right);
 }
 
-void UGA_Dodge::ActivateAbility(
+bool UGA_Dodge::PrepareActivation()
+{
+	// 方向先算：基类接下来会调 PreLoadMontage()，而蒙太奇是按方向取的，所以顺序不能反。
+	return BuildDodgeContext();
+}
+
+void UGA_Dodge::OnActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	// 方向先算，基类的 ActivateAbility 里会调 PreLoadMontage()，而蒙太奇是按方向取的，所以顺序不能反。
-	if (!BuildDodgeContext())
-	{
-		K2_EndAbility();
-		return;
-	}
-
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	// 基类在 PreLoadMontage() 失败时会 K2_EndAbility()，但它不会 return，
-	// 派生类必须自己判活，否则会在一个已经结束的能力上继续建任务。
-	if (!IsActive())
-	{
-		return;
-	}
-
 	if (!K2_CommitAbility())
 	{
 		// 冷却 / 消耗没通过（闪避一般会在蓝图里配一个 Cooldown GE）

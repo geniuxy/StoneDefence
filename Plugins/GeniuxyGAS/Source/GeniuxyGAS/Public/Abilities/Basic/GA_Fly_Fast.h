@@ -30,7 +30,7 @@ class GENIUXYGAS_API UGA_Fly_Fast : public UGeGameplayAbilityBase
 public:
 	UGA_Fly_Fast();
 
-	virtual void ActivateAbility(
+	virtual void OnActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
@@ -55,6 +55,13 @@ private:
 
 	UFUNCTION()
 	void HandleInputRelease(float TimeWaited);
+
+	/**
+	 * 收到 Ge.Event.Land：撞地了，退出加速飞行。
+	 * EndAbility 里会撤移速 GE、恢复朝向驱动。
+	 */
+	UFUNCTION()
+	void HandleLandEvent(FGameplayEventData Payload);
 
 	void PlayFastStartMontage();
 

@@ -28,4 +28,8 @@ namespace MontageTags
 
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Montage_Fly_HoverStart);
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Montage_Fly_FastStart);
+
+	/* 飞行落地：硬落地（高速俯冲撞地）/ 软落地（速度不够硬落地） */
+	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Montage_Fly_Land_Hard);
+	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Montage_Fly_Land_Soft);
 }

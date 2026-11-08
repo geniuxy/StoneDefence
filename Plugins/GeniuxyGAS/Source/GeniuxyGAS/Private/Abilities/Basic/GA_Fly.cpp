@@ -4,9 +4,11 @@
 #include "Abilities/Basic/GA_Fly.h"
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
 #include "Animation/AnimMontage.h"
 #include "GeniuxyDebugHelper.h"
+#include "Tags/EventTags.h"
 #include "Tags/StatsTags.h"
 
 UGA_Fly::UGA_Fly()
@@ -14,30 +16,36 @@ UGA_Fly::UGA_Fly()
 	ActivationOwnedTags.AddTag(StatsTags::Ge_Stats_Fly);
 }
 
-void UGA_Fly::ActivateAbility(
+void UGA_Fly::OnActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	// 基类在 PreLoadMontage() 失败时会结束能力，但它不会 return。
-	// 这里的 PreLoadMontage 永远返回 true（见下），判活只是防御：
-	// 能力真的已经结束时，不能再往一个死掉的能力上建 Task。
-	if (!IsActive())
-	{
-		return;
-	}
-
 	if (bPlayHoverStartOnBeginFly && HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))
 	{
 		PlayHoverStartMontage();
 	}
 
+	// 撞地（Ge.Event.Land）就退出飞行：和 GA_Land 监听同一个事件，各管各的——
+	// 它播落地蒙太奇，我们负责结束飞行。
+	UAbilityTask_WaitGameplayEvent* WaitLandEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this, EventTags::Ge_Event_FlyLand, /*OptionalExternalTarget=*/nullptr,
+		/*OnlyTriggerOnce=*/true, /*OnlyMatchExact=*/true);
+	WaitLandEvent->EventReceived.AddDynamic(this, &ThisClass::HandleLandEvent);
+	WaitLandEvent->ReadyForActivation();
+
 	UAbilityTask_WaitInputPress* WaitInputPress = UAbilityTask_WaitInputPress::WaitInputPress(this);
 	WaitInputPress->OnPress.AddDynamic(this, &ThisClass::HandleInputPress);
 	WaitInputPress->ReadyForActivation();
+}
+
+void UGA_Fly::HandleLandEvent(FGameplayEventData Payload)
+{
+	Debug::Print(TEXT("[GA_Fly] 收到 Ge.Event.Land，退出飞行"),
+	             TEXT("Fly.Land"), 3.f, FColor::Orange);
+
+	K2_EndAbility();
 }
 
 bool UGA_Fly::PreLoadMontage()

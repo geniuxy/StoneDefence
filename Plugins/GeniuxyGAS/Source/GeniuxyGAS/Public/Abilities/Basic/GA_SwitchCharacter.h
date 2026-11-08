@@ -19,7 +19,7 @@ class GENIUXYGAS_API UGA_SwitchCharacter : public UGeGameplayAbilityBase
 public:
 	UGA_SwitchCharacter();
 
-	virtual void ActivateAbility(
+	virtual void OnActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
