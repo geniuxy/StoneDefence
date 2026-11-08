@@ -85,6 +85,17 @@ public:
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE bool GetIsInAir() const { return bIsInAir; }
 
+	/**
+	 * 当前是否有移动输入（按着 WASD / AI 正在往路径点走）。
+	 *
+	 * 注意：这是「输入」不是「有没有在动」——撞墙、被定身时按着键也可能是 true，
+	 * 想判断真的在位移请用 GetSpeed()。
+	 * 也只在本地控制端（或服务器上的 AI）有意义：MovementInput 不复制，
+	 * 模拟端读到的永远是 false。
+	 */
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetHasMovementInput() const { return bHasMovementInput; }
+
 protected:
 	float Speed = 0.f;
 	float Speed2D = 0.f;
@@ -95,6 +106,7 @@ protected:
 	bool bInCombat = false;
 	bool bIsFlyingFast = false;
 	bool bIsInAir = false;
+	bool bHasMovementInput = false;
 
 	/**********************************************************************/
 	/*                        Yaw/Pitch Rotation                          */

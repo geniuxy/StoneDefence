@@ -152,6 +152,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Animation|LookAt", meta = (ClampMin = "100.0", UIMin = "100.0"))
 	float LookAtDistance = 10000.f;
 
+	/** 调试：非 Shipping 下画出 LookAtLocation（黄球）和眼睛→目标连线，用来判断是「点没动」还是「节点没转」 */
+	UPROPERTY(EditAnywhere, Category = "Animation|LookAt|Debug")
+	bool bDebugLookAt = false;
+
 protected:
 	/**
 	 * 游戏线程：把瞄准方向折算成世界空间目标点，写入 LookAtLocation。

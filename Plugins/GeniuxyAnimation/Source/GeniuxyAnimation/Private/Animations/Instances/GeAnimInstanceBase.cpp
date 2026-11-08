@@ -50,6 +50,16 @@ void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 	const FRotator OwnerRotation = OwnerPawn->GetActorRotation();
 	LocalVelocity = OwnerRotation.UnrotateVector(WorldVelocity);
 
+	// 是否按着移动键（WASD）。
+	// CMC 在它自己的 Tick 里把 PendingMovementInput 消费成 LastMovementInput，
+	// 而 AnimInstance 的更新在这之后，所以两个都要看：只看 Pending 常常已经是 0。
+	const FVector PendingMoveInput = OwnerPawn->GetPendingMovementInputVector();
+	const FVector LastMoveInput = OwnerPawn->GetLastMovementInputVector();
+	bHasMovementInput =
+		!OwnerPawn->IsMoveInputIgnored() &&
+		(PendingMoveInput.SizeSquared() > KINDA_SMALL_NUMBER ||
+		 LastMoveInput.SizeSquared() > KINDA_SMALL_NUMBER);
+
 	if (const ACharacter* OwnerCharacter = Cast<ACharacter>(OwnerPawn))
 	{
 		const UCharacterMovementComponent* MovementComp = OwnerCharacter->GetCharacterMovement();

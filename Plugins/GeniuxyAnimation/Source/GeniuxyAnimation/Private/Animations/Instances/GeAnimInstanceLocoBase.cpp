@@ -4,6 +4,7 @@
 #include "Animations/Instances/GeAnimInstanceLocoBase.h"
 
 #include "Components/SkeletalMeshComponent.h"
+#include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Pawn.h"
@@ -106,6 +107,19 @@ void UGeAnimInstanceLocoBase::UpdateLookAtLocation()
 	// 距离取远一点（默认 100m）：眼睛和头骨之间的位置差换算成角度会变成几度的
 	// 抬/低头误差，距离越远这个误差越小（方向趋近于纯瞄准方向）。
 	LookAtLocation = AimOrigin + AimRotation.Vector() * LookAtDistance;
+
+#if !UE_BUILD_SHIPPING
+	if (bDebugLookAt)
+	{
+		if (const UWorld* World = GetWorld())
+		{
+			// 黄球 = 目标点，白线 = 眼睛到目标；Debug Thickness 在 Game Viewport 里看得见
+			DrawDebugSphere(World, LookAtLocation, 12.f, 12, FColor::Yellow, false, 0.f, 0, 1.f);
+			DrawDebugLine(World, AimOrigin, LookAtLocation, FColor::White, false, 0.f, 0, 0.5f);
+			DrawDebugPoint(World, AimOrigin, 8.f, FColor::Cyan, false, 0.f);
+		}
+	}
+#endif
 }
 
 void UGeAnimInstanceLocoBase::UpdateLean(float DeltaSeconds)
