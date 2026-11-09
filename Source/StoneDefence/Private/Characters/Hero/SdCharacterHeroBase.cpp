@@ -12,7 +12,7 @@
 #include "SdTypes/SdMacros.h"
 #include "Comps/GeAbilitySystemComponent.h"
 #include "Comps/Locomotions/GeLocomotionComponent.h"
-#include "Types/GeGameplayPayloads.h"
+#include "Types/GeGASPayloads.h"
 #include "Frameworks/PlayerStates/Gameplay/SdPlayerStateGameBase.h"
 #include "Frameworks/SdAssetManager.h"
 #include "Frameworks/GameInstance/SdGameInstance.h"

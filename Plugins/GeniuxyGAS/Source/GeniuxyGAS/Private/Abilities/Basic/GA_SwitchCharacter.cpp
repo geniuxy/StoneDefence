@@ -5,7 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Comps/GeAbilitySystemComponent.h"
-#include "Types/GeGameplayPayloads.h"
+#include "Types/GeGASPayloads.h"
 #include "Tags/EventTags.h"
 
 UGA_SwitchCharacter::UGA_SwitchCharacter()

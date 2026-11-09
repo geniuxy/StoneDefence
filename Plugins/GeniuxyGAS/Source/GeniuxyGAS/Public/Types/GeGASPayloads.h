@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GeGameplayPayloads.generated.h"
+#include "GeGASPayloads.generated.h"
 
 class UGameplayAbility;
 
