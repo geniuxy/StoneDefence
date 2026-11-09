@@ -160,7 +160,21 @@ void UGeLocomotionComponent::ApplyMovementMode_Implementation(EGeLocomotionMode 
 	switch (InMode)
 	{
 	case EGeLocomotionMode::Ground:
-		OwnerMovementComp->SetMovementMode(MOVE_Walking);
+		// 这里**不能**无条件 SetMovementMode(MOVE_Walking)。
+		//
+		// 典型场景是出水：引擎在 PhysSwimming 末尾发现已经不在水体体积里，会自己把人切到
+		// MOVE_Falling（CharacterMovementComponent.cpp 里 `!GetPhysicsVolume()->bWaterVolume
+		// && IsSwimming()` 那一段）。如果我们在「摘掉 Swim tag → Mode 回 Ground」时再硬切
+		// Walking，人就会在水面上「空中站立」一帧，出水手感直接崩。
+		//
+		// 所以分开处理：
+		// - 已经在地上（Walking / NavWalking）：什么都不用改，蹲 / 爬这类细节由引擎维护；
+		// - 在空中（刚从飞行 / 游泳 / 自定义模式退出来）：交给重力，落地由引擎的
+		//   SetPostLandedPhysics 负责（它还会判断落点是水就切回 Swimming）。
+		if (!OwnerMovementComp->IsMovingOnGround() && !OwnerMovementComp->IsFalling())
+		{
+			OwnerMovementComp->SetMovementMode(MOVE_Falling);
+		}
 		break;
 
 	case EGeLocomotionMode::Fly:
