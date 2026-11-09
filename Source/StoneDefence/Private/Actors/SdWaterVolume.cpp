@@ -5,7 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "Effects/GeGameplayEffectSwim.h"
+#include "Effects/GrantTag/GE_Stats_Swim.h"
 #include "GeniuxyDebugHelper.h"
 
 ASdWaterVolume::ASdWaterVolume()
@@ -19,7 +19,7 @@ ASdWaterVolume::ASdWaterVolume()
 	Priority = 10;
 
 	// 默认用原生 GE：无需在 Content 里先建资产，拖进关卡就能用。
-	SwimGameplayEffect = UGeGameplayEffectSwim::StaticClass();
+	SwimGameplayEffect = UGE_Stats_Swim::StaticClass();
 
 	// 体积本身不参与阻挡，只做「点是否在 brush 内」的判定（AVolume::EncompassesPoint）。
 	// APhysicsVolume 构造里已经把 brush 设成 OverlapAllDynamic，这里不用再改。

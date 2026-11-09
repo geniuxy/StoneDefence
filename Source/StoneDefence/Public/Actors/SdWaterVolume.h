@@ -65,8 +65,9 @@ protected:
 
 	/**
 	 * 授予游泳状态的 GE。
-	 * 默认是原生 UGeGameplayEffectSwim（无限时长，只挂 Ge.Stats.Swim）；
-	 * 想加「水里减速」这类额外效果，在蓝图里继承 UGeGameplayEffectSwim 再换到这里即可。
+	 * 默认是原生 UGE_Stats_Swim（继承 UGE_GrantTags，无限时长，只挂 Ge.Stats.Swim）；
+	 * 想加「水里减速」这类额外效果，在蓝图里继承它（或继承 UGE_GrantTags 自己挂标签）
+	 * 再换到这里即可。
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Swim")
 	TSubclassOf<UGameplayEffect> SwimGameplayEffect;
