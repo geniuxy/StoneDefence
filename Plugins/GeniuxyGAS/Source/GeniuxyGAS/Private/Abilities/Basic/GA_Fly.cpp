@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Abilities/Basic/GA_Fly.h"
@@ -8,12 +8,23 @@
 #include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
 #include "Animation/AnimMontage.h"
 #include "GeniuxyDebugHelper.h"
+#include "Tags/AbilityTags.h"
 #include "Tags/EventTags.h"
 #include "Tags/StatsTags.h"
 
 UGA_Fly::UGA_Fly()
 {
 	ActivationOwnedTags.AddTag(StatsTags::Ge_Stats_Fly);
+
+	// 能力分组：本能力是「飞行」组的持有者。
+	// 注意 AbilityTags:: 指的是命名空间（UGameplayAbility 那个同名成员不能当限定名，两者不冲突）。
+	AbilityTags.AddTag(AbilityTags::Ge_Ability_Group_Fly);
+
+	// 进飞行 = 清场：立刻打断所有地面专属能力（Cancel），并在飞行期间禁掉它们的激活（Block）。
+	// 这两句话只在本能力存活期间生效，落地结束飞行时自动解除 ——
+	// 所以不需要写「回到地面再把地面能力加回来」的反向逻辑，也不需要运行时 Give/Remove。
+	CancelAbilitiesWithTag.AddTag(AbilityTags::Ge_Ability_Group_Ground);
+	BlockAbilitiesWithTag.AddTag(AbilityTags::Ge_Ability_Group_Ground);
 }
 
 void UGA_Fly::OnActivateAbility(

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Comps/GeAbilitySystemComponent.h"
@@ -61,12 +61,14 @@ void UGeAbilitySystemComponent::AuthApplyGameplayEffect(TSubclassOf<UGameplayEff
 
 UInputMappingContext* UGeAbilitySystemComponent::GetInputMappingContext() const
 {
-	return AbilitySystemGenerics->GetGameplayInputMappingContext();
+	return AbilitySystemGenerics ? AbilitySystemGenerics->GetGameplayInputMappingContext() : nullptr;
 }
 
-TMap<EAbilityInputID, UInputAction*> UGeAbilitySystemComponent::GetGameplayAbilityInputActions() const
+const TMap<EAbilityInputID, UInputAction*>& UGeAbilitySystemComponent::GetGameplayAbilityInputActions() const
 {
-	return AbilitySystemGenerics->GetGameplayAbilityInputActions();
+	// 没配 PA 时返回一个静态空表：调用方（角色的绑定循环）不用再判空
+	static const TMap<EAbilityInputID, UInputAction*> EmptyInputActions;
+	return AbilitySystemGenerics ? AbilitySystemGenerics->GetGameplayAbilityInputActions() : EmptyInputActions;
 }
 
 void UGeAbilitySystemComponent::BeginPlay()
@@ -136,24 +138,33 @@ void UGeAbilitySystemComponent::GiveInitialAbilities()
 {
 	if (!AbilitySystemGenerics || !GetOwner() || !GetOwner()->HasAuthority()) return;
 
-	for (const TPair<EAbilityInputID, TSubclassOf<UGameplayAbility>>& AbilityPair : Abilities)
-	{
-		GiveAbility(FGameplayAbilitySpec(AbilityPair.Value, 0, (int32)AbilityPair.Key, nullptr));
-	}
+	// 三张表统一成同一种形状：同一个 InputID 出现几条，就给几个独立的 AbilitySpec。
+	//
+	// 这里是「按运动状态分 GA」的关键：地面冲刺 / 飞行加速 / 游泳冲刺 都写同一个 InputID，
+	// 三条一起常驻，具体谁激活由各自的 Tag 门控决定：
+	// - 自己声明的 ActivationRequiredTags / ActivationBlockedTags；
+	// - 或者被当前模式能力（如 GA_Fly）的 BlockAbilitiesWithTag 挡住。
+	// 引擎的 AbilityLocalInputPressed 会遍历所有同 InputID 的 spec 逐个 TryActivateAbility，
+	// 所以不需要在这里挑一个，也不需要运行时 Give/Remove 换能力。
+	TArray<FGeAbilitySpecEntry> AllEntries;
+	AllEntries.Reserve(
+		Abilities.Num() + BasicAbilities.Num() + AbilitySystemGenerics->GetCommonAbilities().Num()
+	);
+	AllEntries.Append(Abilities);
+	AllEntries.Append(BasicAbilities);
+	AllEntries.Append(AbilitySystemGenerics->GetCommonAbilities());
 
-	for (const TPair<EAbilityInputID, TSubclassOf<UGameplayAbility>>& AbilityPair : BasicAbilities)
+	for (const FGeAbilitySpecEntry& Entry : AllEntries)
 	{
-		GiveAbility(FGameplayAbilitySpec(AbilityPair.Value, 1, (int32)AbilityPair.Key, nullptr));
+		if (!Entry.AbilityClass) continue;
+
+		// 注意：GiveAbility 不去重，同一条重复配置会得到两个 spec（按一次输入会跑两遍）
+		GiveAbility(FGameplayAbilitySpec(Entry.AbilityClass, Entry.Level, (int32)Entry.InputID, nullptr));
 	}
 
 	for (const TSubclassOf<UGameplayAbility>& PassiveAbility : AbilitySystemGenerics->GetPassiveAbilities())
 	{
 		GiveAbility(FGameplayAbilitySpec(PassiveAbility, 1, -1, nullptr));
-	}
-
-	for (const TPair<EAbilityInputID, TSubclassOf<UGameplayAbility>>& AbilityPair : AbilitySystemGenerics->GetCommonAbilities())
-	{
-		GiveAbility(FGameplayAbilitySpec(AbilityPair.Value, 1, (int32)AbilityPair.Key, nullptr));
 	}
 }
 

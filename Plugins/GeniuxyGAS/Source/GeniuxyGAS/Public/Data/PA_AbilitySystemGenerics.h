@@ -6,6 +6,10 @@
 #include "GeniuxyGASType.h"
 #include "Engine/DataAsset.h"
 
+#if WITH_EDITOR
+#include "Misc/DataValidation.h"
+#endif
+
 #include "PA_AbilitySystemGenerics.generated.h"
 
 class UInputAction;
@@ -40,7 +44,7 @@ private:
 	TArray<TSubclassOf<UGameplayAbility>> PassiveAbilities; // 被动的Abilities
 
 	UPROPERTY(EditDefaultsOnly, Category="Gameplay Ability")
-	TMap<EAbilityInputID, TSubclassOf<UGameplayAbility>> CommonAbilities; // 通用的主动Abilities
+	TArray<FGeAbilitySpecEntry> CommonAbilities; // 通用的主动Abilities（同一个 InputID 可以有多条，按 Tag 门控二选一）
 
 	UPROPERTY(EditDefaultsOnly, Category="Base Stats")
 	UDataTable* BaseStatDataTable;
@@ -57,7 +61,7 @@ public:
 	FORCEINLINE TSubclassOf<UGameplayEffect> GetDeathEffect() const { return DeathEffect; }
 	FORCEINLINE TSubclassOf<UGameplayEffect> GetDisableAimEffect() const { return DisableAimEffect; }
 	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetPassiveAbilities() const { return PassiveAbilities; }
-	FORCEINLINE TMap<EAbilityInputID, TSubclassOf<UGameplayAbility>> GetCommonAbilities() const
+	FORCEINLINE const TArray<FGeAbilitySpecEntry>& GetCommonAbilities() const
 	{
 		return CommonAbilities;
 	}
@@ -69,8 +73,18 @@ public:
 	}
 
 	FORCEINLINE UInputMappingContext* GetGameplayInputMappingContext() const { return GameplayInputMappingContext; }
-	FORCEINLINE TMap<EAbilityInputID, UInputAction*> GetGameplayAbilityInputActions() const
+	FORCEINLINE const TMap<EAbilityInputID, UInputAction*>& GetGameplayAbilityInputActions() const
 	{
 		return GameplayAbilityInputActions;
 	}
+
+#if WITH_EDITOR
+	/**
+	 * 编辑器校验（Content Browser 里右键 → Validate / 保存时跑）：
+	 * 同一个 InputID 上挂多条能力时，门控必须互不相同。
+	 * 引擎按输入时会遍历所有同 InputID 的 spec 并逐个尝试激活，
+	 * 所以「两条都没门控」或「门控一模一样」会按一次同时激活多个能力。
+	 */
+	virtual EDataValidationResult IsDataValid(FDataValidationContext& Context) const override;
+#endif
 };

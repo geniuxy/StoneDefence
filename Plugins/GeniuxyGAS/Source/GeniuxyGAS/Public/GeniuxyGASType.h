@@ -1,9 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GeniuxyGASType.generated.h"
+
+class UGameplayAbility;
 
 UENUM(BlueprintType)
 enum class EAbilityInputID : uint8
@@ -26,6 +28,44 @@ enum class EAbilityInputID : uint8
 	Fly UMETA(DisplayName="Fly"),
 	Ctrl UMETA(DisplayName="Ctrl"),
 	Dodge UMETA(DisplayName="Dodge"),
+};
+
+/**
+ * 一条「能力条目」：InputID + 能力类 + 等级。
+ *
+ * 为什么不继续用 TMap<EAbilityInputID, TSubclassOf<UGameplayAbility>>：
+ * TMap 的键天然唯一，一个 InputID 只能挂一个 GA；而实际需要的是
+ * 「同一个键，在地面 / 飞行 / 游泳状态下触发不同的 GA」。
+ * 改成数组后同一个 InputID 可以有多条，每条都 Give 成独立的 AbilitySpec。
+ *
+ * 为什么不需要自己写「按状态选一个」：
+ * 引擎的 UAbilitySystemComponent::AbilityLocalInputPressed 本来就会遍历所有 InputID
+ * 相同的 spec 逐个 TryActivateAbility，谁的门控过了谁激活。门控有三把现成的锁：
+ * - ActivationRequiredTags / ActivationBlockedTags：按 ASC 上的 Tag 判断能不能激活；
+ * - 别人的 BlockAbilitiesWithTag / CancelAbilitiesWithTag：模式能力存活期间禁掉/打断整组能力。
+ */
+USTRUCT(BlueprintType)
+struct FGeAbilitySpecEntry
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	EAbilityInputID InputID = EAbilityInputID::None;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	TSubclassOf<UGameplayAbility> AbilityClass;
+
+	/** 0 级 = 可学习但未学会（对应旧的 Abilities），1 级 = 初始可用（对应旧的 BasicAbilities） */
+	UPROPERTY(EditDefaultsOnly, Category = "Ability", meta = (ClampMin = "0"))
+	int32 Level = 1;
+
+	/**
+	 * 纯编辑器注释，标明这条属于哪个状态（例：地面冲刺 / 飞行加速），不参与任何逻辑。
+	 * 真正的门控写在 GA 自己的 AbilityTags / ActivationRequiredTags 上，
+	 * 保持「一条能力的状态要求只有一个真源」。
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	FString EditorComment;
 };
 
 /**

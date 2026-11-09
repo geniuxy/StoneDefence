@@ -11,7 +11,6 @@
 
 class UGeAttributeSetHero;
 enum class EAbilityInputID : uint8;
-class UInputMappingContext;
 class UInputAction;
 class UCameraComponent;
 class USpringArmComponent;
@@ -86,12 +85,6 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	UInputAction* MoveInputAction;
-
-	// UPROPERTY(EditDefaultsOnly, Category="Input")
-	// TMap<ECAbilityInputID, UInputAction*> GameplayAbilityInputActions;
-
-	UPROPERTY(EditDefaultsOnly, Category="Input")
-	UInputMappingContext* GameplayInputMappingContext;
 
 	void HandleLookInput(const FInputActionValue& InputActionValue);
 	void HandleMoveInput(const FInputActionValue& InputActionValue);

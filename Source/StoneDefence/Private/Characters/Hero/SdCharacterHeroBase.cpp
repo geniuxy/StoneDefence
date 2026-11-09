@@ -4,6 +4,7 @@
 #include "Characters/Hero/SdCharacterHeroBase.h"
 
 #include "Camera/CameraComponent.h"
+#include "Engine/LocalPlayer.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "GeniuxyDebugHelper.h"
@@ -53,16 +54,30 @@ void ASdCharacterHeroBase::PawnClientRestart()
 	Super::PawnClientRestart();
 
 	APlayerController* OwningPlayerController = GetController<APlayerController>();
-	if (OwningPlayerController)
+	if (!OwningPlayerController) return;
+
+	ULocalPlayer* LocalPlayer = OwningPlayerController->GetLocalPlayer();
+	if (!LocalPlayer) return;
+
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem =
+		LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	if (!InputSubsystem) return;
+
+	// 键位方案的唯一真源：UPA_AbilitySystemGenerics::GameplayInputMappingContext
+	// （和 GameplayAbilityInputActions 放在一起，改键位和改映射不会各改一半）
+	UInputMappingContext* MappingContext = AbilitySystemComp ? AbilitySystemComp->GetInputMappingContext() : nullptr;
+
+	if (!MappingContext)
 	{
-		UEnhancedInputLocalPlayerSubsystem* InputSubsystem =
-			OwningPlayerController->GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-		if (InputSubsystem)
-		{
-			InputSubsystem->RemoveMappingContext(GameplayInputMappingContext);
-			InputSubsystem->AddMappingContext(GameplayInputMappingContext, 0);
-		}
+		Debug::Print(
+			TEXT("[SdCharacterHeroBase] 没取到 GameplayInputMappingContext：")
+			TEXT("去 PA_AbilitySystemGenerics 的 Input 分类里配（角色上不再单独配）"),
+			TEXT("Input.MappingContext"), 8.f, FColor::Red);
+		return;
 	}
+
+	InputSubsystem->RemoveMappingContext(MappingContext);
+	InputSubsystem->AddMappingContext(MappingContext, 0);
 }
 
 void ASdCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

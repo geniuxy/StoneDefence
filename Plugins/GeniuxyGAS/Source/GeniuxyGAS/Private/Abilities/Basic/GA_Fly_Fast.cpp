@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Abilities/Basic/GA_Fly_Fast.h"
@@ -11,6 +11,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GeniuxyDebugHelper.h"
+#include "Tags/AbilityTags.h"
 #include "Tags/EventTags.h"
 #include "Tags/StatsTags.h"
 
@@ -18,6 +19,11 @@ UGA_Fly_Fast::UGA_Fly_Fast()
 {
 	ActivationOwnedTags.AddTag(StatsTags::Ge_Stats_Fly_Fast);
 	ActivationRequiredTags.AddTag(StatsTags::Ge_Stats_Fly);
+
+	// 能力分组：加速飞行属于「飞行」组。
+	// 以后加地面冲刺（同一个 Sprint InputID）时，它标 Group.Ground 就会被 GA_Fly 的
+	// Block/Cancel 自动挡掉，这里不用做任何分支。
+	AbilityTags.AddTag(AbilityTags::Ge_Ability_Group_Fly);
 }
 
 void UGA_Fly_Fast::OnActivateAbility(
