@@ -10,6 +10,11 @@ class UCharacterMovementComponent;
 
 /**
  * 所有「移动层」实例的公共基类。
+ *
+ * 它比 UGeAnimInstanceBase 多知道一件事：**当前是哪个移动模式**。
+ * 模式和「快速飞行」都来自 UGeLocomotionComponent（GAS tag 推导出来的结果），
+ * 主实例那份缓存原本在基类上，属于越界 —— 主 ABP 并不需要知道模式，
+ * 真正按模式换姿态的是 layer ABP，所以这部分数据归这里。
  */
 UCLASS()
 class GENIUXYANIMATION_API UGeAnimInstanceLocoBase : public UGeAnimInstanceBase
@@ -35,12 +40,34 @@ public:
 	FORCEINLINE float GetNormalizedSpeed() const { return NormalizedVelocity.Size(); }
 
 protected:
+	float MaxSpeed = 0.f;
+	FVector NormalizedVelocity = FVector::ZeroVector;
+
+	/**********************************************************************/
+	/*                          Locomotion Mode                           */
+	/**********************************************************************/
+public:
+	/** 当前移动模式（Ground / Fly / Swim / Climb），每帧从 UGeLocomotionComponent 同步 */
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE EGeLocomotionMode GetLocomotionMode() const { return LocomotionMode; }
+
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsGrounded() const { return LocomotionMode == EGeLocomotionMode::Ground; }
+
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsFlying() const { return LocomotionMode == EGeLocomotionMode::Fly; }
+
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsSwimming() const { return LocomotionMode == EGeLocomotionMode::Swim; }
+
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsClimbing() const { return LocomotionMode == EGeLocomotionMode::Climb; }
+
+protected:
 	UPROPERTY()
 	UCharacterMovementComponent* OwnerMovementComp;
 
-	/** 下面这些只在 CacheDerivedState（游戏线程）里写，工作线程只读 */
-	float MaxSpeed = 0.f;
-	FVector NormalizedVelocity = FVector::ZeroVector;
+	EGeLocomotionMode LocomotionMode = EGeLocomotionMode::Ground;
 
 	/**********************************************************************/
 	/*                                Fly                                 */
@@ -51,14 +78,10 @@ public:
 	FORCEINLINE FVector GetFlySpeed() const { return NormalizedVelocity; }
 
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	FORCEINLINE bool GetIsAscending() const { return bIsAscending; }
-
-	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	FORCEINLINE bool GetIsDescending() const { return bIsDescending; }
+	FORCEINLINE bool GetIsFlyingFast() const { return bIsFlyingFast; }
 
 protected:
-	bool bIsAscending = false;
-	bool bIsDescending = false;
+	bool bIsFlyingFast = false;
 
 	/**********************************************************************/
 	/*                                Swim                                */
@@ -71,10 +94,14 @@ public:
 	FORCEINLINE bool GetIsDiving() const { return bIsDiving; }
 
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsSwimmingFast() const { return bIsSwimmingFast; }
+
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE bool GetIsSurfaceSwimming() const { return !bIsDiving; }
 
 protected:
 	bool bIsDiving = false;
+	bool bIsSwimmingFast = false;
 
 	/**********************************************************************/
 	/*                                Climb                               */

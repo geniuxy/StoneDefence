@@ -74,6 +74,39 @@ const TMap<EAbilityInputID, UInputAction*>& UGeAbilitySystemComponent::GetGamepl
 void UGeAbilitySystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// 战斗状态的唯一监听点（以前在 UGeLocomotionComponent 上，职责越界，已挪到这里）。
+	// 注意是「注册回调」，不是「立刻取一次值」：BeginPlay 之后 tag 变化都会推到 HandleInCombatTagChanged。
+	InCombatTagHandle = RegisterGameplayTagEvent(StatsTags::Ge_Stats_InCombat).AddUObject(
+		this, &ThisClass::HandleInCombatTagChanged
+	);
+
+	// 注册之前就已经带着 tag 的情况（GE 在 BeginPlay 前挂上、或 tag 从别的途径加上）：
+	// 事件不会替我们补发一次，所以这里主动把初始值同步过来。
+	bInCombat = HasMatchingGameplayTag(StatsTags::Ge_Stats_InCombat);
+}
+
+void UGeAbilitySystemComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (InCombatTagHandle.IsValid())
+	{
+		UnregisterGameplayTagEvent(InCombatTagHandle, StatsTags::Ge_Stats_InCombat);
+		InCombatTagHandle.Reset();
+	}
+
+	Super::EndPlay(EndPlayReason);
+}
+
+void UGeAbilitySystemComponent::HandleInCombatTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	// tag 的计数变化会以 NewCount 传进来（可能一次加/减多份），这里只关心「有没有」
+	const bool bNewInCombat = NewCount > 0;
+	if (bInCombat == bNewInCombat)
+	{
+		return;
+	}
+
+	bInCombat = bNewInCombat;
 }
 
 void UGeAbilitySystemComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const

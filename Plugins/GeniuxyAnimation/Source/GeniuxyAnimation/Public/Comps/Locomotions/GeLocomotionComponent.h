@@ -73,13 +73,6 @@ public:
 	static EGeLocomotionMode GetModeFromActor(const AActor* InActor);
 
 	/**********************************************************************/
-	/*                              Combat                                */
-	/**********************************************************************/
-	/** 战斗状态。和移动模式正交，可以边飞边打，所以单独存 */
-	UFUNCTION(BlueprintPure, Category = "Geniuxy|Combat")
-	bool IsInCombat() const { return bInCombat; }
-
-	/**********************************************************************/
 	/*                           Animation Setup                          */
 	/**********************************************************************/
 	/**
@@ -166,8 +159,8 @@ private:
 	void HandleFlyTagChanged(const FGameplayTag Tag, int32 NewCount);
 	void HandleFlyFastTagChanged(const FGameplayTag Tag, int32 NewCount);
 	void HandleSwimTagChanged(const FGameplayTag Tag, int32 NewCount);
+	void HandleSwimFastTagChanged(const FGameplayTag Tag, int32 NewCount);
 	void HandleClimbTagChanged(const FGameplayTag Tag, int32 NewCount);
-	void HandleCombatTagChanged(const FGameplayTag Tag, int32 NewCount);
 
 	/** 只有服务器 / 本地控制端才去改 MovementMode，模拟端只跟随复制 */
 	bool ShouldDriveMovement() const;
@@ -194,21 +187,22 @@ protected:
 	/** 模式栈：被飞行/攀爬/游泳打断前的模式（只服务于手动 PushMode/PopMode） */
 	TArray<EGeLocomotionMode> ModeHistory;
 
-	bool bInCombat = false;
-
 	/** 来自 GAS tag 的原始状态，供 RefreshModeFromTags 做优先级推导 */
 	bool bFlyTagActive = false;
 	bool bFlyFastTagActive = false;
 	bool bSwimTagActive = false;
+	bool bSwimFastTagActive = false;
 	bool bClimbTagActive = false;
 
 	FDelegateHandle FlyTagHandle;
 	FDelegateHandle FlyFastTagHandle;
 	FDelegateHandle SwimTagHandle;
+	FDelegateHandle SwimFastTagHandle;
 	FDelegateHandle ClimbTagHandle;
-	FDelegateHandle CombatTagHandle;
 
 public:
-	UFUNCTION(BlueprintPure, Category = "Geniuxy|Combat")
+	UFUNCTION(BlueprintPure, Category = "Geniuxy|Locomotion")
 	bool IsFlyingFast() const { return bFlyFastTagActive; }
+	UFUNCTION(BlueprintPure, Category = "Geniuxy|Locomotion")
+	bool IsSwimmingFast() const { return bSwimFastTagActive; }
 };

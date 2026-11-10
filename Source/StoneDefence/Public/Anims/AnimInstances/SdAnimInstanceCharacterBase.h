@@ -10,11 +10,15 @@ class ASdCharacterBase;
 class UCharacterMovementComponent;
 
 /**
- * 项目里所有「角色」AnimInstance 的基类。
+ * 项目里所有「角色」AnimInstance 的基类（主实例这一条线）。
  *
- * 注意：速度、是否腾空、移动模式、战斗状态这些通用量已经在 UGeAnimInstanceBase /
- * UGeAnimInstanceLocoBase 里缓存好了（GetSpeed / GetIsInAir / GetLocomotionMode ...），
- * 这里只补项目特有、且「主实例」才需要的东西。
+ * 注意：速度、是否腾空、战斗状态这些通用量已经在 UGeAnimInstanceBase 里缓存好了
+ * （GetSpeed / GetIsInAir / GetIsInCombat ...），这里只补项目特有、且「主实例」才需要的东西。
+ *
+ * 移动模式那组 getter（GetLocomotionMode / GetIsGrounded / GetIsFlying / GetIsSwimming /
+ * GetIsClimbing / GetIsFlyingFast）**不在本类这条线上**：它们归 UGeAnimInstanceLocoBase，
+ * 因为按模式换姿态的是 layer ABP。主 ABP 如果要用，需要在主实例自己缓存一份（自己读
+ * UGeLocomotionComponent），不要反过来把这组数据塞回 UGeAnimInstanceBase。
  *
  * layer 实例（Fly/Swim/Climb）不是这个类，它们走 UGeAnimInstanceLocoBase 那条线，
  * 所以不要把「只有主实例才该有的逻辑」塞进 UGeAnimInstanceBase。

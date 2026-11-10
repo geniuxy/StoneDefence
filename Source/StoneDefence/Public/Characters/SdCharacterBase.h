@@ -67,7 +67,7 @@ protected:
 	/**********************************************************************/
 protected:
 	/**
-	 * 移动模式（Ground/Fly/Swim/Climb）+ 战斗状态 + 移动动画集合的唯一数据源。
+	 * 移动模式（Ground/Fly/Swim/Climb）+ 移动动画集合的唯一数据源。
 	 * AnimInstance（主实例和所有 layer 实例）都从这里读，不要再在 AnimInstance 里注册 GAS tag。
 	 */
 	UPROPERTY(VisibleAnywhere)

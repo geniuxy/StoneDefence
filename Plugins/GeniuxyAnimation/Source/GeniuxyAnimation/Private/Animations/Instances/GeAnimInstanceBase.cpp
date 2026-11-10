@@ -4,12 +4,15 @@
 #include "Animations/Instances/GeAnimInstanceBase.h"
 
 #include "GeniuxyDebugHelper.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "Comps/Locomotions/GeLocomotionComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Pawn.h"
 #include "SimpleAdvancedAnimationBPLibrary.h"
+#include "Tags/StatsTags.h"
 #include "Engine/World.h"
 
 void UGeAnimInstanceBase::NativeInitializeAnimation()
@@ -18,13 +21,8 @@ void UGeAnimInstanceBase::NativeInitializeAnimation()
 
 	OwnerSkeletalMeshComp = GetSkelMeshComponent();
 	OwnerPawn = TryGetPawnOwner();
-
-	// 注意：这里不再注册 GAS tag 事件。
-	// tag -> 模式 的转换统一由 UGeLocomotionComponent 负责，AnimInstance 只读结果，
-	// 避免同一个 tag 被注册两次、以及实例销毁时忘记反注册造成的悬空委托。
-
-	// 按骨架自动判定有没有 IK 脚骨骼（Tubaki 有 ik_foot_*，Cleric 没有）。
-	// 这样主 ABP 的 FootIK 分支就不依赖「按武将手填类默认值」——那在架构上本来就做不到。
+	OwnerAbilitySystemComp = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OwnerPawn);
+	
 	DetectIKBoneSupport();
 
 	bFootIK = bCanFootIK;
@@ -66,15 +64,9 @@ void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 		bIsInAir = MovementComp ? MovementComp->IsFalling() : false;
 	}
 
-	// 移动模式 / 战斗状态 / 脚部 IK 开关：本类不持有组件指针
-	// （LocomotionComp 成员在 UGeAnimInstanceLocoBase 上），每帧局部取一次即可。
-	const UGeLocomotionComponent* Comp = UGeLocomotionComponent::Find(OwnerPawn);
-	if (Comp)
-	{
-		LocomotionMode = Comp->GetMode();
-		bInCombat = Comp->IsInCombat();
-		bIsFlyingFast = Comp->IsFlyingFast();
-	}
+	// 战斗状态：唯一来源是 GAS 上的 Ge.Stats.InCombat（监听点在 UGeAbilitySystemComponent）。
+	// 这里每帧复制一份缓存给 ABP 读，不在 AnimInstance 里注册 tag 事件。
+	bInCombat = ReadInCombatFromGAS();
 
 	/**********************************************************************/
 	/*                        Yaw / Pitch 角速度                          */
@@ -142,9 +134,13 @@ void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 
 	// 脚部 IK：角色级开关（UGeAnimationSetup -> UGeLocomotionComponent）优先；
 	// 拿不到组件时（例如预览 Actor）才回退到本类 Class Defaults 的 bCanFootIK。
-	// 腾空时一律关掉。
+	// 腾空 / 飞行时一律关掉（飞行由 layer 实例负责姿态，脚不该贴地）。
+	// 脚部 IK 需要知道「是不是在飞」，所以这里按需局部读一次移动模式。
+	// 注意不缓存成成员：模式是 UGeAnimInstanceLocoBase（layer 实例）的数据。
+	const UGeLocomotionComponent* Comp = UGeLocomotionComponent::Find(OwnerPawn);
 	const bool bFootIKAllowed = Comp ? Comp->IsFootIKEnabled() : bCanFootIK;
-	bFootIK = bFootIKAllowed && !bIsInAir && LocomotionMode != EGeLocomotionMode::Fly;
+	const bool bInFlyMode = Comp && Comp->GetMode() == EGeLocomotionMode::Fly;
+	bFootIK = bFootIKAllowed && !bIsInAir && !bInFlyMode;
 }
 
 void UGeAnimInstanceBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
@@ -153,6 +149,27 @@ void UGeAnimInstanceBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 
 	// 跑在动画工作线程：只能读上面缓存好的成员，绝对不要在这里读 Actor / Component。
 	// CalcFootIKOffset();
+}
+
+bool UGeAnimInstanceBase::ReadInCombatFromGAS()
+{
+	UAbilitySystemComponent* ASC = OwnerAbilitySystemComp.Get();
+
+	// 找不到 ASC 时才补一次查找，而且「同一个 Pawn 只找一次」：
+	// GetAbilitySystemComponent 内部是 FindComponentByClass（遍历组件 + Cast），
+	// 预览 Actor（没有 GAS）如果每帧都重找一次，纯属白烧 CPU。
+	if (!OwnerAbilitySystemComp.IsValid() && OwnerPawn && ResolvedForPawn.Get() != OwnerPawn)
+	{
+		ResolvedForPawn = OwnerPawn;
+		OwnerAbilitySystemComp = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OwnerPawn);
+		ASC = OwnerAbilitySystemComp.Get();
+	}
+
+	// tag 容器就是权威来源：UGeAbilitySystemComponent 的 bInCombat 也是从它算出来的，
+	// 动画插件不直接依赖 GAS 插件，读这个通用接口即可。
+	// 成本 = 一次 tag→计数 的 TMap 查找（HasMatchingGameplayTag 是 inline 的
+	// GameplayTagCountContainer::HasMatchingGameplayTag），没有虚调用、没有容器拷贝。
+	return ASC && ASC->HasMatchingGameplayTag(StatsTags::Ge_Stats_InCombat);
 }
 
 FRotator UGeAnimInstanceBase::GetPitchSourceRotation() const

@@ -3,6 +3,7 @@
 
 #include "Animations/Instances/GeAnimInstanceLocoBase.h"
 
+#include "Comps/Locomotions/GeLocomotionComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
@@ -27,6 +28,22 @@ void UGeAnimInstanceLocoBase::NativeUpdateAnimation(float DeltaSeconds)
 	// 所以放在最前面算：没有 CharacterMovement（预览、非 Character 的 Pawn）时也有值。
 	UpdateLookAtLocation();
 	UpdateLean(DeltaSeconds);
+
+	// 移动模式 + 是否快速飞行：这两份缓存从 UGeAnimInstanceBase 搬到了本类 ——
+	// layer 实例才知道「现在该播哪一套姿态」，主实例不需要。
+	// 数据源仍然是 UGeLocomotionComponent（GAS tag 推导结果），这里只是每帧同步一次。
+	if (const UGeLocomotionComponent* LocomotionComp = UGeLocomotionComponent::Find(OwnerPawn))
+	{
+		LocomotionMode = LocomotionComp->GetMode();
+		bIsFlyingFast = LocomotionComp->IsFlyingFast();
+		bIsSwimmingFast = LocomotionComp->IsSwimmingFast();
+	}
+	else
+	{
+		LocomotionMode = EGeLocomotionMode::Ground;
+		bIsFlyingFast = false;
+		bIsSwimmingFast = false;
+	}
 
 	if (!OwnerMovementComp)
 	{
@@ -57,14 +74,7 @@ void UGeAnimInstanceLocoBase::NativeUpdateAnimation(float DeltaSeconds)
 	}
 
 	// ── 各模式的开关 ────────────────────────────────────────────────
-	// 全部基于已经缓存好的 LocalVelocity，不读 Actor，工作线程安全。
-	// 三个阈值只是「判定死区」，避免贴地/贴墙时因微小速度抖动来回切换。
-
-	// 飞行：明显在上升 / 下降
-	constexpr float FlyVerticalDeadZone = 0.15f;
-	bIsAscending = LocalVelocity.Z > FlyVerticalDeadZone;
-	bIsDescending = LocalVelocity.Z < -FlyVerticalDeadZone;
-
+	
 	// 游泳：向下游算潜水
 	constexpr float DiveDeadZone = 0.2f;
 	bIsDiving = LocalVelocity.Z < -DiveDeadZone;

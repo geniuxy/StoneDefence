@@ -9,9 +9,15 @@
 
 class UCharacterMovementComponent;
 class USkeletalMeshComponent;
+class UAbilitySystemComponent;
 
 /**
  * 所有 AnimInstance 的公共基类（主实例和 layer 实例都用它）。
+ *
+ * 职责范围：**和移动模式无关**的通用动画数据 —— 速度、朝向角速度、脚部 IK、战斗状态。
+ * 凡是需要知道「现在是什么移动模式」（Ground/Fly/Swim/Climb）的数据与 getter，
+ * 一律在 UGeAnimInstanceLocoBase（layer 实例那一条线）上，本类不碰 UGeLocomotionComponent
+ * 的模式，也不会缓存模式字段 —— 这样预览实例、任何 ABP 都能直接继承本类。
  *
  * 线程模型（整个插件的统一约定，务必遵守）：
  *   NativeUpdateAnimation            —— 游戏线程。唯一允许读 Actor / MovementComponent / 组件的地方。
@@ -20,7 +26,8 @@ class USkeletalMeshComponent;
  *
  * 特别注意：layer 实例（UGeAnimInstanceLocoBase，即 ABP_GeLoco 及其子类的实例）是
  * **独立的 UAnimInstance 对象**，看不到主实例的成员变量。所以凡是两个实例都要用的数据，
- * 统一从 UGeLocomotionComponent 上取，不要试图跨实例访问。
+ * 统一从「拥有者身上的组件」取（移动模式/脚 IK → UGeLocomotionComponent，
+ * 战斗状态 → GAS），不要试图跨实例访问。
  */
 UCLASS()
 class GENIUXYANIMATION_API UGeAnimInstanceBase : public UAnimInstance
@@ -38,6 +45,19 @@ protected:
 
 	UPROPERTY()
 	APawn* OwnerPawn;
+
+	/**
+	 * 拥有者的 ASC（弱引用），只用来读战斗状态这一类 GAS 数据。
+	 * 预览实例 / 没有 GAS 的 Pawn 上会是空的，所以每处使用都要判空。
+	 */
+	TWeakObjectPtr<UAbilitySystemComponent> OwnerAbilitySystemComp;
+
+	/**
+	 * 上一次尝试解析 ASC 时的 Pawn。
+	 * 同一份动画数据每帧都会读战斗状态，但「找 ASC」只需要一次：
+	 * 找不到就说明这个 Pawn 根本没有 GAS（预览 Actor 等），不必每帧再遍历一遍组件。
+	 */
+	TWeakObjectPtr<APawn> ResolvedForPawn;
 
 	/**********************************************************************/
 	/*                             Locomotion                             */
@@ -59,29 +79,7 @@ public:
 	/** 角色本地空间的速度，X=前 Y=右 Z=上。混合空间直接接这个比接世界速度省事 */
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE FVector GetLocalVelocity() const { return LocalVelocity; }
-
-	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	FORCEINLINE EGeLocomotionMode GetLocomotionMode() const { return LocomotionMode; }
-
-	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	FORCEINLINE bool GetIsGrounded() const { return LocomotionMode == EGeLocomotionMode::Ground; }
-
-	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	FORCEINLINE bool GetIsFlying() const { return LocomotionMode == EGeLocomotionMode::Fly; }
-
-	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	FORCEINLINE bool GetIsFlyingFast() const { return bIsFlyingFast; }
-
-	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	FORCEINLINE bool GetIsSwimming() const { return LocomotionMode == EGeLocomotionMode::Swim; }
-
-	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	FORCEINLINE bool GetIsClimbing() const { return LocomotionMode == EGeLocomotionMode::Climb; }
-
-	/** 战斗状态。和移动模式正交，可以边飞边打 */
-	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	FORCEINLINE bool GetIsInCombat() const { return bInCombat; }
-
+	
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE bool GetIsInAir() const { return bIsInAir; }
 
@@ -102,11 +100,23 @@ protected:
 	FVector WorldVelocity = FVector::ZeroVector;
 	FVector LocalVelocity = FVector::ZeroVector;
 
-	EGeLocomotionMode LocomotionMode = EGeLocomotionMode::Ground;
-	bool bInCombat = false;
-	bool bIsFlyingFast = false;
 	bool bIsInAir = false;
 	bool bHasMovementInput = false;
+
+	/**********************************************************************/
+	/*                              Combat                                */
+	/**********************************************************************/
+public:
+	/**
+	 * 战斗状态。和移动模式正交，可以边飞边打。
+	 */
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsInCombat() const { return bInCombat; }
+
+protected:
+	bool bInCombat = false;
+
+	bool ReadInCombatFromGAS();
 
 	/**********************************************************************/
 	/*                        Yaw/Pitch Rotation                          */
@@ -255,5 +265,5 @@ protected:
 
 public:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
-	float GetFootIKOffset(const FName &InBoneName);
+	float GetFootIKOffset(const FName& InBoneName);
 };

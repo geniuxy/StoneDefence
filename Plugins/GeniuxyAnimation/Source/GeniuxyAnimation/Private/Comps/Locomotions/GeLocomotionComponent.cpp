@@ -215,13 +215,12 @@ void UGeLocomotionComponent::BindAbilitySystemTags()
 	SwimTagHandle = OwnerASC->RegisterGameplayTagEvent(StatsTags::Ge_Stats_Swim).AddUObject(
 		this, &ThisClass::HandleSwimTagChanged
 	);
+	SwimFastTagHandle = OwnerASC->RegisterGameplayTagEvent(StatsTags::Ge_Stats_Swim_Fast).AddUObject(
+		this, &ThisClass::HandleSwimFastTagChanged
+	);
 
 	ClimbTagHandle = OwnerASC->RegisterGameplayTagEvent(StatsTags::Ge_Stats_Climb).AddUObject(
 		this, &ThisClass::HandleClimbTagChanged
-	);
-
-	CombatTagHandle = OwnerASC->RegisterGameplayTagEvent(StatsTags::Ge_Stats_InCombat).AddUObject(
-		this, &ThisClass::HandleCombatTagChanged
 	);
 }
 
@@ -234,23 +233,27 @@ void UGeLocomotionComponent::UnbindAbilitySystemTags()
 		OwnerASC->UnregisterGameplayTagEvent(FlyTagHandle, StatsTags::Ge_Stats_Fly);
 		FlyTagHandle.Reset();
 	}
+	if (FlyFastTagHandle.IsValid())
+	{
+		OwnerASC->UnregisterGameplayTagEvent(FlyFastTagHandle, StatsTags::Ge_Stats_Fly_Fast);
+		FlyFastTagHandle.Reset();
+	}
 
 	if (SwimTagHandle.IsValid())
 	{
 		OwnerASC->UnregisterGameplayTagEvent(SwimTagHandle, StatsTags::Ge_Stats_Swim);
 		SwimTagHandle.Reset();
 	}
+	if (SwimFastTagHandle.IsValid())
+	{
+		OwnerASC->UnregisterGameplayTagEvent(SwimFastTagHandle, StatsTags::Ge_Stats_Swim_Fast);
+		SwimFastTagHandle.Reset();
+	}
 
 	if (ClimbTagHandle.IsValid())
 	{
 		OwnerASC->UnregisterGameplayTagEvent(ClimbTagHandle, StatsTags::Ge_Stats_Climb);
 		ClimbTagHandle.Reset();
-	}
-
-	if (CombatTagHandle.IsValid())
-	{
-		OwnerASC->UnregisterGameplayTagEvent(CombatTagHandle, StatsTags::Ge_Stats_InCombat);
-		CombatTagHandle.Reset();
 	}
 }
 
@@ -271,13 +274,13 @@ void UGeLocomotionComponent::HandleSwimTagChanged(const FGameplayTag Tag, int32 
 	RefreshModeFromTags();
 }
 
+void UGeLocomotionComponent::HandleSwimFastTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	bSwimFastTagActive = NewCount > 0;
+}
+
 void UGeLocomotionComponent::HandleClimbTagChanged(const FGameplayTag Tag, int32 NewCount)
 {
 	bClimbTagActive = NewCount > 0;
 	RefreshModeFromTags();
-}
-
-void UGeLocomotionComponent::HandleCombatTagChanged(const FGameplayTag Tag, int32 NewCount)
-{
-	bInCombat = NewCount > 0;
 }
