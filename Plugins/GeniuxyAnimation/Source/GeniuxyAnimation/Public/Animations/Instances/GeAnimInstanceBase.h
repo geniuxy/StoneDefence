@@ -10,6 +10,7 @@
 class UCharacterMovementComponent;
 class USkeletalMeshComponent;
 class UAbilitySystemComponent;
+class IGeCombatStateProvider;
 
 /**
  * 所有 AnimInstance 的公共基类（主实例和 layer 实例都用它）。
@@ -51,13 +52,6 @@ protected:
 	 * 预览实例 / 没有 GAS 的 Pawn 上会是空的，所以每处使用都要判空。
 	 */
 	TWeakObjectPtr<UAbilitySystemComponent> OwnerAbilitySystemComp;
-
-	/**
-	 * 上一次尝试解析 ASC 时的 Pawn。
-	 * 同一份动画数据每帧都会读战斗状态，但「找 ASC」只需要一次：
-	 * 找不到就说明这个 Pawn 根本没有 GAS（预览 Actor 等），不必每帧再遍历一遍组件。
-	 */
-	TWeakObjectPtr<APawn> ResolvedForPawn;
 
 	/**********************************************************************/
 	/*                             Locomotion                             */
@@ -114,6 +108,16 @@ public:
 	FORCEINLINE bool GetIsInCombat() const { return bInCombat; }
 
 protected:
+	/**
+	 * ASC 上的战斗状态接口（IGeCombatStateProvider，定义在 GeniuxyCommon）。
+	 *
+	 * 依赖倒置的消费端：动画插件不认识 GeniuxyGAS，只认识这个接口，
+	 * 每帧读一次实现方缓存好的 bool —— 没有 tag 查找。
+	 * Cast 只在解析出 ASC 后做一次；ASC 失效（弱引用为空）时置空重来。
+	 * 生命周期由 OwnerAbilitySystemComp 兜底：每帧先确认弱引用有效再解引用。
+	 */
+	IGeCombatStateProvider* CombatStateProvider = nullptr;
+
 	bool bInCombat = false;
 
 	bool ReadInCombatFromGAS();

@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "GameplayEffectTypes.h"
 #include "GeniuxyGASType.h"
+#include "Interfaces/GeCombatStateProvider.h"
 #include "GeAbilitySystemComponent.generated.h"
 
 class UGameplayEffect;
@@ -14,7 +15,7 @@ class UInputMappingContext;
 class UPA_AbilitySystemGenerics;
 
 UCLASS(ClassGroup=(GAS), meta=(BlueprintSpawnableComponent))
-class GENIUXYGAS_API UGeAbilitySystemComponent : public UAbilitySystemComponent
+class GENIUXYGAS_API UGeAbilitySystemComponent : public UAbilitySystemComponent, public IGeCombatStateProvider
 {
 	GENERATED_BODY()
 
@@ -85,9 +86,12 @@ public:
 	 *
 	 * 复制：不需要额外 Replicated 字段。tag 本身随 GE（ActiveGameplayEffects）复制，
 	 * 各端在 tag 计数变化时各自算一次 bInCombat。
+	 *
+	 * 对外读取走 IGeCombatStateProvider（接口在 GeniuxyCommon）：
+	 * 动画侧 Cast 到那个接口读缓存值，所以 GeniuxyAnimation 不需要依赖本插件。
 	 */
 	UFUNCTION(BlueprintPure, Category = "GAS|Combat")
-	bool IsInCombat() const { return bInCombat; }
+	virtual bool IsInCombat() const override { return bInCombat; }
 
 private:
 	/** 战斗状态缓存（= 目标身上有没有 Ge.Stats.InCombat） */

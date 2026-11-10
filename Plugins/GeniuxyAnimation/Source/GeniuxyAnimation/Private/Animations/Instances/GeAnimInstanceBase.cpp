@@ -11,8 +11,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Pawn.h"
+#include "Interfaces/GeCombatStateProvider.h"
 #include "SimpleAdvancedAnimationBPLibrary.h"
-#include "Tags/StatsTags.h"
 #include "Engine/World.h"
 
 void UGeAnimInstanceBase::NativeInitializeAnimation()
@@ -153,23 +153,25 @@ void UGeAnimInstanceBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 
 bool UGeAnimInstanceBase::ReadInCombatFromGAS()
 {
-	UAbilitySystemComponent* ASC = OwnerAbilitySystemComp.Get();
-
-	// 找不到 ASC 时才补一次查找，而且「同一个 Pawn 只找一次」：
-	// GetAbilitySystemComponent 内部是 FindComponentByClass（遍历组件 + Cast），
-	// 预览 Actor（没有 GAS）如果每帧都重找一次，纯属白烧 CPU。
-	if (!OwnerAbilitySystemComp.IsValid() && OwnerPawn && ResolvedForPawn.Get() != OwnerPawn)
+	if (!OwnerAbilitySystemComp.IsValid() && OwnerPawn)
 	{
-		ResolvedForPawn = OwnerPawn;
 		OwnerAbilitySystemComp = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OwnerPawn);
-		ASC = OwnerAbilitySystemComp.Get();
+		CombatStateProvider = nullptr; // 换了 ASC，接口指针要重新解析
 	}
 
-	// tag 容器就是权威来源：UGeAbilitySystemComponent 的 bInCombat 也是从它算出来的，
-	// 动画插件不直接依赖 GAS 插件，读这个通用接口即可。
-	// 成本 = 一次 tag→计数 的 TMap 查找（HasMatchingGameplayTag 是 inline 的
-	// GameplayTagCountContainer::HasMatchingGameplayTag），没有虚调用、没有容器拷贝。
-	return ASC && ASC->HasMatchingGameplayTag(StatsTags::Ge_Stats_InCombat);
+	UAbilitySystemComponent* ASC = OwnerAbilitySystemComp.Get();
+	if (!ASC)
+	{
+		CombatStateProvider = nullptr;
+		return false;
+	}
+
+	if (!CombatStateProvider)
+	{
+		CombatStateProvider = Cast<IGeCombatStateProvider>(ASC);
+	}
+
+	return CombatStateProvider != nullptr && CombatStateProvider->IsInCombat();
 }
 
 FRotator UGeAnimInstanceBase::GetPitchSourceRotation() const
