@@ -34,13 +34,11 @@ void UGeAnimInstanceLocoBase::NativeUpdateAnimation(float DeltaSeconds)
 	// 数据源仍然是 UGeLocomotionComponent（GAS tag 推导结果），这里只是每帧同步一次。
 	if (const UGeLocomotionComponent* LocomotionComp = UGeLocomotionComponent::Find(OwnerPawn))
 	{
-		LocomotionMode = LocomotionComp->GetMode();
 		bIsFlyingFast = LocomotionComp->IsFlyingFast();
 		bIsSwimmingFast = LocomotionComp->IsSwimmingFast();
 	}
 	else
 	{
-		LocomotionMode = EGeLocomotionMode::Ground;
 		bIsFlyingFast = false;
 		bIsSwimmingFast = false;
 	}

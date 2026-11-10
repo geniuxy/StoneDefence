@@ -39,40 +39,23 @@ public:
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE float GetNormalizedSpeed() const { return NormalizedVelocity.Size(); }
 
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsGrounded() const { return LocomotionMode == EGeLocomotionMode::Ground; }
+
 protected:
 	float MaxSpeed = 0.f;
 	FVector NormalizedVelocity = FVector::ZeroVector;
 
-	/**********************************************************************/
-	/*                          Locomotion Mode                           */
-	/**********************************************************************/
-public:
-	/** 当前移动模式（Ground / Fly / Swim / Climb），每帧从 UGeLocomotionComponent 同步 */
-	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	FORCEINLINE EGeLocomotionMode GetLocomotionMode() const { return LocomotionMode; }
-
-	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	FORCEINLINE bool GetIsGrounded() const { return LocomotionMode == EGeLocomotionMode::Ground; }
-
-	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	FORCEINLINE bool GetIsFlying() const { return LocomotionMode == EGeLocomotionMode::Fly; }
-
-	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	FORCEINLINE bool GetIsSwimming() const { return LocomotionMode == EGeLocomotionMode::Swim; }
-
-	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
-	FORCEINLINE bool GetIsClimbing() const { return LocomotionMode == EGeLocomotionMode::Climb; }
-
-protected:
 	UPROPERTY()
 	UCharacterMovementComponent* OwnerMovementComp;
-
-	EGeLocomotionMode LocomotionMode = EGeLocomotionMode::Ground;
 
 	/**********************************************************************/
 	/*                                Fly                                 */
 	/**********************************************************************/
 public:
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsFlying() const { return LocomotionMode == EGeLocomotionMode::Fly; }
+
 	/** 归一化飞行速度。和 GetNormalizedVelocity() 完全等价，只是飞行层里读着顺手 */
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE FVector GetFlySpeed() const { return NormalizedVelocity; }
@@ -87,6 +70,9 @@ protected:
 	/*                                Swim                                */
 	/**********************************************************************/
 public:
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsSwimming() const { return LocomotionMode == EGeLocomotionMode::Swim; }
+
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE FVector GetSwimSpeed() const { return NormalizedVelocity; }
 
@@ -107,6 +93,9 @@ protected:
 	/*                                Climb                               */
 	/**********************************************************************/
 public:
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsClimbing() const { return LocomotionMode == EGeLocomotionMode::Climb; }
+
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE FVector GetClimbSpeed() const { return NormalizedVelocity; }
 

@@ -98,6 +98,17 @@ protected:
 	bool bHasMovementInput = false;
 
 	/**********************************************************************/
+	/*                          Locomotion Mode                           */
+	/**********************************************************************/
+public:
+	/** 当前移动模式（Ground / Fly / Swim / Climb），每帧从 UGeLocomotionComponent 同步 */
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE EGeLocomotionMode GetLocomotionMode() const { return LocomotionMode; }
+
+protected:
+	EGeLocomotionMode LocomotionMode = EGeLocomotionMode::Ground;
+
+	/**********************************************************************/
 	/*                              Combat                                */
 	/**********************************************************************/
 public:

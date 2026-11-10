@@ -137,10 +137,16 @@ void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 	// 腾空 / 飞行时一律关掉（飞行由 layer 实例负责姿态，脚不该贴地）。
 	// 脚部 IK 需要知道「是不是在飞」，所以这里按需局部读一次移动模式。
 	// 注意不缓存成成员：模式是 UGeAnimInstanceLocoBase（layer 实例）的数据。
-	const UGeLocomotionComponent* Comp = UGeLocomotionComponent::Find(OwnerPawn);
-	const bool bFootIKAllowed = Comp ? Comp->IsFootIKEnabled() : bCanFootIK;
-	const bool bInFlyMode = Comp && Comp->GetMode() == EGeLocomotionMode::Fly;
-	bFootIK = bFootIKAllowed && !bIsInAir && !bInFlyMode;
+	if (const UGeLocomotionComponent* LocomotionComp = UGeLocomotionComponent::Find(OwnerPawn))
+	{
+		LocomotionMode = LocomotionComp->GetMode();
+		bFootIK = LocomotionComp->IsFootIKEnabled() && !bIsInAir && LocomotionMode != EGeLocomotionMode::Fly;
+	}
+	else
+	{
+		LocomotionMode = EGeLocomotionMode::Ground;
+		bFootIK = bCanFootIK && !bIsInAir;
+	}
 }
 
 void UGeAnimInstanceBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
