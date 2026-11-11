@@ -134,13 +134,16 @@ void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 
 	// 脚部 IK：角色级开关（UGeAnimationSetup -> UGeLocomotionComponent）优先；
 	// 拿不到组件时（例如预览 Actor）才回退到本类 Class Defaults 的 bCanFootIK。
-	// 腾空 / 飞行时一律关掉（飞行由 layer 实例负责姿态，脚不该贴地）。
-	// 脚部 IK 需要知道「是不是在飞」，所以这里按需局部读一次移动模式。
-	// 注意不缓存成成员：模式是 UGeAnimInstanceLocoBase（layer 实例）的数据。
+	//
+	// 只有「脚真的踩在地上」的模式才能开：腾空 / 飞行 / **游泳** 一律关掉。
+	// 游泳这一条是踩过的坑：SimpleAdvancedAnimation 的脚 IK 是按脚下地面算偏移的，
+	// 人在水里时它会把整个 Mesh 往池底压 —— 胶囊（日志里的 ΔZ / Depth / Vz）全程完全正常，
+	// 但画面上就是「先沉到池底、过一会儿又浮回水面」。
+	// 所以凡是"脚不该贴地"的模式都必须在这里排除，不要只依赖 ABP 里那根分支。
 	if (const UGeLocomotionComponent* LocomotionComp = UGeLocomotionComponent::Find(OwnerPawn))
 	{
 		LocomotionMode = LocomotionComp->GetMode();
-		bFootIK = LocomotionComp->IsFootIKEnabled() && !bIsInAir && LocomotionMode != EGeLocomotionMode::Fly;
+		bFootIK = LocomotionComp->IsFootIKEnabled() && !bIsInAir && LocomotionMode == EGeLocomotionMode::Ground;
 	}
 	else
 	{

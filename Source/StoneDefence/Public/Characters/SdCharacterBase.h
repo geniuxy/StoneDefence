@@ -61,6 +61,7 @@ protected:
 
 	void MoveSpeedUpdated(const FOnAttributeChangeData& Data);
 	void FlySpeedUpdated(const FOnAttributeChangeData& Data);
+	void SwimSpeedUpdated(const FOnAttributeChangeData& Data);
 
 	/**********************************************************************/
 	/*                            Locomotion                              */

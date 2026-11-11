@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -27,6 +27,7 @@ public:
 	ATTRIBUTE_ACCESSORS(UGeAttributeSetBase, Armor);
 	ATTRIBUTE_ACCESSORS(UGeAttributeSetBase, MoveSpeed);
 	ATTRIBUTE_ACCESSORS(UGeAttributeSetBase, FlySpeed);
+	ATTRIBUTE_ACCESSORS(UGeAttributeSetBase, SwimSpeed);
 	ATTRIBUTE_ACCESSORS(UGeAttributeSetBase, MoveAcceleration);
 	ATTRIBUTE_ACCESSORS(UGeAttributeSetBase, CarryWeight);
 	ATTRIBUTE_ACCESSORS(UGeAttributeSetBase, WeightLimit);
@@ -59,6 +60,8 @@ protected:
 	FGameplayAttributeData MoveSpeed;
 	UPROPERTY(ReplicatedUsing = OnRep_FlySpeed)
 	FGameplayAttributeData FlySpeed;
+	UPROPERTY(ReplicatedUsing = OnRep_SwimSpeed)
+	FGameplayAttributeData SwimSpeed;
 	UPROPERTY(ReplicatedUsing = OnRep_MoveAcceleration)
 	FGameplayAttributeData MoveAcceleration;
 	UPROPERTY(ReplicatedUsing = OnRep_CarryWeight)
@@ -96,6 +99,9 @@ protected:
 
 	UFUNCTION()
 	void OnRep_FlySpeed(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	void OnRep_SwimSpeed(const FGameplayAttributeData& OldValue);
 	
 	UFUNCTION()
 	void OnRep_MoveAcceleration(const FGameplayAttributeData& OldValue);

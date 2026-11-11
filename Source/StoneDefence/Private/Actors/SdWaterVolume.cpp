@@ -20,9 +20,6 @@ ASdWaterVolume::ASdWaterVolume()
 
 	// 默认用原生 GE：无需在 Content 里先建资产，拖进关卡就能用。
 	SwimGameplayEffect = UGE_Stats_Swim::StaticClass();
-
-	// 体积本身不参与阻挡，只做「点是否在 brush 内」的判定（AVolume::EncompassesPoint）。
-	// APhysicsVolume 构造里已经把 brush 设成 OverlapAllDynamic，这里不用再改。
 }
 
 void ASdWaterVolume::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -83,8 +80,7 @@ void ASdWaterVolume::ApplySwimTag(AActor* Other)
 		return;
 	}
 
-	// 顺手清掉已经销毁的 actor 留下的句柄：
-	// 角色在水里被销毁时我们收不到「离开体积」通知，句柄会一直占着。
+	// 清掉已经销毁的 actor 留下的句柄：角色在水里被销毁时收不到「离开体积」通知。
 	for (auto It = SwimEffectHandles.CreateIterator(); It; ++It)
 	{
 		if (!It.Key().IsValid())

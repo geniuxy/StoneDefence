@@ -142,6 +142,7 @@ void UGeAbilitySystemComponent::InitializeBaseAttributes()
 	SetNumericAttributeBase(UGeAttributeSetBase::GetArmorAttribute(), BaseStats->BaseArmor);
 	SetNumericAttributeBase(UGeAttributeSetBase::GetMoveSpeedAttribute(), BaseStats->BaseMoveSpeed);
 	SetNumericAttributeBase(UGeAttributeSetBase::GetFlySpeedAttribute(), BaseStats->BaseFlySpeed);
+	SetNumericAttributeBase(UGeAttributeSetBase::GetSwimSpeedAttribute(), BaseStats->BaseSwimSpeed);
 	SetNumericAttributeBase(UGeAttributeSetBase::GetMoveAccelerationAttribute(), BaseStats->BaseMoveAcceleration);
 	SetNumericAttributeBase(UGeAttributeSetBase::GetWeightLimitAttribute(), BaseStats->BaseWeightLimit);
 	SetNumericAttributeBase(UGeAttributeSetBase::GetGoldAttribute(), BaseStats->BaseGold);

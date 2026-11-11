@@ -11,6 +11,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GeniuxyDebugHelper.h"
+#include "Effects/Modifier/GE_Fly_Fast_Speed.h"
 #include "Tags/AbilityTags.h"
 #include "Tags/EventTags.h"
 #include "Tags/StatsTags.h"
@@ -24,6 +25,8 @@ UGA_Fly_Fast::UGA_Fly_Fast()
 	// 以后加地面冲刺（同一个 Sprint InputID）时，它标 Group.Ground 就会被 GA_Fly 的
 	// Block/Cancel 自动挡掉，这里不用做任何分支。
 	AbilityTags.AddTag(AbilityTags::Ge_Ability_Group_Fly);
+
+	IncreaseMoveSpeedEffect = UGE_Fly_Fast_Speed::StaticClass();
 }
 
 void UGA_Fly_Fast::OnActivateAbility(

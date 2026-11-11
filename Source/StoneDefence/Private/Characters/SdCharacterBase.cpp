@@ -160,6 +160,11 @@ void ASdCharacterBase::BindGASChangeDelegates()
 		).AddUObject(
 			this, &ThisClass::FlySpeedUpdated
 		);
+		AbilitySystemComp->GetGameplayAttributeValueChangeDelegate(
+			UGeAttributeSetBase::GetSwimSpeedAttribute()
+		).AddUObject(
+			this, &ThisClass::SwimSpeedUpdated
+		);
 	}
 }
 
@@ -178,12 +183,17 @@ void ASdCharacterBase::UnBindGASChangeDelegates()
 
 void ASdCharacterBase::MoveSpeedUpdated(const FOnAttributeChangeData& Data)
 {
-	GetCharacterMovement()->MaxWalkSpeed = Data.NewValue;
+	GetCharacterMovement()->MaxWalkSpeed = FMath::Max(Data.NewValue, 0.f);
 }
 
 void ASdCharacterBase::FlySpeedUpdated(const FOnAttributeChangeData& Data)
 {
-	GetCharacterMovement()->MaxFlySpeed = Data.NewValue;
+	GetCharacterMovement()->MaxFlySpeed = FMath::Max(Data.NewValue, 0.f);
+}
+
+void ASdCharacterBase::SwimSpeedUpdated(const FOnAttributeChangeData& Data)
+{
+	GetCharacterMovement()->MaxSwimSpeed = FMath::Max(Data.NewValue, 0.f);
 }
 
 void ASdCharacterBase::HandleDrawWeaponEvent(FGameplayTag GameplayTag, const FGameplayEventData* GameplayEventData)
