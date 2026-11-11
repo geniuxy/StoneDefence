@@ -1,0 +1,10 @@
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+Build/
+Source/
+Server/
+.vs/
+*.sln
+*.suo
