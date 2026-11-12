@@ -88,6 +88,10 @@ private:
 
 	void HandleLookInput(const FInputActionValue& InputActionValue);
 	void HandleMoveInput(const FInputActionValue& InputActionValue);
+
+	/** 空格：地面上是跳跃，游泳里是上浮（不再直接绑 ACharacter::Jump） */
+	void HandleJumpInput();
+
 	void HandleAbilityInput(const FInputActionValue& InputActionValue, EAbilityInputID InputID);
 
 	/**********************************************************************/

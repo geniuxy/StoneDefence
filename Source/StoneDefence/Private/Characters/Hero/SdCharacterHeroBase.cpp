@@ -88,7 +88,7 @@ void ASdCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	if (EnhancedInputComponent)
 	{
 		EnhancedInputComponent->BindAction(
-			JumpInputAction, ETriggerEvent::Triggered, this, &ThisClass::Jump
+			JumpInputAction, ETriggerEvent::Triggered, this, &ThisClass::HandleJumpInput
 		);
 		EnhancedInputComponent->BindAction(
 			LookInputAction, ETriggerEvent::Triggered, this, &ThisClass::HandleLookInput
@@ -147,6 +147,23 @@ void ASdCharacterHeroBase::HandleLookInput(const FInputActionValue& InputActionV
 	{
 		AddControllerYawInput(LookInputVector.X);
 	}
+}
+
+void ASdCharacterHeroBase::HandleJumpInput()
+{
+	// 游泳里空格 = 上浮：持续往角色加向上的移动输入（和 GA_Swim_Dive 加向下输入对称）。
+	// 不走 ACharacter::Jump()：游泳时的 Jump 走的是引擎的「出水跳」逻辑，会把
+	// MOVE_Swimming 打断成 MOVE_Falling，人会被直接弹到岸上而不是浮到水面。
+	if (const UGeLocomotionComponent* LocoComp = GetLocomotionComponent())
+	{
+		if (LocoComp->IsInMode(EGeLocomotionMode::Swim))
+		{
+			AddMovementInput(FVector::UpVector, 1.f);
+			return;
+		}
+	}
+
+	Jump();
 }
 
 void ASdCharacterHeroBase::HandleMoveInput(const FInputActionValue& InputActionValue)

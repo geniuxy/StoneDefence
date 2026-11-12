@@ -36,11 +36,13 @@ void UGeAnimInstanceLocoBase::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		bIsFlyingFast = LocomotionComp->IsFlyingFast();
 		bIsSwimmingFast = LocomotionComp->IsSwimmingFast();
+		bIsDiving = LocomotionComp->IsUnderwater();
 	}
 	else
 	{
 		bIsFlyingFast = false;
 		bIsSwimmingFast = false;
+		bIsDiving = false;
 	}
 
 	if (!OwnerMovementComp)
@@ -72,10 +74,6 @@ void UGeAnimInstanceLocoBase::NativeUpdateAnimation(float DeltaSeconds)
 	}
 
 	// ── 各模式的开关 ────────────────────────────────────────────────
-	
-	// 游泳：向下游算潜水
-	constexpr float DiveDeadZone = 0.2f;
-	bIsDiving = LocalVelocity.Z < -DiveDeadZone;
 
 	// 攀爬：向上 / 向下爬
 	constexpr float ClimbVerticalDeadZone = 0.15f;
