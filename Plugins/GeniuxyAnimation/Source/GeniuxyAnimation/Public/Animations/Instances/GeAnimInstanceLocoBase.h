@@ -74,6 +74,9 @@ public:
 	FORCEINLINE bool GetIsSwimming() const { return LocomotionMode == EGeLocomotionMode::Swim; }
 
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsSwimMoving() const { return GetSpeed2D() != 0.f || (bIsDiving && IsMoving()); }
+
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE FVector GetSwimSpeed() const { return NormalizedVelocity; }
 
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
@@ -84,6 +87,51 @@ public:
 
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE bool GetIsSurfaceSwimming() const { return !bIsDiving; }
+
+	/**
+	 * 本地空间的前后速度（已按 MaxSpeed 归一化到 [-1,1]）。
+	 * 2D 混合空间的 Y 轴（前后）接它。
+	 */
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE float GetSwimForwardSpeed() const { return NormalizedVelocity.X; }
+
+	/**
+	 * 本地空间的左右速度（已按 MaxSpeed 归一化到 [-1,1]）。
+	 * 2D 混合空间的 X 轴（左右）接它。
+	 *
+	 * ⚠ 角色开着 bOrientRotationToMovement，会一直朝游动方向转身，
+	 * 所以这个值在稳定游动时几乎恒为 0，Left/Right 样本吃不到权重。
+	 * 想让「左看右看」明显，方向轴用下面的 GetSwimTurnAxis()。
+	 */
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE float GetSwimRightSpeed() const { return NormalizedVelocity.Y; }
+
+	/**
+	 * 本地空间的上下速度（已按 MaxSpeed 归一化到 [-1,1]）。
+	 * 给「下潜 / 上浮」那条轴用（Underwater 混合空间的 Y 轴），不要和左右共用一根轴。
+	 */
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE float GetSwimVerticalSpeed() const { return NormalizedVelocity.Z; }
+
+	/**
+	 * 「方向」输入，范围 [-1,1]：0 = 正前，负 = 左，正 = 右。
+	 * 由本地速度方向换算（方向角 / 90 再 clamp）。
+	 *
+	 * 同样受 bOrientRotationToMovement 影响（身体朝游动方向 → 长期≈0），
+	 * 只在身体不朝移动方向时有意义（例如锁朝向的 strafe）。一般用 GetSwimTurnAxis() 更有效。
+	 */
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	float GetSwimDirectionAxis() const;
+
+	/**
+	 * 「方向」输入，范围 [-1,1]：**由角色 Yaw 角速度换算**，左转 → 负，右转 → 正。
+	 *
+	 * 这是让 Swim 的 Left/Right 样本真正生效的推荐做法：
+	 * 不看横向速度，所以 bOrientRotationToMovement 开着（身体朝游动方向）也照样有值。
+	 * 直游 = 0（Forward），转得越快越靠向 Left/Right。
+	 */
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	float GetSwimTurnAxis() const;
 
 protected:
 	bool bIsDiving = false;

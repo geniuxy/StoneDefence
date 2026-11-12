@@ -160,3 +160,26 @@ void UGeAnimInstanceLocoBase::UpdateLean(float DeltaSeconds)
 	LeanX = FMath::Clamp(FMath::FInterpTo(LeanX, TargetX, DeltaSeconds, LeanInterpSpeed), -1.f, 1.f);
 	LeanY = FMath::Clamp(FMath::FInterpTo(LeanY, TargetY, DeltaSeconds, LeanInterpSpeed), -1.f, 1.f);
 }
+
+float UGeAnimInstanceLocoBase::GetSwimDirectionAxis() const
+{
+	// 本地空间：X = 前后，Y = 左右。用 atan2 得到方向角后除以 90，
+	// 折成 [-1,1]：0 = 正前、-1 = 正左、+1 = 正右，超过 ±90° 直接 clamp 到两端。
+	const FVector2D Velocity2D(NormalizedVelocity.X, NormalizedVelocity.Y);
+	if (Velocity2D.SizeSquared() < KINDA_SMALL_NUMBER)
+	{
+		return 0.f;
+	}
+
+	const float AngleDegrees = FMath::RadiansToDegrees(FMath::Atan2(Velocity2D.Y, Velocity2D.X));
+	return FMath::Clamp(AngleDegrees / 90.f, -1.f, 1.f);
+}
+
+float UGeAnimInstanceLocoBase::GetSwimTurnAxis() const
+{
+	// NormalizedYawSpeed 本来就是 [-1,1]（±180°/s 归一化），直接当方向轴用。
+	// 体转向游动方向、横向速度≈0 时它依然有值，所以 Left/Right 样本能吃上权重。
+	// 想更敏感：在 ABP 侧乘一个 >1 的系数再 Clamp；想更钝：乘 <1。
+	return FMath::Clamp(NormalizedYawSpeed, -1.f, 1.f);
+}
+
