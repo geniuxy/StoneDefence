@@ -5,7 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "Effects/GrantTag/GE_Stats_Swim.h"
+#include "Effects/GrantTag/GE_Stats_Swimming.h"
 #include "GeniuxyDebugHelper.h"
 
 ASdWaterVolume::ASdWaterVolume()
@@ -19,7 +19,7 @@ ASdWaterVolume::ASdWaterVolume()
 	Priority = 10;
 
 	// 默认用原生 GE：无需在 Content 里先建资产，拖进关卡就能用。
-	SwimGameplayEffect = UGE_Stats_Swim::StaticClass();
+	SwimGameplayEffect = UGE_Stats_Swimming::StaticClass();
 }
 
 void ASdWaterVolume::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -112,7 +112,7 @@ void ASdWaterVolume::ApplySwimTag(AActor* Other)
 	if (!Handle.WasSuccessfullyApplied())
 	{
 		Debug::Print(
-			FString::Printf(TEXT("[SdWaterVolume] %s 给 %s 挂 Ge.Stats.Swim 失败"), *GetName(), *Other->GetName()),
+			FString::Printf(TEXT("[SdWaterVolume] %s 给 %s 挂 Ge.Stats.Swimming 失败"), *GetName(), *Other->GetName()),
 			TEXT("Water.ApplyFailed"), 8.f, FColor::Red);
 		return;
 	}
@@ -122,7 +122,7 @@ void ASdWaterVolume::ApplySwimTag(AActor* Other)
 	if (bPrintDebug)
 	{
 		Debug::Print(
-			FString::Printf(TEXT("[SdWaterVolume] %s 入水 → Ge.Stats.Swim"), *Other->GetName()),
+			FString::Printf(TEXT("[SdWaterVolume] %s 入水 → Ge.Stats.Swimming"), *Other->GetName()),
 			TEXT("Water.Enter"), 4.f, FColor::Cyan);
 	}
 }
@@ -152,7 +152,7 @@ void ASdWaterVolume::RemoveSwimTag(AActor* Other)
 	if (bPrintDebug)
 	{
 		Debug::Print(
-			FString::Printf(TEXT("[SdWaterVolume] %s 出水 → 摘掉 Ge.Stats.Swim"), *Other->GetName()),
+			FString::Printf(TEXT("[SdWaterVolume] %s 出水 → 摘掉 Ge.Stats.Swimming"), *Other->GetName()),
 			TEXT("Water.Exit"), 4.f, FColor::Cyan);
 	}
 }

@@ -24,9 +24,9 @@ class UTargetTagsGameplayEffectComponent;
  * 这套固定动作没有复用价值、每次都手写又容易漏，所以收在基类里。
  *
  * 用法（C++ 子类，构造函数里声明要挂哪些标签）：
- *   UGE_Stats_Swim::UGE_Stats_Swim()
+ *   UGE_Stats_Swimming::UGE_Stats_Swimming()
  *   {
- *       AddGrantedTag(StatsTags::Ge_Stats_Swim);
+ *       AddGrantedTag(StatsTags::Ge_Stats_Swimming);
  *   }
  *
  * 用法（蓝图子类，直接建 GE 资产）：

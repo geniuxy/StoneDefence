@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Effects/GrantTag/Core/GE_GrantTags.h"
-#include "GE_Stats_Swim.generated.h"
+#include "GE_Stats_Swimming.generated.h"
 
 /**
  * 游泳状态 GE：给目标挂上 Ge.Stats.Swim。
@@ -14,10 +14,10 @@
  * （ApplyMovementMode -> SetMovementMode(MOVE_Swimming)），动画层和速度随之切换。
  */
 UCLASS()
-class GENIUXYGAS_API UGE_Stats_Swim : public UGE_GrantTags
+class GENIUXYGAS_API UGE_Stats_Swimming : public UGE_GrantTags
 {
 	GENERATED_BODY()
 
 public:
-	UGE_Stats_Swim();
+	UGE_Stats_Swimming();
 };

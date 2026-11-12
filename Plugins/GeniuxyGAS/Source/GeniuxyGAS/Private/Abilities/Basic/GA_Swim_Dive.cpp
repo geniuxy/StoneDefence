@@ -14,7 +14,7 @@
 UGA_Swim_Dive::UGA_Swim_Dive()
 {
 	// 只在水里能用：岸上 / 飞行时按 Ctrl 不会激活
-	ActivationRequiredTags.AddTag(StatsTags::Ge_Stats_Swim);
+	ActivationRequiredTags.AddTag(StatsTags::Ge_Stats_Swimming);
 
 	// 「正在下潜」的状态信号：UGeLocomotionComponent 靠它决定要不要切中性浮力
 	ActivationOwnedTags.AddTag(StatsTags::Ge_Stats_Swim_Dive);
@@ -69,7 +69,7 @@ void UGA_Swim_Dive::ApplyDiveInput()
 
 	// 出水了就收工，别在水外继续往下压
 	UGeAbilitySystemComponent* ASC = GetOwnerASC();
-	if (!ASC || !ASC->HasMatchingGameplayTag(StatsTags::Ge_Stats_Swim))
+	if (!ASC || !ASC->HasMatchingGameplayTag(StatsTags::Ge_Stats_Swimming))
 	{
 		K2_EndAbility();
 		return;

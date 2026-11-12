@@ -350,7 +350,7 @@ void UGeLocomotionComponent::BindAbilitySystemTags()
 		this, &ThisClass::HandleFlyFastTagChanged
 	);
 
-	SwimTagHandle = OwnerASC->RegisterGameplayTagEvent(StatsTags::Ge_Stats_Swim).AddUObject(
+	SwimTagHandle = OwnerASC->RegisterGameplayTagEvent(StatsTags::Ge_Stats_Swimming).AddUObject(
 		this, &ThisClass::HandleSwimTagChanged
 	);
 	SwimFastTagHandle = OwnerASC->RegisterGameplayTagEvent(StatsTags::Ge_Stats_Swim_Fast).AddUObject(
@@ -379,7 +379,7 @@ void UGeLocomotionComponent::UnbindAbilitySystemTags()
 
 	if (SwimTagHandle.IsValid())
 	{
-		OwnerASC->UnregisterGameplayTagEvent(SwimTagHandle, StatsTags::Ge_Stats_Swim);
+		OwnerASC->UnregisterGameplayTagEvent(SwimTagHandle, StatsTags::Ge_Stats_Swimming);
 		SwimTagHandle.Reset();
 	}
 	if (SwimFastTagHandle.IsValid())

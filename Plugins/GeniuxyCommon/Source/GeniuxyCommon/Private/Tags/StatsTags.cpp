@@ -16,7 +16,7 @@ namespace StatsTags
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Fly, "Ge.Stats.Fly");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Fly_Fast, "Ge.Stats.Fly.Fast");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Climb, "Ge.Stats.Climb");
-	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Swim, "Ge.Stats.Swim");
+	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Swimming, "Ge.Stats.Swimming");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Swim_Fast, "Ge.Stats.Swim.Fast");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Swim_Dive, "Ge.Stats.Swim.Dive");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Dodging, "Ge.Stats.Dodging");

@@ -47,7 +47,7 @@ protected:
 
 	/**
 	 * 授予游泳状态的 GE。
-	 * 默认是原生 UGE_Stats_Swim（无限时长，只挂 Ge.Stats.Swim）；
+	 * 默认是原生 UGE_Stats_Swimming（无限时长，只挂 Ge.Stats.Swimming）；
 	 * 想加别的东西就在蓝图里继承它再换到这里。
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Swim")
