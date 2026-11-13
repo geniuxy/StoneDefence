@@ -170,8 +170,7 @@ void UGeLocomotionComponent::UpdateSwimBuoyancy()
 	// 只在驱动移动的端上改速度（服务器 / 本地控制端），模拟端跟随复制。
 	if (ShouldDriveMovement() && Depth < SwimSurfaceKeepDepth)
 	{
-		OwnerMovementComp->Velocity.Z = FMath::Min(
-			OwnerMovementComp->Velocity.Z, -SwimSurfacePushDownSpeed);
+		OwnerMovementComp->Velocity.Z = FMath::Min(OwnerMovementComp->Velocity.Z, -SwimSurfacePushDownSpeed);
 	}
 
 	// 在按「下潜」：GA_Swim_Dive 挂的 tag。有了它，从水面往下潜的整个过程都是中性浮力，
