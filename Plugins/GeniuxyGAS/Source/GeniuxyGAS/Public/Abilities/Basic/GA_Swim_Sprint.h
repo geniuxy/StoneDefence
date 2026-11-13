@@ -12,10 +12,9 @@
  * 激活条件：带着 Ge.Stats.Swimming（在水里）。激活后挂 Ge.Stats.Swim.Fast，
  * 并叠一个 ×2 游泳速度的 GE；松手时结束并摘掉 GE。
  *
- * 出水时自己收尾：内部挂了一个 WaitGameplayTagRemoved(Ge.Stats.Swimming)，
- * 因为 GAS 的 ActivationRequiredTags 只判断「能否激活」，不会取消已经激活的能力。
- * 盯的必须是叶子 tag Ge.Stats.Swimming：父 tag（如 Ge.Stats.Swim）的计数会被子 tag 撑住，
- * 「计数变 0」的回调永远不触发。
+ * 出水时由 ASC 统一收尾：UGeAbilitySystemComponent 监听 Ge.Stats.Swimming 的移除，
+ * 计数归零就 CancelAbilities(Ge.Ability.Group.Swim)，本能力不用再自己挂
+ * UAbilityTask_WaitGameplayTagRemoved（那个方案只保一条能力，加新能力就得重挂一遍）。
  */
 UCLASS()
 class GENIUXYGAS_API UGA_Swim_Sprint : public UGeGameplayAbilityBase
@@ -48,8 +47,4 @@ private:
 
 	UFUNCTION()
 	void HandleInputRelease(float TimeWaited);
-
-	/** 游泳状态消失（出水 / 转飞行 / 死亡）→ 结束冲刺 */
-	UFUNCTION()
-	void HandleSwimTagRemoved();
 };

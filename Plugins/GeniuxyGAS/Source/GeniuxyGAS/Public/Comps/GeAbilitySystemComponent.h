@@ -46,9 +46,6 @@ private:
 	void HealthUpdated(const FOnAttributeChangeData& ChangeData);
 	void EnergyUpdated(const FOnAttributeChangeData& ChangeData);
 
-	/** Ge.Stats.InCombat 的 tag 计数变化回调（全项目唯一监听点） */
-	void HandleInCombatTagChanged(const FGameplayTag Tag, int32 NewCount);
-
 	UPROPERTY(EditDefaultsOnly, Category="Gameplay Ability")
 	TArray<FGeAbilitySpecEntry> Abilities; // 可学习的Abilities（初始0级）
 
@@ -64,7 +61,6 @@ public:
 	/**********************************************************************/
 	/*                             Targeting                              */
 	/**********************************************************************/
-
 private:
 	UPROPERTY(Replicated)
 	TObjectPtr<AActor> LockTarget;
@@ -98,6 +94,30 @@ private:
 	bool bInCombat = false;
 
 	FDelegateHandle InCombatTagHandle;
+
+	/** Ge.Stats.InCombat 的 tag 计数变化回调（全项目唯一监听点） */
+	void HandleInCombatTagChanged(const FGameplayTag Tag, int32 NewCount);
+
+	/**********************************************************************/
+	/*                                Swim                                */
+	/**********************************************************************/
+	/**
+	 * 游泳状态的统一收尾：Ge.Stats.Swimming 计数归零（出水）时，
+	 * 取消整组游泳能力（AbilityTags::Ge_Ability_Group_Swim）。
+	 *
+	 * 为什么放在 ASC，而不是每个能力自己挂 UAbilityTask_WaitGameplayTagRemoved：
+	 * - GAS 的 ActivationRequiredTags 只决定「能不能激活」，不会取消已经激活的能力，
+	 *   所以出水后 GA_Swim_Sprint / GA_Swim_Dive 会带着 tag 和速度 GE 留在岸上；
+	 * - 一个能力挂一份 task = 同样的代码抄 N 遍，以后加新的游泳能力漏挂一次就是脏状态；
+	 *   集中到 ASC 只有一处，新能力只要打上 Group.Swim 就自动被兜住。
+	 *
+	 * 触发时机：RegisterGameplayTagEvent 默认是 NewOrRemoved，只在 0 ↔ N 变化时回调，
+	 * 所以这里判断 NewCount == 0 就是「刚刚摘干净」。
+	 */
+private:
+	FDelegateHandle SwimmingTagHandle;
+
+	void HandleSwimmingTagChanged(const FGameplayTag Tag, int32 NewCount);
 
 	/**********************************************************************/
 	/*                          Cached Animation                          */

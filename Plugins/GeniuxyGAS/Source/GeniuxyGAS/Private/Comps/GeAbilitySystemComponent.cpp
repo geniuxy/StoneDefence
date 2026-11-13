@@ -5,12 +5,14 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffectExtension.h"
+#include "GeniuxyDebugHelper.h"
 #include "GeniuxyGASType.h"
 #include "AttributeSets/GeAttributeSetBase.h"
 #include "AttributeSets/GeAttributeSetHero.h"
 #include "Data/PA_AbilitySystemGenerics.h"
 #include "Engine/AssetManager.h"
 #include "Net/UnrealNetwork.h"
+#include "Tags/AbilityTags.h"
 #include "Tags/EventTags.h"
 #include "Tags/StatsTags.h"
 
@@ -84,6 +86,13 @@ void UGeAbilitySystemComponent::BeginPlay()
 	// 注册之前就已经带着 tag 的情况（GE 在 BeginPlay 前挂上、或 tag 从别的途径加上）：
 	// 事件不会替我们补发一次，所以这里主动把初始值同步过来。
 	bInCombat = HasMatchingGameplayTag(StatsTags::Ge_Stats_InCombat);
+
+	// 游泳状态的统一收尾：出水时把整组游泳能力（冲刺 / 下潜）取消掉。
+	// 各能力的 ActivationRequiredTags 只决定「能不能激活」，不会取消已经激活的能力，
+	// 所以「出水后能力还挂着 tag 和速度 GE 留在岸上」这件事必须在这里兜。
+	SwimmingTagHandle = RegisterGameplayTagEvent(StatsTags::Ge_Stats_Swimming).AddUObject(
+		this, &ThisClass::HandleSwimmingTagChanged
+	);
 }
 
 void UGeAbilitySystemComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -94,19 +103,13 @@ void UGeAbilitySystemComponent::EndPlay(const EEndPlayReason::Type EndPlayReason
 		InCombatTagHandle.Reset();
 	}
 
-	Super::EndPlay(EndPlayReason);
-}
-
-void UGeAbilitySystemComponent::HandleInCombatTagChanged(const FGameplayTag Tag, int32 NewCount)
-{
-	// tag 的计数变化会以 NewCount 传进来（可能一次加/减多份），这里只关心「有没有」
-	const bool bNewInCombat = NewCount > 0;
-	if (bInCombat == bNewInCombat)
+	if (SwimmingTagHandle.IsValid())
 	{
-		return;
+		UnregisterGameplayTagEvent(SwimmingTagHandle, StatsTags::Ge_Stats_Swimming);
+		SwimmingTagHandle.Reset();
 	}
 
-	bInCombat = bNewInCombat;
+	Super::EndPlay(EndPlayReason);
 }
 
 void UGeAbilitySystemComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -280,6 +283,38 @@ void UGeAbilitySystemComponent::EnergyUpdated(const FOnAttributeChangeData& Chan
 	{
 		RemoveLooseGameplayTag(StatsTags::Ge_Stats_Energy_Empty);
 	}
+}
+
+void UGeAbilitySystemComponent::HandleInCombatTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	// tag 的计数变化会以 NewCount 传进来（可能一次加/减多份），这里只关心「有没有」
+	const bool bNewInCombat = NewCount > 0;
+	if (bInCombat == bNewInCombat)
+	{
+		return;
+	}
+
+	bInCombat = bNewInCombat;
+}
+
+void UGeAbilitySystemComponent::HandleSwimmingTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	// NewOrRemoved 语义下只有 0 ↔ N 才回调：NewCount > 0 是刚进水，不用管
+	if (NewCount > 0)
+	{
+		return;
+	}
+
+	Debug::Print(TEXT("[ASC] Ge.Stats.Swimming 移除（出水），取消游泳组能力"),
+				 TEXT("ASC.SwimRemoved"), 3.f, FColor::Cyan);
+
+	// 两端都调：
+	// - 客户端那份是本地预测激活的，必须当场收尾，等服务器 RTT 回来手感会「飘一下」；
+	// - 服务器取消后走 ClientEndAbility 复制给客户端，客户端取消后走 ServerEndAbility 回传，
+	//   重复的结束请求由 UGameplayAbility::IsEndAbilityValid 挡掉，不会真的结束两次。
+	FGameplayTagContainer SwimAbilityTags;
+	SwimAbilityTags.AddTag(AbilityTags::Ge_Ability_Group_Swim);
+	CancelAbilities(&SwimAbilityTags);
 }
 
 void UGeAbilitySystemComponent::UpdateMontageMap(FGameplayTag InTag, const TSoftObjectPtr<UAnimMontage>& InMontage)
