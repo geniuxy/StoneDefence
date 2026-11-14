@@ -10,7 +10,7 @@
 class UCharacterMovementComponent;
 class USkeletalMeshComponent;
 class UAbilitySystemComponent;
-class IGeCombatStateProvider;
+class IGeStateProvider;
 
 /**
  * 所有 AnimInstance 的公共基类（主实例和 layer 实例都用它）。
@@ -53,6 +53,18 @@ protected:
 	 */
 	TWeakObjectPtr<UAbilitySystemComponent> OwnerAbilitySystemComp;
 
+	/**
+	 * ASC 上的战斗状态接口（IGeCombatStateProvider，定义在 GeniuxyCommon）。
+	 *
+	 * 依赖倒置的消费端：动画插件不认识 GeniuxyGAS，只认识这个接口，
+	 * 每帧读一次实现方缓存好的 bool —— 没有 tag 查找。
+	 * Cast 只在解析出 ASC 后做一次；ASC 失效（弱引用为空）时置空重来。
+	 * 生命周期由 OwnerAbilitySystemComp 兜底：每帧先确认弱引用有效再解引用。
+	 */
+	IGeStateProvider* StateProvider = nullptr;
+	
+	void ReadStatsFromGAS();
+
 	/**********************************************************************/
 	/*                             Locomotion                             */
 	/**********************************************************************/
@@ -77,6 +89,12 @@ public:
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE bool GetIsInAir() const { return bIsInAir; }
 
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsInGroundWalking() const { return bInGroundWalking; }
+
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsInGroundSprinting() const { return bInGroundSprinting; }
+
 	/**
 	 * 当前是否有移动输入（按着 WASD / AI 正在往路径点走）。
 	 *
@@ -97,9 +115,9 @@ protected:
 	bool bIsInAir = false;
 	bool bHasMovementInput = false;
 
-	/**********************************************************************/
-	/*                          Locomotion Mode                           */
-	/**********************************************************************/
+	bool bInGroundWalking = false;
+	bool bInGroundSprinting = false;
+
 public:
 	/** 当前移动模式（Ground / Fly / Swim / Climb），每帧从 UGeLocomotionComponent 同步 */
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
@@ -119,19 +137,7 @@ public:
 	FORCEINLINE bool GetIsInCombat() const { return bInCombat; }
 
 protected:
-	/**
-	 * ASC 上的战斗状态接口（IGeCombatStateProvider，定义在 GeniuxyCommon）。
-	 *
-	 * 依赖倒置的消费端：动画插件不认识 GeniuxyGAS，只认识这个接口，
-	 * 每帧读一次实现方缓存好的 bool —— 没有 tag 查找。
-	 * Cast 只在解析出 ASC 后做一次；ASC 失效（弱引用为空）时置空重来。
-	 * 生命周期由 OwnerAbilitySystemComp 兜底：每帧先确认弱引用有效再解引用。
-	 */
-	IGeCombatStateProvider* CombatStateProvider = nullptr;
-
 	bool bInCombat = false;
-
-	bool ReadInCombatFromGAS();
 
 	/**********************************************************************/
 	/*                        Yaw/Pitch Rotation                          */

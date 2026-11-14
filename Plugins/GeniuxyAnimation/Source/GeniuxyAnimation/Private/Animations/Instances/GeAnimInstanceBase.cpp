@@ -11,7 +11,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Pawn.h"
-#include "Interfaces/GeCombatStateProvider.h"
+#include "Interfaces/GeStateProvider.h"
 #include "SimpleAdvancedAnimationBPLibrary.h"
 #include "Engine/World.h"
 
@@ -64,9 +64,8 @@ void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 		bIsInAir = MovementComp ? MovementComp->IsFalling() : false;
 	}
 
-	// 战斗状态：唯一来源是 GAS 上的 Ge.Stats.InCombat（监听点在 UGeAbilitySystemComponent）。
-	// 这里每帧复制一份缓存给 ABP 读，不在 AnimInstance 里注册 tag 事件。
-	bInCombat = ReadInCombatFromGAS();
+	// 从ASC中读取状态Tag
+	ReadStatsFromGAS();
 
 	/**********************************************************************/
 	/*                        Yaw / Pitch 角速度                          */
@@ -160,27 +159,29 @@ void UGeAnimInstanceBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 	// CalcFootIKOffset();
 }
 
-bool UGeAnimInstanceBase::ReadInCombatFromGAS()
+void UGeAnimInstanceBase::ReadStatsFromGAS()
 {
 	if (!OwnerAbilitySystemComp.IsValid() && OwnerPawn)
 	{
 		OwnerAbilitySystemComp = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OwnerPawn);
-		CombatStateProvider = nullptr; // 换了 ASC，接口指针要重新解析
+		StateProvider = nullptr; // 换了 ASC，接口指针要重新解析
 	}
 
 	UAbilitySystemComponent* ASC = OwnerAbilitySystemComp.Get();
 	if (!ASC)
 	{
-		CombatStateProvider = nullptr;
-		return false;
+		StateProvider = nullptr;
+		return;
 	}
 
-	if (!CombatStateProvider)
+	if (!StateProvider)
 	{
-		CombatStateProvider = Cast<IGeCombatStateProvider>(ASC);
+		StateProvider = Cast<IGeStateProvider>(ASC);
 	}
 
-	return CombatStateProvider != nullptr && CombatStateProvider->IsInCombat();
+	bInCombat = StateProvider->IsInCombat();
+	bInGroundWalking = StateProvider->IsGroundWalking();
+	bInGroundSprinting = StateProvider->IsGroundSprinting();
 }
 
 FRotator UGeAnimInstanceBase::GetPitchSourceRotation() const

@@ -21,5 +21,7 @@ namespace StatsTags
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Swim_Dive, "Ge.Stats.Swim.Dive");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Dodging, "Ge.Stats.Dodging");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Landing, "Ge.Stats.Landing");
+	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Sprinting, "Ge.Stats.Sprinting");
+	UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Walking, "Ge.Stats.Walking");
 	// UE_DEFINE_GAMEPLAY_TAG(Ge_Stats_Equipped_PrimaryWeapon, "Ge.Stats.Equipped.PrimaryWeapon");
 }

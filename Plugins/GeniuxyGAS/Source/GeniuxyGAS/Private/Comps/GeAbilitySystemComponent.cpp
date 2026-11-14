@@ -77,15 +77,23 @@ void UGeAbilitySystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// 注册之前就已经带着 tag 的情况（GE 在 BeginPlay 前挂上、或 tag 从别的途径加上）：
+	// 事件不会替我们补发一次，所以这里主动把初始值同步过来。
+	bInCombat = HasMatchingGameplayTag(StatsTags::Ge_Stats_InCombat);
+	bGroundWalking = HasMatchingGameplayTag(StatsTags::Ge_Stats_Walking);
+	bGroundSprinting = HasMatchingGameplayTag(StatsTags::Ge_Stats_Sprinting);
 	// 战斗状态的唯一监听点（以前在 UGeLocomotionComponent 上，职责越界，已挪到这里）。
 	// 注意是「注册回调」，不是「立刻取一次值」：BeginPlay 之后 tag 变化都会推到 HandleInCombatTagChanged。
 	InCombatTagHandle = RegisterGameplayTagEvent(StatsTags::Ge_Stats_InCombat).AddUObject(
 		this, &ThisClass::HandleInCombatTagChanged
 	);
+	GroundWalkingTagHandle = RegisterGameplayTagEvent(StatsTags::Ge_Stats_Walking).AddUObject(
+		this, &ThisClass::HandleGroundWalkingTagChanged
+	);
+	GroundSprintingTagHandle = RegisterGameplayTagEvent(StatsTags::Ge_Stats_Sprinting).AddUObject(
+		this, &ThisClass::HandleGroundSprintingTagChanged
+	);
 
-	// 注册之前就已经带着 tag 的情况（GE 在 BeginPlay 前挂上、或 tag 从别的途径加上）：
-	// 事件不会替我们补发一次，所以这里主动把初始值同步过来。
-	bInCombat = HasMatchingGameplayTag(StatsTags::Ge_Stats_InCombat);
 
 	// 游泳状态的统一收尾：出水时把整组游泳能力（冲刺 / 下潜）取消掉。
 	// 各能力的 ActivationRequiredTags 只决定「能不能激活」，不会取消已经激活的能力，
@@ -285,9 +293,30 @@ void UGeAbilitySystemComponent::EnergyUpdated(const FOnAttributeChangeData& Chan
 	}
 }
 
+void UGeAbilitySystemComponent::HandleGroundWalkingTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	const bool bNewInWalking = NewCount > 0;
+	if (bGroundWalking == bNewInWalking)
+	{
+		return;
+	}
+
+	bGroundWalking = bNewInWalking;
+}
+
+void UGeAbilitySystemComponent::HandleGroundSprintingTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	const bool bNewInSprinting = NewCount > 0;
+	if (bGroundSprinting == bNewInSprinting)
+	{
+		return;
+	}
+
+	bGroundSprinting = bNewInSprinting;
+}
+
 void UGeAbilitySystemComponent::HandleInCombatTagChanged(const FGameplayTag Tag, int32 NewCount)
 {
-	// tag 的计数变化会以 NewCount 传进来（可能一次加/减多份），这里只关心「有没有」
 	const bool bNewInCombat = NewCount > 0;
 	if (bInCombat == bNewInCombat)
 	{
