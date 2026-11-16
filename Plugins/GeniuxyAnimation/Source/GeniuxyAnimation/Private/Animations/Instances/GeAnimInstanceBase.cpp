@@ -45,6 +45,11 @@ void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 	Speed = WorldVelocity.Size();
 	Speed2D = WorldVelocity.Size2D();
 
+	if (bDebugSpeed)
+	{
+		Debug::PrintValue(TEXT("速度"), Speed, "Print.Speed");
+	}
+
 	// 转成角色本地空间：混合空间接 X/Y 时不用再自己 UnrotateVector
 	const FRotator OwnerRotation = OwnerPawn->GetActorRotation();
 	LocalVelocity = OwnerRotation.UnrotateVector(WorldVelocity);

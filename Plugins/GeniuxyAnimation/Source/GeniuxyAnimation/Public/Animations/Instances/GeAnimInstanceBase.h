@@ -119,6 +119,9 @@ protected:
 	bool bInGroundWalking = false;
 	bool bInGroundSprinting = false;
 
+	UPROPERTY(EditAnywhere, Category = "Animation|Debug")
+	bool bDebugSpeed = false;
+
 public:
 	/** 当前移动模式（Ground / Fly / Swim / Climb），每帧从 UGeLocomotionComponent 同步 */
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))

@@ -331,6 +331,12 @@ void UGeAbilitySystemComponent::HandleSwimmingTagChanged(const FGameplayTag Tag,
 	// NewOrRemoved 语义下只有 0 ↔ N 才回调：NewCount > 0 是刚进水，不用管
 	if (NewCount > 0)
 	{
+		Debug::Print(TEXT("[ASC] Ge.Stats.Swimming 添加（入水），取消地面组能力"),
+				 TEXT("ASC.SwimAdded"), 3.f, FColor::Cyan);
+		
+		FGameplayTagContainer GroundAbilityTags;
+		GroundAbilityTags.AddTag(AbilityTags::Ge_Ability_Group_Ground);
+		CancelAbilities(&GroundAbilityTags);
 		return;
 	}
 

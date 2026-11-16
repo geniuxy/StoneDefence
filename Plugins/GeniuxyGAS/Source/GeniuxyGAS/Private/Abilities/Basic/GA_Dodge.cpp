@@ -61,6 +61,7 @@ UGA_Dodge::UGA_Dodge()
 	GroundDodgeMontageTags.Add(EDodgeDirection::Left, MontageTags::Ge_Montage_Dodge_Left);
 	GroundDodgeMontageTags.Add(EDodgeDirection::Right, MontageTags::Ge_Montage_Dodge_Right);
 
+	// TODO: 感觉这里向上、下闪也得用合适的Dodge Montage(如果有合理的动画资源)
 	FlyDodgeMontageTags.Add(EDodgeDirection::Forward, MontageTags::Ge_Montage_Dodge_Fly_Up);
 	FlyDodgeMontageTags.Add(EDodgeDirection::Backward, MontageTags::Ge_Montage_Dodge_Fly_Down);
 	FlyDodgeMontageTags.Add(EDodgeDirection::Left, MontageTags::Ge_Montage_Dodge_Fly_Left);

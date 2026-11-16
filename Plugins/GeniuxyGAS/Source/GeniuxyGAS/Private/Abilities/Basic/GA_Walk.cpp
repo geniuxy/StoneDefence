@@ -15,6 +15,9 @@ UGA_Walk::UGA_Walk()
 	AbilityTags.AddTag(AbilityTags::Ge_Ability_Group_Ground);
 	ActivationOwnedTags.AddTag(StatsTags::Ge_Stats_Walking);
 	ActivationBlockedTags.AddTag(StatsTags::Ge_Stats_Sprinting);
+	ActivationBlockedTags.AddTag(StatsTags::Ge_Stats_Fly);
+	ActivationBlockedTags.AddTag(StatsTags::Ge_Stats_Swimming);
+	ActivationBlockedTags.AddTag(StatsTags::Ge_Stats_Climb);
 
 	DecreaseMoveSpeedEffect = UGE_Ground_Walk_Speed::StaticClass();
 }
