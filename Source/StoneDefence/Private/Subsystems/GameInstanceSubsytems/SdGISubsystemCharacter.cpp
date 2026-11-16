@@ -65,6 +65,10 @@ void USdGISubsystemCharacter::LoadCharacter(const FPrimaryAssetId& InAssetId, FO
 				{
 					Paths.Add(Definition->GetAnimationSet().ToSoftObjectPath());
 				}
+				if (!Definition->GetAnimationSetup().IsNull())
+				{
+					Paths.Add(Definition->GetAnimationSetup().ToSoftObjectPath());
+				}
 				if (Paths.IsEmpty())
 				{
 					return;

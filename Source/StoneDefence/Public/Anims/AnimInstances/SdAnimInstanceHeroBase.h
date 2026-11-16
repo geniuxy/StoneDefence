@@ -25,6 +25,8 @@ class UGeAnimationSetup;
  * 武将之间的差异全部落在 UGeAnimationSetup（插件里的数据资产）上：
  *   - LocomotionLayerClasses ：选哪套层实现（默认用插件的 ABP_GeLoco）
  *   - bCanFootIK             ：这个角色要不要脚部 IK
+ * 它是「一个武将一份」的数据：配置入口是 UPA_CharacterDefinition::AnimationSetup，
+ * 运行时由角色推给 UGeAnimationComponent，本类再从组件上读。
  *
  * 动画资产本身不走数据：各角色的差异用「层 ABP 的 ParentAssetOverrides」覆盖
  * 父 ABP 里的 Sequence / BlendSpace（两者都是 UAnimationAsset，都能覆写）。
@@ -44,7 +46,8 @@ public:
 	 *
 	 * 什么时候会被调用：
 	 * - NativeInitializeAnimation 时（如果配置已经就绪）
-	 * - UGeLocomotionComponent 上的 UGeAnimationSetup 被换掉时，由组件广播事件触发
+	 * - UGeAnimationComponent 的动画配置被换掉时（含 PA 资产异步加载完成那次推送），
+	 *   由组件广播 OnAnimationSetupChanged 触发
 	 *
 	 * 不要每帧调：LinkAnimClassLayers 会重建 linked instance。
 	 */

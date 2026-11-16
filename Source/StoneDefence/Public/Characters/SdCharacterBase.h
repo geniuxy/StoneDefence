@@ -69,8 +69,9 @@ protected:
 	/**********************************************************************/
 protected:
 	/**
-	 * 移动模式（Ground/Fly/Swim/Climb）+ 移动动画集合的唯一数据源。
+	 * 移动模式（Ground/Fly/Swim/Climb）的唯一数据源。
 	 * AnimInstance（主实例和所有 layer 实例）都从这里读，不要再在 AnimInstance 里注册 GAS tag。
+	 * 动画配置（层实现类 / 脚部 IK 开关）不在这里，见 AnimationComp。
 	 */
 	UPROPERTY(VisibleAnywhere)
 	UGeLocomotionComponent* LocomotionComp;
@@ -141,10 +142,19 @@ private:
 	/*                            Animation                               */
 	/**********************************************************************/
 protected:
+	/**
+	 * 动画组件：蒙太奇播放 + 动画配置（层实现类 / 脚部 IK 开关）。
+	 * 配置的值来自 UPA_CharacterDefinition::AnimationSetup，由 InitAnimation 推进来；
+	 * AnimInstance 也从这里读层实现类和脚 IK 开关。
+	 */
 	UPROPERTY(VisibleAnywhere)
 	UGeAnimationComponent* AnimationComp;
 
-	void InitAnimationSet(const UPA_CharacterDefinition* InDefinition);
+public:
+	FORCEINLINE UGeAnimationComponent* GetAnimationComponent() const { return AnimationComp; }
+
+protected:
+	void InitAnimation(const UPA_CharacterDefinition* InDefinition);
 
 	/**
 	 * AnimInstance 初始化完成的回调（USkeletalMeshComponent::OnAnimInitialized）。
@@ -156,14 +166,15 @@ protected:
 	UFUNCTION()
 	void HandleAnimInitialized();
 
-	/** UGeLocomotionComponent::OnAnimationSetupChanged 的回调（非动态委托，无需 UFUNCTION） */
+	/** UGeAnimationComponent::OnAnimationSetupChanged 的回调（非动态委托，无需 UFUNCTION） */
 	void HandleAnimationSetupChanged();
 
 	/**
 	 * 让当前 AnimInstance 按最新配置重新 LinkAnimClassLayers。
 	 *
-	 * 注意 UGeAnimationSetup 本身不在角色上，而在 UGeLocomotionComponent 上：
-	 * 它和「移动模式」属于同一类数据，AnimInstance 本来就从组件读，不用多绕一层角色。
+	 * 动画配置的来源是 UPA_CharacterDefinition::AnimationSetup，由 InitAnimation 推给
+	 * UGeAnimationComponent（运行时持有，主实例和 layer 实例都从组件读）。
+	 * 本函数不直接读数据资产，只负责「配置变了 → 重新绑层」这一步。
 	 */
 	void RefreshHeroLocomotionLayers();
 

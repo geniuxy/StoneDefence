@@ -6,6 +6,7 @@
 #include "GeniuxyDebugHelper.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "Comps/GeAnimationComponent.h"
 #include "Comps/Locomotions/GeLocomotionComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
@@ -131,7 +132,17 @@ void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 	}
 #endif
 
-	// 脚部 IK：角色级开关（UGeAnimationSetup -> UGeLocomotionComponent）优先；
+	// 移动模式：来自移动组件（GAS tag 推导出的结果），拿不到就当 Ground。
+	if (const UGeLocomotionComponent* LocomotionComp = UGeLocomotionComponent::Find(OwnerPawn))
+	{
+		LocomotionMode = LocomotionComp->GetMode();
+	}
+	else
+	{
+		LocomotionMode = EGeLocomotionMode::Ground;
+	}
+
+	// 脚部 IK：角色级开关来自动画组件（UGeAnimationSetup 推过来的运行时值）；
 	// 拿不到组件时（例如预览 Actor）才回退到本类 Class Defaults 的 bCanFootIK。
 	//
 	// 只有「脚真的踩在地上」的模式才能开：腾空 / 飞行 / **游泳** 一律关掉。
@@ -139,16 +150,10 @@ void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 	// 人在水里时它会把整个 Mesh 往池底压 —— 胶囊（日志里的 ΔZ / Depth / Vz）全程完全正常，
 	// 但画面上就是「先沉到池底、过一会儿又浮回水面」。
 	// 所以凡是"脚不该贴地"的模式都必须在这里排除，不要只依赖 ABP 里那根分支。
-	if (const UGeLocomotionComponent* LocomotionComp = UGeLocomotionComponent::Find(OwnerPawn))
-	{
-		LocomotionMode = LocomotionComp->GetMode();
-		bFootIK = LocomotionComp->IsFootIKEnabled() && !bIsInAir && LocomotionMode == EGeLocomotionMode::Ground;
-	}
-	else
-	{
-		LocomotionMode = EGeLocomotionMode::Ground;
-		bFootIK = bCanFootIK && !bIsInAir;
-	}
+	const UGeAnimationComponent* AnimationComp = UGeAnimationComponent::Find(OwnerPawn);
+	const bool bFootIKAllowed = AnimationComp ? AnimationComp->IsFootIKEnabled() : bCanFootIK;
+
+	bFootIK = bFootIKAllowed && !bIsInAir && LocomotionMode == EGeLocomotionMode::Ground;
 }
 
 void UGeAnimInstanceBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)

@@ -5,7 +5,6 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "Data/GeAnimationSetup.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GeniuxyDebugHelper.h"
@@ -35,13 +34,8 @@ void UGeLocomotionComponent::BeginPlay()
 	OwnerMovementComp = OwnerCharacter->GetCharacterMovement();
 	OwnerASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OwnerCharacter);
 
-	// 配置里指定了脚部 IK 开关就以它为准（BeginPlay 时就同步一次，
-	// 不用等角色主动调 SetAnimationSetup）。
-	if (AnimationSetup)
-	{
-		bFootIKEnabled = AnimationSetup->bCanFootIK;
-	}
-
+	// 动画配置（层实现类 / 脚部 IK 开关）不在这里：它归 UGeAnimationComponent 管，
+	// 本组件只持有移动状态。
 	BindAbilitySystemTags();
 }
 
@@ -170,22 +164,6 @@ void UGeLocomotionComponent::RestoreSurfaceBuoyancy()
 	{
 		OwnerMovementComp->Buoyancy = CachedSurfaceBuoyancy;
 	}
-}
-
-void UGeLocomotionComponent::SetAnimationSetup(UGeAnimationSetup* InSetup)
-{
-	if (AnimationSetup == InSetup) return;
-
-	AnimationSetup = InSetup;
-
-	// 手工配置的唯一入口：同步脚部 IK 开关
-	if (AnimationSetup)
-	{
-		bFootIKEnabled = AnimationSetup->bCanFootIK;
-	}
-
-	// 通知角色：层实现类可能变了，让 AnimInstance 重新 LinkAnimClassLayers
-	OnAnimationSetupChanged.Broadcast();
 }
 
 /**********************************************************************/

@@ -18,6 +18,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Comps/GeCharacterMovementComp.h"
 #include "Data/CharacterAnimationSet.h"
+#include "Data/GeAnimationSetup.h"
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -76,17 +77,21 @@ void ASdCharacterBase::BeginPlay()
 		MeshComp->OnAnimInitialized.AddDynamic(this, &ThisClass::HandleAnimInitialized);
 	}
 
-	if (LocomotionComp)
+	if (AnimationComp)
 	{
-		// 动画配置挂在组件上（见 UGeLocomotionComponent::AnimationSetup），
-		// 配置被换掉时由组件广播，这里转成"让 AnimInstance 重新绑层"。
-		LocomotionComp->OnAnimationSetupChanged.AddUObject(this, &ThisClass::HandleAnimationSetupChanged);
+		// 动画配置（层实现类 + 脚部 IK）由 PA_CharacterDefinition::AnimationSetup 指定，
+		// 在 InitAnimation 里推进来；配置被换掉时由组件广播，
+		// 这里转成"让 AnimInstance 重新绑层"。
+		AnimationComp->OnAnimationSetupChanged.AddUObject(this, &ThisClass::HandleAnimationSetupChanged);
 	}
 
-	// AnimInstance 若在 BeginPlay 之前就已创建，OnAnimInitialized 不会再来一次，这里补一次。
-	RefreshHeroLocomotionLayers();
-
+	// 先发起角色定义加载：动画配置（层实现类 + 脚 IK）在 InitAnimation 里推给 AnimationComp，
+	// 配置就绪时组件会广播 OnAnimationSetupChanged，由 HandleAnimationSetupChanged 触发重新绑层。
 	InitCharacterDef();
+
+	// 这里调用的目的是：防止 PA 里没配 AnimationSetup 的角色，也只能靠这一次绑兜底层（DefaultLocomotionLayerClasses）
+	// 真正应用 PA 里配置的 AnimationSetup 是在 HandleAnimationSetupChanged 中调用
+	RefreshHeroLocomotionLayers();
 }
 
 void ASdCharacterBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -98,9 +103,9 @@ void ASdCharacterBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		MeshComp->OnAnimInitialized.RemoveDynamic(this, &ThisClass::HandleAnimInitialized);
 	}
 
-	if (LocomotionComp)
+	if (AnimationComp)
 	{
-		LocomotionComp->OnAnimationSetupChanged.RemoveAll(this);
+		AnimationComp->OnAnimationSetupChanged.RemoveAll(this);
 	}
 
 	Super::EndPlay(EndPlayReason);
@@ -124,7 +129,7 @@ void ASdCharacterBase::InitCharacterDef()
 			this,
 			[this](const UPA_CharacterDefinition* Definition)
 			{
-				InitAnimationSet(Definition);
+				InitAnimation(Definition);
 			}
 		)
 	);
@@ -370,13 +375,23 @@ void ASdCharacterBase::RefreshHeroLocomotionLayers()
 	}
 }
 
-void ASdCharacterBase::InitAnimationSet(const UPA_CharacterDefinition* InDefinition)
+void ASdCharacterBase::InitAnimation(const UPA_CharacterDefinition* InDefinition)
 {
 	if (!InDefinition) return;
 
+	// 动画配置（层实现类 + 脚部 IK 开关）由主数据资产指定，和蒙太奇资产同一个入口：
+	// 加一个武将只需要配 PA 资产，不用再去 BP 里给组件手挂一份。
+	//
+	// SetAnimationSetup 内部会同步 bFootIKEnabled 并广播 OnAnimationSetupChanged，
+	// 角色收到后让 AnimInstance 重新 LinkAnimClassLayers。这里是在
+	// LoadCharacter 的异步回调里调的，晚到也没问题 —— 广播本身就是重新绑层的触发点。
 	if (AnimationComp)
 	{
 		AnimationComp->SetAnimationSet(InDefinition->LoadAnimationSet());
+		if (UGeAnimationSetup* LoadedSetup = InDefinition->LoadAnimationSetup())
+		{
+			AnimationComp->SetAnimationSetup(LoadedSetup);
+		}
 	}
 
 	if (AbilitySystemComp)

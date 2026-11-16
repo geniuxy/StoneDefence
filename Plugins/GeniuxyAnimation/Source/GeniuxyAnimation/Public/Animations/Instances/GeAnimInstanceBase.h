@@ -27,8 +27,9 @@ class IGeStateProvider;
  *
  * 特别注意：layer 实例（UGeAnimInstanceLocoBase，即 ABP_GeLoco 及其子类的实例）是
  * **独立的 UAnimInstance 对象**，看不到主实例的成员变量。所以凡是两个实例都要用的数据，
- * 统一从「拥有者身上的组件」取（移动模式/脚 IK → UGeLocomotionComponent，
- * 战斗状态 → GAS），不要试图跨实例访问。
+ * 统一从「拥有者身上的组件」取：移动模式 → UGeLocomotionComponent，
+ * 动画配置（层实现类 / 脚部 IK 开关）→ UGeAnimationComponent，战斗状态 → GAS。
+ * 不要试图跨实例访问。
  */
 UCLASS()
 class GENIUXYANIMATION_API UGeAnimInstanceBase : public UAnimInstance
@@ -241,10 +242,11 @@ protected:
 	void CalcFootIKOffset();
 
 	/**
-	 * 兜底的脚部 IK 开关，**只在拿不到 UGeLocomotionComponent 时生效**（例如预览 Actor）。
+	 * 兜底的脚部 IK 开关，**只在拿不到 UGeAnimationComponent 时生效**（例如预览 Actor）。
 	 *
-	 * 角色请配 UGeAnimationSetup（挂在 UGeLocomotionComponent 上），那条数据线才是对的：
-	 *   UGeLocomotionComponent::IsFootIKEnabled()
+	 * 角色请配 UGeAnimationSetup（由 UPA_CharacterDefinition::AnimationSetup 指定，运行时
+	 * 推到 UGeAnimationComponent 上），那条数据线才是对的：
+	 *   UGeAnimationComponent::IsFootIKEnabled()
 	 * 在 ABP 的 Class Defaults 里改这个值对角色无效（主实例和 layer 实例各有一份类默认值）。
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")

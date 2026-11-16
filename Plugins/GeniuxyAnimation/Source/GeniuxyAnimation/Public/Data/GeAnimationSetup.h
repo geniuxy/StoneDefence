@@ -11,6 +11,10 @@ class UAnimInstance;
 /**
  * 每个角色的「动画配置」数据资产。加一个武将 = 加一个这个资产，而不是加一个 ABP。
  *
+ * 配置入口：UPA_CharacterDefinition::AnimationSetup（和蒙太奇资产 UCharacterAnimationSet
+ * 同一个入口，都在主数据资产里），运行时由角色推给 UGeAnimationComponent 持有。
+ * 不要再在 BP 的组件默认值里给每个武将手挂一份 —— 那样配置就散在两个地方了。
+ *
  * 它管两件事：
  * 1. LocomotionLayerClasses —— 运行时用 LinkAnimClassLayers 绑定哪些类；
  *    留空则回退到主 AnimInstance 类默认值里的 DefaultLocomotionLayerClasses。
@@ -42,9 +46,11 @@ public:
 	/**
 	 * 这个角色要不要脚部 IK。
 	 *
-	 * 数据流：本资产挂在 UGeLocomotionComponent 上 → 组件在 BeginPlay / SetAnimationSetup 时
-	 *        把它同步成 UGeLocomotionComponent::bFootIKEnabled → 主实例每帧从组件读
-	 *        （UGeAnimInstanceBase::CacheOwnerState）
+	 * 数据流：本资产由 UPA_CharacterDefinition::AnimationSetup 指定 → 角色拿到 PA 后
+	 *        调 UGeAnimationComponent::SetAnimationSetup 推过去 → 组件把它同步成
+	 *        UGeAnimationComponent::bFootIKEnabled → 主实例每帧从组件读
+	 *        （UGeAnimInstanceBase::NativeUpdateAnimation 末尾；移动模式另从
+	 *        UGeLocomotionComponent 读，两者都在游戏线程缓存后才给工作线程用）。
 	 *
 	 * 不要在 ABP 的 Class Defaults 里配 bCanFootIK：那里配的只有该 ABP 自己的实例读得到，
 	 * 而 FootIK 的 ControlRig 在主 ABP 里、读的是主实例那一份；主 ABP 又只有一份，

@@ -1,6 +1,7 @@
 ﻿#include "Comps/GeAnimationComponent.h"
 
 #include "Data/CharacterAnimationSet.h"
+#include "Data/GeAnimationSetup.h"
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
 #include "GameFramework/Character.h"
@@ -8,6 +9,28 @@
 UGeAnimationComponent::UGeAnimationComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+}
+
+UGeAnimationComponent* UGeAnimationComponent::Find(const AActor* InActor)
+{
+	if (!InActor) return nullptr;
+	return InActor->FindComponentByClass<UGeAnimationComponent>();
+}
+
+void UGeAnimationComponent::SetAnimationSetup(UGeAnimationSetup* InSetup)
+{
+	if (AnimationSetup == InSetup) return;
+
+	AnimationSetup = InSetup;
+
+	// 手工配置的唯一入口：同步脚部 IK 开关
+	if (AnimationSetup)
+	{
+		bFootIKEnabled = AnimationSetup->bCanFootIK;
+	}
+
+	// 通知角色：层实现类可能变了，让 AnimInstance 重新 LinkAnimClassLayers
+	OnAnimationSetupChanged.Broadcast();
 }
 
 void UGeAnimationComponent::SetAnimationSet(UCharacterAnimationSet* InAnimationSet)

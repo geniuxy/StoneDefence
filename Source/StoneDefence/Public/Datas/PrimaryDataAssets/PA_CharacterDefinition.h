@@ -9,6 +9,7 @@
 #include "PA_CharacterDefinition.generated.h"
 
 class UCharacterAnimationSet;
+class UGeAnimationSetup;
 class ASdCharacterBase;
 
 UENUM()
@@ -60,7 +61,8 @@ struct FFaceSculptFigureTypeInfo // 捏脸身材塑造时相关的信息
 };
 
 /**
- * 
+ * Tips:
+ *	如果添加软引用，记得也修改USdGISubsystemCharacter::LoadCharacter
  */
 UCLASS()
 class STONEDEFENCE_API UPA_CharacterDefinition : public UPrimaryDataAsset
@@ -77,6 +79,9 @@ public:
 	TSubclassOf<UAnimInstance> LoadDisplayAnimationBP() const;
 	USkeletalMesh* LoadDisplayMesh() const;
 	UCharacterAnimationSet* LoadAnimationSet() const;
+
+	/** 加载这个角色的动画配置（层实现类 + 脚部 IK 开关）；没配返回 nullptr */
+	UGeAnimationSetup* LoadAnimationSetup() const;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category="Character", meta=(Categories="Sd.Character"))
@@ -99,6 +104,21 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category="Character")
 	TSoftObjectPtr<UCharacterAnimationSet> AnimationSet;
+
+	/**
+	 * 这个角色的动画配置（层实现类 + 脚部 IK 开关）。
+	 *
+	 * 为什么放在主数据资产里，而不是 BP 的组件默认值里：
+	 * - 它和上面的 AnimationSet 是同一类东西（每个武将一份的动画数据），
+	 *   没理由一个在数据资产、一个藏在 BP 的组件细节里；
+	 * - 「这个武将用哪套层实现」在资产里一眼能看出来，不用点开 BP 翻组件；
+	 * - 加一个武将 = 加一个 PA 资产，BP 不用动。
+	 *
+	 * 运行时由 ASdCharacterBase::InitAnimation 推给 UGeAnimationComponent
+	 * （见 UGeAnimationComponent::SetAnimationSetup），AnimInstance 从组件上读。
+	 */
+	UPROPERTY(EditDefaultsOnly, Category="Character")
+	TSoftObjectPtr<UGeAnimationSetup> AnimationSetup;
 	
 	UPROPERTY(EditDefaultsOnly, Category="Character")
 	TArray<FFaceSculptFigureTypeInfo> DefaultFigureSettings;
@@ -113,4 +133,5 @@ public:
 	FORCEINLINE TSoftClassPtr<UAnimInstance> GetDisplayAnimBP() const { return DisplayAnimBP; }
 	FORCEINLINE TSoftClassPtr<UAnimInstance> GetGameAnimBP() const { return GameAnimBP; }
 	FORCEINLINE TSoftObjectPtr<UCharacterAnimationSet> GetAnimationSet() const { return AnimationSet; }
+	FORCEINLINE TSoftObjectPtr<UGeAnimationSetup> GetAnimationSetup() const { return AnimationSetup; }
 };
