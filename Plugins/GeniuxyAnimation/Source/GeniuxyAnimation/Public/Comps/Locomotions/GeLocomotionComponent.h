@@ -44,36 +44,23 @@ public:
 
 	/** 便捷查找：没有就返回 nullptr */
 	static UGeLocomotionComponent* Find(const AActor* InActor);
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
 	virtual void TickComponent(
 		float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	/**********************************************************************/
-	/*                               Mode                                 */
-	/**********************************************************************/
-	UFUNCTION(BlueprintPure, Category = "Geniuxy|Locomotion")
-	EGeLocomotionMode GetMode() const { return Mode; }
+protected:
+	UPROPERTY()
+	ACharacter* OwnerCharacter;
 
-	UFUNCTION(BlueprintPure, Category = "Geniuxy|Locomotion")
-	EGeLocomotionMode GetPreviousMode() const { return PreviousMode; }
+	UPROPERTY()
+	UAbilitySystemComponent* OwnerASC;
 
-	UFUNCTION(BlueprintPure, Category = "Geniuxy|Locomotion")
-	bool IsInMode(EGeLocomotionMode InMode) const { return Mode == InMode; }
-
-	/** 直接切模式，不记录历史 */
-	UFUNCTION(BlueprintCallable, Category = "Geniuxy|Locomotion")
-	void SetMode(EGeLocomotionMode InNewMode);
-
-	/** 进栈：记录当前模式后切换。飞行/攀爬/游泳这类「会结束并回到之前状态」的用它 */
-	UFUNCTION(BlueprintCallable, Category = "Geniuxy|Locomotion")
-	void PushMode(EGeLocomotionMode InNewMode);
-
-	/** 出栈：回到最近一次 Push 之前的模式；栈空则回 Ground */
-	UFUNCTION(BlueprintCallable, Category = "Geniuxy|Locomotion")
-	void PopMode();
-
-	/** 在拥有者角色的同步状态里取模式；没有组件时回退为 Ground */
-	static EGeLocomotionMode GetModeFromActor(const AActor* InActor);
+	UPROPERTY()
+	UCharacterMovementComponent* OwnerMovementComp;
 
 	/**********************************************************************/
 	/*                           Swim | Buoyancy                          */
@@ -193,6 +180,7 @@ public:
 	/**********************************************************************/
 	/*                              Foot IK                               */
 	/**********************************************************************/
+public:
 	/**
 	 * 是否允许脚部 IK。
 	 *
@@ -211,18 +199,47 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Geniuxy|FootIK")
 	void SetFootIKEnabled(bool bInEnabled) { bFootIKEnabled = bInEnabled; }
 
+protected:
+	/**
+	 * 脚部 IK 的运行时值。默认 true。
+	 * 手工配置的唯一入口是 UGeAnimationSetup::bCanFootIK，这里刻意不加 EditDefaultsOnly。
+	 */
+	bool bFootIKEnabled = true;
+
 	/**********************************************************************/
-	/*                             Delegates                              */
+	/*                               Mode                                 */
 	/**********************************************************************/
+public:
+	UFUNCTION(BlueprintPure, Category = "Geniuxy|Locomotion")
+	EGeLocomotionMode GetMode() const { return Mode; }
+
+	UFUNCTION(BlueprintPure, Category = "Geniuxy|Locomotion")
+	EGeLocomotionMode GetPreviousMode() const { return PreviousMode; }
+
+	UFUNCTION(BlueprintPure, Category = "Geniuxy|Locomotion")
+	bool IsInMode(EGeLocomotionMode InMode) const { return Mode == InMode; }
+
+	/** 直接切模式，不记录历史 */
+	UFUNCTION(BlueprintCallable, Category = "Geniuxy|Locomotion")
+	void SetMode(EGeLocomotionMode InNewMode);
+
+	/** 进栈：记录当前模式后切换。飞行/攀爬/游泳这类「会结束并回到之前状态」的用它 */
+	UFUNCTION(BlueprintCallable, Category = "Geniuxy|Locomotion")
+	void PushMode(EGeLocomotionMode InNewMode);
+
+	/** 出栈：回到最近一次 Push 之前的模式；栈空则回 Ground */
+	UFUNCTION(BlueprintCallable, Category = "Geniuxy|Locomotion")
+	void PopMode();
+
+	/** 在拥有者角色的同步状态里取模式；没有组件时回退为 Ground */
+	static EGeLocomotionMode GetModeFromActor(const AActor* InActor);
+
 	FOnGeLocomotionModeChanged OnModeChanged;
 
 	UPROPERTY(BlueprintAssignable, Category = "Geniuxy|Locomotion")
 	FOnGeLocomotionModeChangedBP OnModeChangedBP;
 
 protected:
-	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
 	/**
 	 * 把 EGeLocomotionMode 翻译成 UCharacterMovementComponent 的移动模式。
 	 *
@@ -234,6 +251,9 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Geniuxy|Locomotion")
 	void ApplyMovementMode(EGeLocomotionMode InMode);
 	virtual void ApplyMovementMode_Implementation(EGeLocomotionMode InMode);
+
+	/** 只有服务器 / 本地控制端才去改 MovementMode，模拟端只跟随复制 */
+	bool ShouldDriveMovement() const;
 
 private:
 	void ChangeModeInternal(EGeLocomotionMode InNewMode, bool bPushHistory);
@@ -247,6 +267,10 @@ private:
 	 */
 	void RefreshModeFromTags();
 
+	/**********************************************************************/
+	/*                            GAS Tags                                */
+	/**********************************************************************/
+private:
 	void BindAbilitySystemTags();
 	void UnbindAbilitySystemTags();
 
@@ -256,25 +280,7 @@ private:
 	void HandleSwimFastTagChanged(const FGameplayTag Tag, int32 NewCount);
 	void HandleClimbTagChanged(const FGameplayTag Tag, int32 NewCount);
 
-	/** 只有服务器 / 本地控制端才去改 MovementMode，模拟端只跟随复制 */
-	bool ShouldDriveMovement() const;
-
 protected:
-	UPROPERTY()
-	ACharacter* OwnerCharacter;
-
-	UPROPERTY()
-	UAbilitySystemComponent* OwnerASC;
-
-	UPROPERTY()
-	UCharacterMovementComponent* OwnerMovementComp;
-
-	/**
-	 * 脚部 IK 的运行时值。默认 true。
-	 * 手工配置的唯一入口是 UGeAnimationSetup::bCanFootIK，这里刻意不加 EditDefaultsOnly。
-	 */
-	bool bFootIKEnabled = true;
-
 	EGeLocomotionMode Mode = EGeLocomotionMode::Ground;
 	EGeLocomotionMode PreviousMode = EGeLocomotionMode::Ground;
 

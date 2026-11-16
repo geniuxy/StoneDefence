@@ -25,21 +25,6 @@ UGeLocomotionComponent* UGeLocomotionComponent::Find(const AActor* InActor)
 	return InActor->FindComponentByClass<UGeLocomotionComponent>();
 }
 
-void UGeLocomotionComponent::TickComponent(
-	float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	UpdateSwimBuoyancy();
-	UpdateSwimHorizontalBrake(DeltaTime);
-}
-
-EGeLocomotionMode UGeLocomotionComponent::GetModeFromActor(const AActor* InActor)
-{
-	const UGeLocomotionComponent* Comp = Find(InActor);
-	return Comp ? Comp->GetMode() : EGeLocomotionMode::Ground;
-}
-
 void UGeLocomotionComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -60,22 +45,6 @@ void UGeLocomotionComponent::BeginPlay()
 	BindAbilitySystemTags();
 }
 
-void UGeLocomotionComponent::SetAnimationSetup(UGeAnimationSetup* InSetup)
-{
-	if (AnimationSetup == InSetup) return;
-
-	AnimationSetup = InSetup;
-
-	// 手工配置的唯一入口：同步脚部 IK 开关
-	if (AnimationSetup)
-	{
-		bFootIKEnabled = AnimationSetup->bCanFootIK;
-	}
-
-	// 通知角色：层实现类可能变了，让 AnimInstance 重新 LinkAnimClassLayers
-	OnAnimationSetupChanged.Broadcast();
-}
-
 void UGeLocomotionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	UnbindAbilitySystemTags();
@@ -83,74 +52,13 @@ void UGeLocomotionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-bool UGeLocomotionComponent::ShouldDriveMovement() const
+void UGeLocomotionComponent::TickComponent(
+	float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	if (!OwnerCharacter) return false;
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// 模拟端（SimulatedProxy）不主动改 MovementMode，只跟随服务器复制过来的结果，
-	// 否则客户端和服务器会互相覆盖，出现「本地看着在飞、服务器认为在走」的抖动。
-	return OwnerCharacter->HasAuthority() || OwnerCharacter->IsLocallyControlled();
-}
-
-/**********************************************************************/
-/*                               Mode                                 */
-/**********************************************************************/
-
-void UGeLocomotionComponent::SetMode(EGeLocomotionMode InNewMode)
-{
-	ChangeModeInternal(InNewMode, /*bPushHistory=*/false);
-}
-
-void UGeLocomotionComponent::PushMode(EGeLocomotionMode InNewMode)
-{
-	ChangeModeInternal(InNewMode, /*bPushHistory=*/true);
-}
-
-void UGeLocomotionComponent::PopMode()
-{
-	if (ModeHistory.Num() == 0)
-	{
-		SetMode(EGeLocomotionMode::Ground);
-		return;
-	}
-
-	const EGeLocomotionMode RestoredMode = ModeHistory.Pop();
-	ChangeModeInternal(RestoredMode, /*bPushHistory=*/false);
-}
-
-void UGeLocomotionComponent::ChangeModeInternal(EGeLocomotionMode InNewMode, bool bPushHistory)
-{
-	if (Mode == InNewMode) return;
-
-	const EGeLocomotionMode OldMode = Mode;
-
-	if (bPushHistory)
-	{
-		ModeHistory.Push(Mode);
-	}
-
-	PreviousMode = Mode;
-	Mode = InNewMode;
-
-	if (ShouldDriveMovement())
-	{
-		ApplyMovementMode(Mode);
-	}
-
-	// 游泳期间要每帧按浸没深度调浮力（见 UpdateSwimBuoyancy），其它模式不需要。
-	// 这里对两端都生效：浮力是 CMC 的本地属性，两端必须算成一样，否则位置会互相拉扯。
-	if (Mode == EGeLocomotionMode::Swim)
-	{
-		SetComponentTickEnabled(true);
-	}
-	else
-	{
-		SetComponentTickEnabled(false);
-		RestoreSurfaceBuoyancy();
-		bSwimUnderwater = false;
-	}
-
-	BroadcastModeChanged(OldMode);
+	UpdateSwimBuoyancy();
+	UpdateSwimHorizontalBrake(DeltaTime);
 }
 
 void UGeLocomotionComponent::UpdateSwimBuoyancy()
@@ -264,30 +172,52 @@ void UGeLocomotionComponent::RestoreSurfaceBuoyancy()
 	}
 }
 
-void UGeLocomotionComponent::BroadcastModeChanged(EGeLocomotionMode InOldMode)
+void UGeLocomotionComponent::SetAnimationSetup(UGeAnimationSetup* InSetup)
 {
-	OnModeChanged.Broadcast(InOldMode, Mode);
-	OnModeChangedBP.Broadcast(InOldMode, Mode);
+	if (AnimationSetup == InSetup) return;
+
+	AnimationSetup = InSetup;
+
+	// 手工配置的唯一入口：同步脚部 IK 开关
+	if (AnimationSetup)
+	{
+		bFootIKEnabled = AnimationSetup->bCanFootIK;
+	}
+
+	// 通知角色：层实现类可能变了，让 AnimInstance 重新 LinkAnimClassLayers
+	OnAnimationSetupChanged.Broadcast();
 }
 
-void UGeLocomotionComponent::RefreshModeFromTags()
+/**********************************************************************/
+/*                               Mode                                 */
+/**********************************************************************/
+
+void UGeLocomotionComponent::SetMode(EGeLocomotionMode InNewMode)
 {
-	// 优先级：攀爬 > 飞行 > 游泳 > 地面。谁在生效就以谁为准。
-	EGeLocomotionMode DesiredMode = EGeLocomotionMode::Ground;
-	if (bClimbTagActive)
+	ChangeModeInternal(InNewMode, /*bPushHistory=*/false);
+}
+
+void UGeLocomotionComponent::PushMode(EGeLocomotionMode InNewMode)
+{
+	ChangeModeInternal(InNewMode, /*bPushHistory=*/true);
+}
+
+void UGeLocomotionComponent::PopMode()
+{
+	if (ModeHistory.Num() == 0)
 	{
-		DesiredMode = EGeLocomotionMode::Climb;
-	}
-	else if (bFlyTagActive)
-	{
-		DesiredMode = EGeLocomotionMode::Fly;
-	}
-	else if (bSwimTagActive)
-	{
-		DesiredMode = EGeLocomotionMode::Swim;
+		SetMode(EGeLocomotionMode::Ground);
+		return;
 	}
 
-	SetMode(DesiredMode);
+	const EGeLocomotionMode RestoredMode = ModeHistory.Pop();
+	ChangeModeInternal(RestoredMode, /*bPushHistory=*/false);
+}
+
+EGeLocomotionMode UGeLocomotionComponent::GetModeFromActor(const AActor* InActor)
+{
+	const UGeLocomotionComponent* Comp = Find(InActor);
+	return Comp ? Comp->GetMode() : EGeLocomotionMode::Ground;
 }
 
 void UGeLocomotionComponent::ApplyMovementMode_Implementation(EGeLocomotionMode InMode)
@@ -332,6 +262,76 @@ void UGeLocomotionComponent::ApplyMovementMode_Implementation(EGeLocomotionMode 
 	default:
 		break;
 	}
+}
+
+bool UGeLocomotionComponent::ShouldDriveMovement() const
+{
+	if (!OwnerCharacter) return false;
+
+	// 模拟端（SimulatedProxy）不主动改 MovementMode，只跟随服务器复制过来的结果，
+	// 否则客户端和服务器会互相覆盖，出现「本地看着在飞、服务器认为在走」的抖动。
+	return OwnerCharacter->HasAuthority() || OwnerCharacter->IsLocallyControlled();
+}
+
+void UGeLocomotionComponent::ChangeModeInternal(EGeLocomotionMode InNewMode, bool bPushHistory)
+{
+	if (Mode == InNewMode) return;
+
+	const EGeLocomotionMode OldMode = Mode;
+
+	if (bPushHistory)
+	{
+		ModeHistory.Push(Mode);
+	}
+
+	PreviousMode = Mode;
+	Mode = InNewMode;
+
+	if (ShouldDriveMovement())
+	{
+		ApplyMovementMode(Mode);
+	}
+
+	// 游泳期间要每帧按浸没深度调浮力（见 UpdateSwimBuoyancy），其它模式不需要。
+	// 这里对两端都生效：浮力是 CMC 的本地属性，两端必须算成一样，否则位置会互相拉扯。
+	if (Mode == EGeLocomotionMode::Swim)
+	{
+		SetComponentTickEnabled(true);
+	}
+	else
+	{
+		SetComponentTickEnabled(false);
+		RestoreSurfaceBuoyancy();
+		bSwimUnderwater = false;
+	}
+
+	BroadcastModeChanged(OldMode);
+}
+
+void UGeLocomotionComponent::BroadcastModeChanged(EGeLocomotionMode InOldMode)
+{
+	OnModeChanged.Broadcast(InOldMode, Mode);
+	OnModeChangedBP.Broadcast(InOldMode, Mode);
+}
+
+void UGeLocomotionComponent::RefreshModeFromTags()
+{
+	// 优先级：攀爬 > 飞行 > 游泳 > 地面。谁在生效就以谁为准。
+	EGeLocomotionMode DesiredMode = EGeLocomotionMode::Ground;
+	if (bClimbTagActive)
+	{
+		DesiredMode = EGeLocomotionMode::Climb;
+	}
+	else if (bFlyTagActive)
+	{
+		DesiredMode = EGeLocomotionMode::Fly;
+	}
+	else if (bSwimTagActive)
+	{
+		DesiredMode = EGeLocomotionMode::Swim;
+	}
+
+	SetMode(DesiredMode);
 }
 
 /**********************************************************************/
