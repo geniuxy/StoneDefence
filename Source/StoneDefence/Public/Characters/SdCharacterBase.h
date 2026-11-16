@@ -22,7 +22,7 @@ class STONEDEFENCE_API ASdCharacterBase : public ACharacter
 	GENERATED_BODY()
 
 public:
-	ASdCharacterBase();
+	ASdCharacterBase(const FObjectInitializer& ObjectInitializer);
 
 	void ServerSideInit();
 	void ClientSideInit();

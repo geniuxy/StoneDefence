@@ -16,6 +16,7 @@
 #include "AttributeSets/GeAttributeSetBase.h"
 #include "Comps/Locomotions/GeLocomotionComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Comps/GeCharacterMovementComp.h"
 #include "Data/CharacterAnimationSet.h"
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -25,7 +26,8 @@
 #include "Tags/CharacterTags.h"
 #include "Tags/StatsTags.h"
 
-ASdCharacterBase::ASdCharacterBase()
+ASdCharacterBase::ASdCharacterBase(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGeCharacterMovementComp>(CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = false;
 

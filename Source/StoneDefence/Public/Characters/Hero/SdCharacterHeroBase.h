@@ -9,6 +9,7 @@
 #include "Interfaces/FaceSculpting.h"
 #include "SdCharacterHeroBase.generated.h"
 
+class UGeCharacterMovementComp;
 class UGeAttributeSetHero;
 enum class EAbilityInputID : uint8;
 class UInputAction;
@@ -21,7 +22,7 @@ class STONEDEFENCE_API ASdCharacterHeroBase : public ASdCharacterBase, public IF
 	GENERATED_BODY()
 
 public:
-	ASdCharacterHeroBase();
+	ASdCharacterHeroBase(const FObjectInitializer& ObjectInitializer);
 
 	virtual void PawnClientRestart() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -111,4 +112,11 @@ public:
 	void Client_UpdateFaceSculpting(const FString& InFigureString);
 
 	FORCEINLINE bool IsNeedFaceSculpt() const { return bNeedFaceSculpt; }
+
+	/**********************************************************************/
+	/*                               CMC                                  */
+	/**********************************************************************/
+protected:
+	UPROPERTY()
+	UGeCharacterMovementComp* OwnerCMC;
 };

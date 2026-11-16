@@ -12,6 +12,7 @@
 #include "AttributeSets/GeAttributeSetHero.h"
 #include "SdTypes/SdMacros.h"
 #include "Comps/GeAbilitySystemComponent.h"
+#include "Comps/GeCharacterMovementComp.h"
 #include "Comps/Locomotions/GeLocomotionComponent.h"
 #include "Types/GeGASPayloads.h"
 #include "Frameworks/PlayerStates/Gameplay/SdPlayerStateGameBase.h"
@@ -26,8 +27,8 @@
 #include "Tags/EventTags.h"
 #include "Widgets/GameHud/Partners/SdButtonPartnerInfo.h"
 
-
-ASdCharacterHeroBase::ASdCharacterHeroBase()
+ASdCharacterHeroBase::ASdCharacterHeroBase(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	bUseControllerRotationYaw = false;
 
@@ -42,9 +43,13 @@ ASdCharacterHeroBase::ASdCharacterHeroBase()
 	ViewCamera->SetupAttachment(CameraBoom);
 	ViewCamera->bUsePawnControlRotation = false;
 
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 300.f, 0.f);
-	GetCharacterMovement()->BrakingDecelerationFlying = 1400.f; // 为了能够在飞行状态，没有输入的情况下，可以迅速停下来
+	OwnerCMC = GetCharacterMovement<UGeCharacterMovementComp>();
+	if (OwnerCMC)
+	{
+		OwnerCMC->bOrientRotationToMovement = true;
+		OwnerCMC->RotationRate = FRotator(0.f, 300.f, 0.f);
+		OwnerCMC->BrakingDecelerationFlying = 1400.f; // 为了能够在飞行状态，没有输入的情况下，可以迅速停下来
+	}
 
 	HeroAttributeSet = CreateDefaultSubobject<UGeAttributeSetHero>("HeroAttributeSet");
 }
@@ -182,6 +187,10 @@ void ASdCharacterHeroBase::HandleMoveInput(const FInputActionValue& InputActionV
 		const FVector Right = YawRotation.RotateVector(FVector::RightVector);
 
 		MoveDirection = Forward * MoveInput.Y + Right * MoveInput.X;
+	}
+	else if (GetLocomotionComponent()->IsInMode(EGeLocomotionMode::Climb))
+	{
+		
 	}
 	else
 	{
