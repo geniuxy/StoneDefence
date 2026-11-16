@@ -253,10 +253,7 @@ void UGeLocomotionComponent::ApplyMovementMode_Implementation(EGeLocomotionMode 
 		break;
 
 	case EGeLocomotionMode::Climb:
-		// 默认用 Flying 承载攀爬：不受重力、速度可控、无需自定义移动组件。
-		// 如果你们之后写了自定义 UCharacterMovementComponent，把这里改成
-		// OwnerMovementComp->SetMovementMode(MOVE_Custom, CMOVE_Climb) 即可。
-		OwnerMovementComp->SetMovementMode(MOVE_Flying);
+		OwnerMovementComp->SetMovementMode(MOVE_Custom, ECustomMovementMode::MOVE_Climb);
 		break;
 
 	default:

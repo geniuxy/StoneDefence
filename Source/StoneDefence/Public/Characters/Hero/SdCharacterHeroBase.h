@@ -9,7 +9,6 @@
 #include "Interfaces/FaceSculpting.h"
 #include "SdCharacterHeroBase.generated.h"
 
-class UGeCharacterMovementComp;
 class UGeAttributeSetHero;
 enum class EAbilityInputID : uint8;
 class UInputAction;
@@ -112,11 +111,4 @@ public:
 	void Client_UpdateFaceSculpting(const FString& InFigureString);
 
 	FORCEINLINE bool IsNeedFaceSculpt() const { return bNeedFaceSculpt; }
-
-	/**********************************************************************/
-	/*                               CMC                                  */
-	/**********************************************************************/
-protected:
-	UPROPERTY()
-	UGeCharacterMovementComp* OwnerCMC;
 };

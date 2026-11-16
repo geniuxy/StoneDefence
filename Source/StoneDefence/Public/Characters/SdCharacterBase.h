@@ -9,6 +9,7 @@
 #include "Types/GeniuxyCommonMacro.h"
 #include "SdCharacterBase.generated.h"
 
+class UGeCharacterMovementComp;
 class UGeAttributeSetBase;
 class UGeLocomotionComponent;
 class UPA_CharacterDefinition;
@@ -203,4 +204,11 @@ protected:
 
 	/** 上一次发落地事件的世界时间 */
 	float LastLandEventTime = -1.f;
+
+	/**********************************************************************/
+	/*                               CMC                                  */
+	/**********************************************************************/
+protected:
+	UPROPERTY()
+	UGeCharacterMovementComp* OwnerCMC;
 };

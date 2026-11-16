@@ -43,13 +43,9 @@ ASdCharacterHeroBase::ASdCharacterHeroBase(const FObjectInitializer& ObjectIniti
 	ViewCamera->SetupAttachment(CameraBoom);
 	ViewCamera->bUsePawnControlRotation = false;
 
-	OwnerCMC = GetCharacterMovement<UGeCharacterMovementComp>();
-	if (OwnerCMC)
-	{
-		OwnerCMC->bOrientRotationToMovement = true;
-		OwnerCMC->RotationRate = FRotator(0.f, 300.f, 0.f);
-		OwnerCMC->BrakingDecelerationFlying = 1400.f; // 为了能够在飞行状态，没有输入的情况下，可以迅速停下来
-	}
+	OwnerCMC->bOrientRotationToMovement = true;
+	OwnerCMC->RotationRate = FRotator(0.f, 300.f, 0.f);
+	OwnerCMC->BrakingDecelerationFlying = 1400.f; // 为了能够在飞行状态，没有输入的情况下，可以迅速停下来
 
 	HeroAttributeSet = CreateDefaultSubobject<UGeAttributeSetHero>("HeroAttributeSet");
 }

@@ -43,6 +43,7 @@ ASdCharacterBase::ASdCharacterBase(const FObjectInitializer& ObjectInitializer)
 	WeaponMeshComponent->CastShadow = true;
 
 	LocomotionComp = CreateDefaultSubobject<UGeLocomotionComponent>(TEXT("LocomotionComp"));
+	OwnerCMC = GetCharacterMovement<UGeCharacterMovementComp>();
 }
 
 void ASdCharacterBase::ServerSideInit()

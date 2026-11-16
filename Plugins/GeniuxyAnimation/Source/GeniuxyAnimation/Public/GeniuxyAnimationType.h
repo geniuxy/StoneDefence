@@ -43,3 +43,12 @@ enum class EGeLocomotionMode : uint8
 	Swim UMETA(DisplayName="Swim"),
 	Climb UMETA(DisplayName="Climb")
 };
+
+UENUM(BlueprintType)
+namespace ECustomMovementMode
+{
+	enum Type : uint8
+	{
+		MOVE_Climb UMETA(DisplayName = "Climb Mode")
+	};
+}
