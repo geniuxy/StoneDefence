@@ -165,11 +165,17 @@ void UGeLocomotionComponent::RestoreSurfaceBuoyancy()
 		OwnerMovementComp->Buoyancy = CachedSurfaceBuoyancy;
 	}
 }
+/**********************************************************************/
+/*                               Climb                                */
+/**********************************************************************/
+const FGeClimbProbeParams& UGeLocomotionComponent::GetClimbProbeParams() const
+{
+	return ClimbProbeParams;
+}
 
 /**********************************************************************/
 /*                               Mode                                 */
 /**********************************************************************/
-
 void UGeLocomotionComponent::SetMode(EGeLocomotionMode InNewMode)
 {
 	ChangeModeInternal(InNewMode, /*bPushHistory=*/false);
@@ -331,7 +337,7 @@ void UGeLocomotionComponent::BindAbilitySystemTags()
 		this, &ThisClass::HandleSwimFastTagChanged
 	);
 
-	ClimbTagHandle = OwnerASC->RegisterGameplayTagEvent(StatsTags::Ge_Stats_Climb).AddUObject(
+	ClimbTagHandle = OwnerASC->RegisterGameplayTagEvent(StatsTags::Ge_Stats_Climbing).AddUObject(
 		this, &ThisClass::HandleClimbTagChanged
 	);
 }
@@ -364,7 +370,7 @@ void UGeLocomotionComponent::UnbindAbilitySystemTags()
 
 	if (ClimbTagHandle.IsValid())
 	{
-		OwnerASC->UnregisterGameplayTagEvent(ClimbTagHandle, StatsTags::Ge_Stats_Climb);
+		OwnerASC->UnregisterGameplayTagEvent(ClimbTagHandle, StatsTags::Ge_Stats_Climbing);
 		ClimbTagHandle.Reset();
 	}
 }

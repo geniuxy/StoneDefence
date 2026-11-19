@@ -17,7 +17,7 @@ UGA_Sprint::UGA_Sprint()
 	ActivationBlockedTags.AddTag(StatsTags::Ge_Stats_Walking);
 	ActivationBlockedTags.AddTag(StatsTags::Ge_Stats_Fly);
 	ActivationBlockedTags.AddTag(StatsTags::Ge_Stats_Swimming);
-	ActivationBlockedTags.AddTag(StatsTags::Ge_Stats_Climb);
+	ActivationBlockedTags.AddTag(StatsTags::Ge_Stats_Climbing);
 
 	IncreaseMoveSpeedEffect = UGE_Ground_Sprint_Speed::StaticClass();
 }

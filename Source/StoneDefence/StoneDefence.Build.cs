@@ -28,6 +28,8 @@ public class StoneDefence : ModuleRules
 			"GameplayAbilities",
 			"GameplayTags",
 			"GameplayTasks",
+			// ASdCharacterBase 在构造函数里创建 UMotionWarpingComponent（攀爬贴墙对齐用）
+			"MotionWarping",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

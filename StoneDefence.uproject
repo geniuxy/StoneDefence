@@ -44,6 +44,10 @@
 			"Enabled": true
 		},
 		{
+			"Name": "MotionWarping",
+			"Enabled": true
+		},
+		{
 			"Name": "GeniuxyCommon",
 			"Enabled": true
 		},

@@ -1,4 +1,4 @@
-﻿// Some copyright should be here...
+// Some copyright should be here...
 
 using UnrealBuildTool;
 
@@ -43,6 +43,8 @@ public class GeniuxyGAS : ModuleRules
 				"GameplayTags",
 				"GameplayTasks",
 				"GeniuxyCommon",
+				// GA_Climb 用 UMotionWarpingComponent 把角色贴到墙上（引擎插件）
+				"MotionWarping",
 				// ... add private dependencies that you statically link with here ...	
 			}
 		);

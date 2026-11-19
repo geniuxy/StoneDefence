@@ -4,6 +4,7 @@
 #include "Characters/SdCharacterBase.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Climb/GeClimbProbe.h"
 #include "Comps/GeAbilitySystemComponent.h"
 #include "Comps/GeAnimationComponent.h"
 #include "Anims/AnimInstances/SdAnimInstanceHeroBase.h"
@@ -21,6 +22,7 @@
 #include "Data/GeAnimationSetup.h"
 #include "Datas/PrimaryDataAssets/PA_CharacterDefinition.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "MotionWarpingComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Subsystems/GameInstanceSubsytems/SdGISubsystemCharacter.h"
 #include "Tags/EventTags.h"
@@ -45,6 +47,7 @@ ASdCharacterBase::ASdCharacterBase(const FObjectInitializer& ObjectInitializer)
 
 	LocomotionComp = CreateDefaultSubobject<UGeLocomotionComponent>(TEXT("LocomotionComp"));
 	OwnerCMC = GetCharacterMovement<UGeCharacterMovementComp>();
+	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
 }
 
 void ASdCharacterBase::ServerSideInit()
@@ -61,6 +64,30 @@ void ASdCharacterBase::ClientSideInit()
 bool ASdCharacterBase::IsLocallyControlledByPlayer()
 {
 	return GetController() && GetController()->IsLocalPlayerController();
+}
+
+/**********************************************************************/
+/*                               Climb                                */
+/**********************************************************************/
+const FGeClimbProbeParams& ASdCharacterBase::GetClimbProbeParams() const
+{
+	return LocomotionComp->GetClimbProbeParams();
+}
+
+bool ASdCharacterBase::CanStartClimb() const
+{
+	// 门控只回答「能不能」：几何数据丢给临时变量，需要 warp 数据的 GA_Climb 会再探一次
+	// （参数同一份 ClimbProbeParams，同一帧同一位置，结果必然一致）
+	FGeClimbLedgeInfo Ignored;
+	const bool bCanClimb = GeClimb::ProbeClimb(
+		GetWorld(), GeClimb::MakeProbeInput(*this), GetClimbProbeParams(), this, Ignored);
+
+	// 这个函数是按输入调用的（不是每帧），所以这里打一条不会刷屏
+	Debug::Print(
+		FString::Printf(TEXT("[Climb] 门控：%s"), bCanClimb ? TEXT("可以起攀") : TEXT("面前没有可攀的墙")),
+		TEXT("Climb.Gate"), 2.f, bCanClimb ? FColor::Cyan : FColor::Silver);
+
+	return bCanClimb;
 }
 
 void ASdCharacterBase::BeginPlay()

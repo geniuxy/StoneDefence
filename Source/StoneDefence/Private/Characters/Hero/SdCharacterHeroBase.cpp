@@ -23,6 +23,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Subsystems/GameInstanceSubsytems/SdGISubsystemCharacter.h"
+#include "Tags/AbilityTags.h"
 #include "Tags/CharacterTags.h"
 #include "Tags/EventTags.h"
 #include "Widgets/GameHud/Partners/SdButtonPartnerInfo.h"
@@ -89,7 +90,7 @@ void ASdCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	if (EnhancedInputComponent)
 	{
 		EnhancedInputComponent->BindAction(
-			JumpInputAction, ETriggerEvent::Triggered, this, &ThisClass::HandleJumpInput
+			JumpInputAction, ETriggerEvent::Started, this, &ThisClass::HandleJumpInput
 		);
 		EnhancedInputComponent->BindAction(
 			LookInputAction, ETriggerEvent::Triggered, this, &ThisClass::HandleLookInput
@@ -162,8 +163,25 @@ void ASdCharacterHeroBase::HandleJumpInput()
 			AddMovementInput(FVector::UpVector, 1.f);
 			return;
 		}
+
+		// 已经在攀爬：空格另有含义（往上窜 / 松手），不在这里再起一次
+		if (LocoComp->IsInMode(EGeLocomotionMode::Climb))
+		{
+			return;
+		}
 	}
 
+	// 攀爬优先：门控先探一次，能爬就交给 GA_Climb（能力里两端会各探一次来算 warp 数据）。
+	// 注意 TryActivateAbilitiesByTag 的返回值只是「有没有激活到能力」，不代表爬成功 ——
+	// 探不到墙时能力会在 PrepareActivation 里返回 false 并自行结束，所以这里直接 return。
+	if (CanStartClimb() && AbilitySystemComp &&
+		AbilitySystemComp->TryActivateAbilitiesByTag(
+			FGameplayTagContainer(AbilityTags::Ge_Ability_Climb_Start)))
+	{
+		return;
+	}
+
+	// 面前没有可攀的墙 / 能力没授予 / 被 ActivationBlockedTags 挡住：正常跳
 	Jump();
 }
 

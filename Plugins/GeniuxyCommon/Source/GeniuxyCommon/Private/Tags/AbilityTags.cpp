@@ -10,4 +10,6 @@ namespace AbilityTags
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Ability_Group_Fly, "Ge.Ability.Group.Fly");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Ability_Group_Swim, "Ge.Ability.Group.Swim");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Ability_Group_Climb, "Ge.Ability.Group.Climb");
+
+	UE_DEFINE_GAMEPLAY_TAG(Ge_Ability_Climb_Start, "Ge.Ability.Climb.Start");
 }

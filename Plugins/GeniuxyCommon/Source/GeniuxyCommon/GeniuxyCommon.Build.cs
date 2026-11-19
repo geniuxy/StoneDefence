@@ -1,4 +1,4 @@
-﻿// Some copyright should be here...
+// Some copyright should be here...
 
 using UnrealBuildTool;
 
@@ -27,6 +27,9 @@ public class GeniuxyCommon : ModuleRules
 			{
 				"Core",
 				"CoreUObject",
+				// 公共头里会出现 UWorld / AActor / ACharacter（Climb/GeClimbProbe.h），
+				// 所以 Engine 必须是 public —— 不然就成了「靠调用方自己碰巧有 Engine」
+				"Engine",
 				"UMG",
 				"CommonUI"
 				// ... add other public dependencies that you statically link with here ...
