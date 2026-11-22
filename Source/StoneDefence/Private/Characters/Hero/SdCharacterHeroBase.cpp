@@ -44,11 +44,26 @@ ASdCharacterHeroBase::ASdCharacterHeroBase(const FObjectInitializer& ObjectIniti
 	ViewCamera->SetupAttachment(CameraBoom);
 	ViewCamera->bUsePawnControlRotation = false;
 
+	// CMC 的三个默认值（朝向移动 / 转向速度 / 飞行刹车）移到 PostInitializeComponents 里设：
+	// 角色 BP 可能会替换 CharacterMovement 组件，构造函数里设会打在随后被丢弃的旧组件上。
+
+	HeroAttributeSet = CreateDefaultSubobject<UGeAttributeSetHero>("HeroAttributeSet");
+}
+
+void ASdCharacterHeroBase::PostInitializeComponents()
+{
+	// 基类在这里刷新 OwnerCMC（构造完成后才能拿到真正在用的那个 CharacterMovement 实例）
+	Super::PostInitializeComponents();
+
+	if (!OwnerCMC)
+	{
+		// 组件类不对：基类已经 ensure 报过了，这里不要解引用
+		return;
+	}
+
 	OwnerCMC->bOrientRotationToMovement = true;
 	OwnerCMC->RotationRate = FRotator(0.f, 300.f, 0.f);
 	OwnerCMC->BrakingDecelerationFlying = 1400.f; // 为了能够在飞行状态，没有输入的情况下，可以迅速停下来
-
-	HeroAttributeSet = CreateDefaultSubobject<UGeAttributeSetHero>("HeroAttributeSet");
 }
 
 void ASdCharacterHeroBase::PawnClientRestart()
@@ -204,7 +219,14 @@ void ASdCharacterHeroBase::HandleMoveInput(const FInputActionValue& InputActionV
 	}
 	else if (GetLocomotionComponent()->IsInMode(EGeLocomotionMode::Climb))
 	{
-		
+		if (OwnerCMC)
+		{
+			const FVector WallNormal = OwnerCMC->GetClimbableSurfaceNormal();
+			const FVector ClimbUp    = FVector::UpVector;                        // 世界竖直
+			const FVector ClimbRight = FVector::CrossProduct(WallNormal, ClimbUp).GetSafeNormal(); // 沿墙水平
+			const FVector ClimbDir   = FVector::CrossProduct(ClimbRight, WallNormal).GetSafeNormal(); // 墙面上"向上"
+			MoveDirection = ClimbDir * MoveInput.Y + ClimbRight * MoveInput.X;
+		}
 	}
 	else
 	{

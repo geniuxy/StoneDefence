@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -23,5 +23,119 @@ protected:
 	) override;
 
 protected:
-	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
+	virtual void PhysCustom(float DeltaTime, int32 Iterations) override;
+
+	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
+
+	/** 保留的原本攀爬前的OrientRotationToMovement状态 */
+	bool bSavedOrientRotationToMovement;
+	float CachedCapsuleHalfHeight;
+
+	/**********************************************************************/
+	/*                          Speed / Accel                             */
+	/**********************************************************************/
+public:
+	/**
+	 * 让 MaxClimbSpeed / MaxClimbAcceleration / MaxBreakClimbDeceleration 真正生效。
+	 *
+	 * 为什么必须覆盖：PhysClimb 里那两句引擎调用读的是虚函数，不是这几个 UPROPERTY ——
+	 *   - CalcVelocity()        → GetMaxSpeed()（速度上限）、GetMaxAcceleration()（加速上限）
+	 *   - ScaleInputAcceleration → GetMaxAcceleration()（输入 → Acceleration 的放大倍数）
+	 * 不覆盖的话，攀爬用的还是 MaxWalkSpeed / MaxAcceleration（走路那套）。
+	 */
+	virtual float GetMaxSpeed() const override;
+	virtual float GetMaxAcceleration() const override;
+	virtual float GetMaxBrakingDeceleration() const override;
+
+protected:
+	/** 当前是不是在攀爬自定义模式（MOVE_Custom + MOVE_Climb） */
+	bool IsClimbing() const;
+
+	/**********************************************************************/
+	/*                               Climb                                */
+	/**********************************************************************/
+protected:
+	virtual void PhysClimb(float DeltaTime, int32 Iterations);
+
+	bool TraceClimbableSurfaces();
+
+	void ProcessClimbableSurfaceInfo();
+
+	bool CheckShouldStopClimbing();
+
+	bool CheckHasReachedFloor();
+
+	void StopClimbing();
+
+	FQuat GetClimbRotation(float DeltaTime);
+
+	FVector GetUnRotatedClimbVelocity() const;
+
+	void SnapMovementToClimbableSurfaces(float DeltaTime);
+
+	TArray<FHitResult> DoCapsuleTraceMultiByObject(
+		const FVector& Start,
+		const FVector& End,
+		bool bShowDebugShape = false,
+		bool bDrawPersistantShapes = false
+	);
+
+	FHitResult DoLineTraceSingleByObject(
+		const FVector& Start,
+		const FVector& End,
+		bool bShowDebugShape = false,
+		bool bDrawPersistantShapes = false
+	);
+
+protected:
+	TArray<FHitResult> ClimbableSurfacesTracedResults;
+
+	FVector CurrentClimbableSurfaceLocation;
+	FVector CurrentClimbableSurfaceNormal;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing")
+	TArray<TEnumAsByte<EObjectTypeQuery>> ClimbableSurfaceTraceTypes;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing")
+	float ClimbCapsuleTraceRadius = 50.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing")
+	float ClimbCapsuleTraceHalfHeight = 72.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing")
+	float MaxBreakClimbDeceleration = 400.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing")
+	float MaxClimbSpeed = 100.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing")
+	float MaxClimbAcceleration = 300.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing")
+	UAnimMontage* IdleToClimbMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing")
+	UAnimMontage* ClimbToTopMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing")
+	float ClimbDownWalkableSurfaceTraceOffset = 50.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing")
+	float ClimbDownLedgeTraceOffset = 100.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing")
+	UAnimMontage* ClimbDownLedgeMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing")
+	UAnimMontage* VaultMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing")
+	UAnimMontage* HopUpMontage;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing")
+	UAnimMontage* HopDownMontage;
+
+public:
+	FORCEINLINE FVector GetClimbableSurfaceNormal() const { return CurrentClimbableSurfaceNormal; }
 };

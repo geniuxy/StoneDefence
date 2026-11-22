@@ -33,6 +33,15 @@ public:
 	bool IsLocallyControlledByPlayer();
 
 protected:
+	/**
+	 * 构造完成后的收尾：这里才刷新 OwnerCMC。
+	 *
+	 * 不要在构造函数里缓存 CMC 指针 —— BP 的组件构造（SCS / 继承组件覆盖）发生在 C++ 构造函数
+	 * **之后**，会用 BP 里的组件替换掉原生 CharacterMovement，构造时抓到的指针就指向被丢弃的旧组件，
+	 * GC 之后变成空。同时这里用 ensure 兜住「组件类不对」这个静默故障。
+	 */
+	virtual void PostInitializeComponents() override;
+
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	

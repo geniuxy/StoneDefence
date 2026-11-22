@@ -5,7 +5,6 @@
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Animation/AnimMontage.h"
-#include "GeniuxyDebugHelper.h"
 #include "Interfaces/GeClimbProvider.h"
 #include "MotionWarpingComponent.h"
 #include "GameFramework/Character.h"
@@ -46,9 +45,7 @@ bool UGA_Climb::PrepareActivation()
 
 	if (!Character || !ClimbProvider)
 	{
-		Debug::Print(
-			TEXT("[GA_Climb] Avatar 不是 ACharacter，或者没有实现 IGeClimbProvider（参数拿不到）"),
-			TEXT("Climb.Prepare"), 8.f, FColor::Red);
+		// Avatar 不是 ACharacter，或者没实现 IGeClimbProvider（拿不到探测参数）
 		return false;
 	}
 
@@ -57,10 +54,7 @@ bool UGA_Climb::PrepareActivation()
 		Avatar->GetWorld(), GeClimb::MakeProbeInput(*Character),
 		ClimbProvider->GetClimbProbeParams(), Avatar, CachedLedge))
 	{
-		// 门控已经拦过一次，能走到这里说明两端几何有偏差（或参数被改过），值得记一笔
-		Debug::Print(
-			TEXT("[GA_Climb] 门控通过但本端探不到可攀的墙，检查两端位置是否一致"),
-			TEXT("Climb.Prepare"), 6.f, FColor::Orange);
+		// 门控已经拦过一次，走到这里说明两端几何有偏差（或参数被改过）
 		return false;
 	}
 
@@ -74,12 +68,7 @@ bool UGA_Climb::PreLoadMontage()
 	if (!ClimbStartMontage)
 	{
 		// 起攀这一整段全靠这段蒙太奇：AN 加 tag、ANS 做对齐。
-		// 没配好就没有「爬」可言，所以这里是 error 而不是 GA_Fly 那种「只告警、照样飞」。
-		Debug::Print(
-			FString::Printf(
-				TEXT("[GA_Climb] 取不到 Tag %s 对应的起攀蒙太奇（AnimationSet 没配或加载失败）"),
-				*ClimbStartMontageTag.ToString()),
-			TEXT("Climb.PreLoad"), 8.f, FColor::Red);
+		// 没配好就没有「爬」可言，所以这里是直接不激活，而不是 GA_Fly 那种「只告警、照样飞」。
 		return false;
 	}
 
@@ -125,9 +114,7 @@ void UGA_Climb::ApplyClimbWarpTarget()
 	UMotionWarpingComponent* WarpingComp = Avatar->FindComponentByClass<UMotionWarpingComponent>();
 	if (!WarpingComp)
 	{
-		Debug::Print(
-			TEXT("[GA_Climb] 角色身上没有 MotionWarpingComponent，起攀不会贴墙对齐（动画会在原地播）"),
-			TEXT("Climb.Warp"), 8.f, FColor::Yellow);
+		// 没有 MotionWarpingComponent 只是「不贴墙对齐」，动画照播，不影响流程
 		return;
 	}
 
@@ -140,8 +127,6 @@ void UGA_Climb::HandleMontageEnded()
 	// 起手那段结束了，本能力收工。
 	// 注意：Ge.Stats.Climb **不在这里清** —— 它由蒙太奇里的 AN/GE 加、由「攀爬结束」
 	// 那条路径（松手 / 到顶 / 离墙）负责清。这里清了的话攀爬状态会当场消失。
-	Debug::Print(TEXT("[GA_Climb] 起攀蒙太奇结束，交给攀爬状态接管"),
-	             TEXT("Climb.End"), 3.f, FColor::Cyan);
 
 	// OnBlendOut / OnCompleted 可能都来，别结束两次
 	if (IsActive())

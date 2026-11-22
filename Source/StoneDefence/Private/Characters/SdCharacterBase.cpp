@@ -46,8 +46,28 @@ ASdCharacterBase::ASdCharacterBase(const FObjectInitializer& ObjectInitializer)
 	WeaponMeshComponent->CastShadow = true;
 
 	LocomotionComp = CreateDefaultSubobject<UGeLocomotionComponent>(TEXT("LocomotionComp"));
-	OwnerCMC = GetCharacterMovement<UGeCharacterMovementComp>();
 	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
+}
+
+void ASdCharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	// ⚠ OwnerCMC 不能在构造函数里缓存：BP 的组件构造（SCS / 继承组件覆盖）发生在 C++ 构造函数
+	// 之后，会用 BP 里的组件替换掉原生 CharacterMovement —— 构造时抓到的指针指向被丢弃的旧组件，
+	// GC 之后就是空。所以构造完成之后再取一次。
+	OwnerCMC = GetCharacterMovement<UGeCharacterMovementComp>();
+
+	// PhysClimb / OnMovementModeChanged 全挂在 UGeCharacterMovementComp 上：类不对的话攀爬物理
+	// 一行都不会执行，表现只是「移动模式切了但人完全不动」，没有任何报错。这里用 ensure 兜住。
+	// ensure 只在 Development / Editor 生效，打包版自动失效。
+	const UCharacterMovementComponent* CMC = GetCharacterMovement();
+	ensureMsgf(
+		OwnerCMC != nullptr,
+		TEXT("[%s] CharacterMovement 实际是 %s，不是 GeCharacterMovementComp：攀爬物理不会生效。")
+		TEXT("去角色 BP 里把 CharacterMovement 的组件类 / 组件覆盖改回来"),
+		*GetNameSafe(this),
+		CMC ? *CMC->GetClass()->GetName() : TEXT("NULL"));
 }
 
 void ASdCharacterBase::ServerSideInit()
@@ -77,17 +97,10 @@ const FGeClimbProbeParams& ASdCharacterBase::GetClimbProbeParams() const
 bool ASdCharacterBase::CanStartClimb() const
 {
 	// 门控只回答「能不能」：几何数据丢给临时变量，需要 warp 数据的 GA_Climb 会再探一次
-	// （参数同一份 ClimbProbeParams，同一帧同一位置，结果必然一致）
+	// （参数同一份，同一帧同一位置，结果必然一致）
 	FGeClimbLedgeInfo Ignored;
-	const bool bCanClimb = GeClimb::ProbeClimb(
+	return GeClimb::ProbeClimb(
 		GetWorld(), GeClimb::MakeProbeInput(*this), GetClimbProbeParams(), this, Ignored);
-
-	// 这个函数是按输入调用的（不是每帧），所以这里打一条不会刷屏
-	Debug::Print(
-		FString::Printf(TEXT("[Climb] 门控：%s"), bCanClimb ? TEXT("可以起攀") : TEXT("面前没有可攀的墙")),
-		TEXT("Climb.Gate"), 2.f, bCanClimb ? FColor::Cyan : FColor::Silver);
-
-	return bCanClimb;
 }
 
 void ASdCharacterBase::BeginPlay()
