@@ -147,11 +147,23 @@ public:
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE FVector GetClimbSpeed() const { return NormalizedVelocity; }
 
-	/** 只取水平分量，给「四向攀爬」这种只需要左右两轴的混合空间用 */
+	/**
+	 * 攀爬用的两轴速度（已按 MaxSpeed 归一化到 [-1,1]）。
+	 *
+	 * 攀爬时角色被 GetClimbRotation() 转到「面向墙」，于是本地空间里：
+	 *   - X（前）= 指向墙里 → 速度平行于墙面，这个分量恒 ≈ 0，**不能**用来驱动混合空间；
+	 *   - Y（右）= 沿墙左右；
+	 *   - Z（上）= 上下爬。
+	 * 所以两轴取 (Y, Z)。返回值里 X = 沿墙左右、Y = 上下爬，
+	 * 分别接到 BlendSpace 的横轴 / 纵轴即可。
+	 *
+	 * 归一化分母是 CMC 的 GetMaxSpeed()，攀爬模式下 UGeCharacterMovementComp 会返回
+	 * MaxClimbSpeed，所以满速时这两个分量正好到 ±1。
+	 */
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
 	FORCEINLINE FVector2D GetClimbSpeed2D() const
 	{
-		return FVector2D(NormalizedVelocity.X, NormalizedVelocity.Y);
+		return FVector2D(NormalizedVelocity.Y, NormalizedVelocity.Z);
 	}
 
 	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))

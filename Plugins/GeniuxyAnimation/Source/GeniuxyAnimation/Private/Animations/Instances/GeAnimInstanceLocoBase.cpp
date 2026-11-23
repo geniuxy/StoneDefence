@@ -75,10 +75,12 @@ void UGeAnimInstanceLocoBase::NativeUpdateAnimation(float DeltaSeconds)
 
 	// ── 各模式的开关 ────────────────────────────────────────────────
 
-	// 攀爬：向上 / 向下爬
+	// 攀爬：向上 / 向下爬。
+	// 用归一化速度而不是 LocalVelocity：后者是 cm/s，配 0.15 的阈值等于「动一点就算」；
+	// 归一化之后 0.15 = 满速的 15%，才和这个阈值想表达的「明显在往上/往下爬」一致。
 	constexpr float ClimbVerticalDeadZone = 0.15f;
-	bIsClimbUp = LocalVelocity.Z > ClimbVerticalDeadZone;
-	bIsClimbDown = LocalVelocity.Z < -ClimbVerticalDeadZone;
+	bIsClimbUp = NormalizedVelocity.Z > ClimbVerticalDeadZone;
+	bIsClimbDown = NormalizedVelocity.Z < -ClimbVerticalDeadZone;
 }
 
 void UGeAnimInstanceLocoBase::UpdateLookAtLocation()
