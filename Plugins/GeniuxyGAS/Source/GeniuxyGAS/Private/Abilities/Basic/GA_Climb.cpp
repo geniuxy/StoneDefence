@@ -119,7 +119,8 @@ void UGA_Climb::ApplyClimbWarpTarget()
 	}
 
 	WarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(
-		ClimbWarpTargetName, CachedLedge.LedgeLocation, CachedLedge.ClimbForward.Rotation());
+		ClimbWarpTargetName, CachedLedge.LedgeLocation, CachedLedge.ClimbForward.Rotation()
+	);
 }
 
 void UGA_Climb::HandleMontageEnded()

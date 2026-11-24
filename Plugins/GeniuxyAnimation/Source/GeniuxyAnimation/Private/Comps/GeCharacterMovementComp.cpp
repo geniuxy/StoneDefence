@@ -104,9 +104,8 @@ void UGeCharacterMovementComp::PhysClimb(float DeltaTime, int32 Iterations)
 	/*Check if we should stop climbing*/
 	if (CheckShouldStopClimbing() || CheckHasReachedFloor())
 	{
-		// StopClimbing();
-		// // 已经切到 Falling / Ground 了，不能继续跑下面的攀爬位移
-		// return;
+		StopClimbing();
+		return;
 	}
 
 	RestorePreAdditiveRootMotionVelocity();

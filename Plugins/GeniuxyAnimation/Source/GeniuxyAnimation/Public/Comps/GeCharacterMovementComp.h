@@ -28,8 +28,10 @@ protected:
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 
 	/** 保留的原本攀爬前的OrientRotationToMovement状态 */
-	bool bSavedOrientRotationToMovement;
-	float CachedCapsuleHalfHeight;
+	bool bSavedOrientRotationToMovement = true;
+
+	/** 攀爬前记下的胶囊半高（BeginPlay 里初始化；为 0 表示还没记过，退出攀爬时不要拿它恢复） */
+	float CachedCapsuleHalfHeight = 0.f;
 
 	/**********************************************************************/
 	/*                          Speed / Accel                             */
@@ -137,5 +139,6 @@ protected:
 	UAnimMontage* HopDownMontage;
 
 public:
+	/** 当前攀爬墙面的法线（朝角色这一侧）。只在攀爬模式期间有效，其它时候是零向量 */
 	FORCEINLINE FVector GetClimbableSurfaceNormal() const { return CurrentClimbableSurfaceNormal; }
 };
