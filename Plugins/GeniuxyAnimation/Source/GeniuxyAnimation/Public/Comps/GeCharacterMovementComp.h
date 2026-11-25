@@ -56,10 +56,18 @@ protected:
 	/**********************************************************************/
 	/*                               Climb                                */
 	/**********************************************************************/
+public:
+	bool TraceClimbableSurfaces();
+
+	FHitResult TraceFromEyeHeight(
+		float TraceDistance,
+		float TraceStartOffset = 0.f,
+		bool bShowDebugShape = false,
+		bool bDrawPersistantShapes = false
+	);
+
 protected:
 	virtual void PhysClimb(float DeltaTime, int32 Iterations);
-
-	bool TraceClimbableSurfaces();
 
 	void ProcessClimbableSurfaceInfo();
 

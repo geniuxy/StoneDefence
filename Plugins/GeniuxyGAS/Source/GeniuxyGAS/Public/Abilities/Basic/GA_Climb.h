@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/Core/GeGameplayAbilityBase.h"
-#include "Climb/GeClimbProbe.h"
 #include "Tags/MontageTags.h"
 #include "GA_Climb.generated.h"
 
@@ -56,9 +55,6 @@ private:
 	UFUNCTION()
 	void HandleMontageEnded();
 
-	/** 把本端算出来的 edge 写成 MotionWarping 的 warp target（名字要和蒙太奇里的 ANS 一致） */
-	void ApplyClimbWarpTarget();
-
 	/**********************************************************************/
 	/*                              Montage                               */
 	/**********************************************************************/
@@ -79,7 +75,4 @@ private:
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Climb|Warp")
 	FName ClimbWarpTargetName = TEXT("ClimbLedge");
-
-	/** 本端探测到的 edge（PrepareActivation 写入，OnActivateAbility 用） */
-	FGeClimbLedgeInfo CachedLedge;
 };

@@ -6,7 +6,7 @@
 #include "GameplayTagContainer.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "GameFramework/Character.h"
-#include "Interfaces/GeClimbProvider.h"
+#include "Interfaces/GeStateEvaluator.h"
 #include "Types/GeniuxyCommonMacro.h"
 #include "SdCharacterBase.generated.h"
 
@@ -20,7 +20,7 @@ class UGeAbilitySystemComponent;
 class UMotionWarpingComponent;
 
 UCLASS()
-class STONEDEFENCE_API ASdCharacterBase : public ACharacter, public IGeClimbProvider
+class STONEDEFENCE_API ASdCharacterBase : public ACharacter, public IGeStateEvaluator
 {
 	GENERATED_BODY()
 
@@ -94,20 +94,7 @@ public:
 	/*                               Climb                                */
 	/**********************************************************************/
 public:
-	/**
-	 * IGeClimbProvider：攀爬探测参数的唯一真源。
-	 * GA_Climb 在 GeniuxyGAS 里（看不到本类），通过接口读同一份参数，
-	 * 保证「输入门控」和「能力内的探测」用的是同一套阈值。
-	 */
-	virtual const FGeClimbProbeParams& GetClimbProbeParams() const override;
-	/**
-	 * 输入门控：现在能不能开始攀爬。
-	 *
-	 * 只回答「能不能」，不往外给几何数据 —— 需要 warp 数据的 GA_Climb 会自己调
-	 * GeClimb::ProbeClimb 再算一次（参数同一份，结果天然一致）。
-	 * 注意这是按输入调用的，不是每帧，所以里面做几次 trace 没有性能问题。
-	 */
-	bool CanStartClimb() const;
+	virtual bool CanStartClimb() const override;
 
 	/**********************************************************************/
 	/*                            Equipment                               */

@@ -27,6 +27,7 @@ void UGeAnimationComponent::SetAnimationSetup(UGeAnimationSetup* InSetup)
 	if (AnimationSetup)
 	{
 		bFootIKEnabled = AnimationSetup->bCanFootIK;
+		bClimbIKEnabled = AnimationSetup->bCanClimbIK;
 	}
 
 	// 通知角色：层实现类可能变了，让 AnimInstance 重新 LinkAnimClassLayers

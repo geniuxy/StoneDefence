@@ -27,6 +27,7 @@ void UGeAnimInstanceBase::NativeInitializeAnimation()
 	DetectIKBoneSupport();
 
 	bFootIK = bCanFootIK;
+	bClimbIK = bCanClimbIK;
 
 	// 关键：把「上一帧采样」对齐到当前朝向。
 	// 不做这一步，BodyPrevRot 会是 (0,0,0)，首帧 BodyRotDelta 就是角色当前整个朝向，
@@ -157,8 +158,10 @@ void UGeAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 	// 所以凡是"脚不该贴地"的模式都必须在这里排除，不要只依赖 ABP 里那根分支。
 	const UGeAnimationComponent* AnimationComp = UGeAnimationComponent::Find(OwnerPawn);
 	const bool bFootIKAllowed = AnimationComp ? AnimationComp->IsFootIKEnabled() : bCanFootIK;
+	const bool bClimbIKAllowed = AnimationComp ? AnimationComp->IsClimbIKEnabled() : bCanClimbIK;
 
 	bFootIK = bFootIKAllowed && !bIsInAir && LocomotionMode == EGeLocomotionMode::Ground;
+	bClimbIK = bClimbIKAllowed && LocomotionMode == EGeLocomotionMode::Climb;
 }
 
 void UGeAnimInstanceBase::NativeThreadSafeUpdateAnimation(float DeltaSeconds)

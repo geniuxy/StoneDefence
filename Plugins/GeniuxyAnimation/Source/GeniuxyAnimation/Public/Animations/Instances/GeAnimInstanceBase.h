@@ -209,6 +209,19 @@ protected:
 	bool bDebugRotationSpeed = false;
 
 	/**********************************************************************/
+	/*                               Climb                                */
+	/**********************************************************************/
+public:
+	UFUNCTION(BlueprintPure, meta = (BlueprintThreadSafe))
+	FORCEINLINE bool GetIsClimbIK() const { return bClimbIK; }
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")
+	bool bCanClimbIK = false;
+
+	bool bClimbIK = false;
+
+	/**********************************************************************/
 	/*                              Foot IK                               */
 	/**********************************************************************/
 public:

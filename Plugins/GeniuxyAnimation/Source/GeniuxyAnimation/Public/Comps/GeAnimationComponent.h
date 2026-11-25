@@ -83,6 +83,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Geniuxy|FootIK")
 	bool IsFootIKEnabled() const { return bFootIKEnabled; }
 
+	UFUNCTION(BlueprintPure, Category = "Geniuxy|FootIK")
+	bool IsClimbIKEnabled() const { return bClimbIKEnabled; }
+
 	/** 运行时临时开关（一般不用手动调，配 UGeAnimationSetup 即可） */
 	UFUNCTION(BlueprintCallable, Category = "Geniuxy|FootIK")
 	void SetFootIKEnabled(bool bInEnabled) { bFootIKEnabled = bInEnabled; }
@@ -93,6 +96,7 @@ protected:
 	 * 手工配置的唯一入口是 UGeAnimationSetup::bCanFootIK，这里刻意不加 EditDefaultsOnly。
 	 */
 	bool bFootIKEnabled = true;
+	bool bClimbIKEnabled = true;
 
 private:
 	bool PlayLoadedMontage(const FCharacterMontageEntry& Entry);

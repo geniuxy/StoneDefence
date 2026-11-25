@@ -157,6 +157,20 @@ bool UGeCharacterMovementComp::TraceClimbableSurfaces()
 	return !ClimbableSurfacesTracedResults.IsEmpty();
 }
 
+FHitResult UGeCharacterMovementComp::TraceFromEyeHeight(
+	float TraceDistance, float TraceStartOffset, bool bShowDebugShape, bool bDrawPersistantShapes)
+{
+	const FVector ComponentLocation = UpdatedComponent->GetComponentLocation();
+	// 这里获取眼睛位置要用CharacterOwner->BaseEyeHeight
+	const FVector EyeHeightOffset =
+		UpdatedComponent->GetUpVector() * (CharacterOwner->BaseEyeHeight + TraceStartOffset);
+
+	const FVector Start = ComponentLocation + EyeHeightOffset;
+	const FVector End = Start + UpdatedComponent->GetForwardVector() * TraceDistance;
+
+	return DoLineTraceSingleByObject(Start, End, bShowDebugShape, bDrawPersistantShapes);
+}
+
 void UGeCharacterMovementComp::ProcessClimbableSurfaceInfo()
 {
 	CurrentClimbableSurfaceLocation = FVector::ZeroVector;

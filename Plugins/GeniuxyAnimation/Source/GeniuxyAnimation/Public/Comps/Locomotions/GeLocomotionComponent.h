@@ -5,13 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "GeniuxyAnimationType.h"
-#include "Climb/GeClimbProbe.h"
 #include "Components/ActorComponent.h"
 #include "GeLocomotionComponent.generated.h"
 
 class UCharacterMovementComponent;
 class UAbilitySystemComponent;
-struct FGeClimbProbeParams;
 
 /** 模式变化（蓝图侧） */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
@@ -150,17 +148,6 @@ private:
 
 	/** 已经连续多久没有移动输入（用于水平刹车的迟滞） */
 	float SwimNoInputTime = 0.f;
-	
-	/**********************************************************************/
-	/*                              Climb                                 */
-	/**********************************************************************/
-public:
-	const FGeClimbProbeParams& GetClimbProbeParams() const;
-
-protected:
-	/** 攀爬探测参数（按武将调；尺寸类参数都是相对胶囊的倍数，换体型不用重调） */
-	UPROPERTY(EditDefaultsOnly, Category="Climb")
-	FGeClimbProbeParams ClimbProbeParams;
 
 	/**********************************************************************/
 	/*                               Mode                                 */

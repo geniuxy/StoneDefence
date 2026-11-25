@@ -4,7 +4,6 @@
 #include "Characters/SdCharacterBase.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
-#include "Climb/GeClimbProbe.h"
 #include "Comps/GeAbilitySystemComponent.h"
 #include "Comps/GeAnimationComponent.h"
 #include "Anims/AnimInstances/SdAnimInstanceHeroBase.h"
@@ -89,18 +88,14 @@ bool ASdCharacterBase::IsLocallyControlledByPlayer()
 /**********************************************************************/
 /*                               Climb                                */
 /**********************************************************************/
-const FGeClimbProbeParams& ASdCharacterBase::GetClimbProbeParams() const
-{
-	return LocomotionComp->GetClimbProbeParams();
-}
-
 bool ASdCharacterBase::CanStartClimb() const
 {
-	// 门控只回答「能不能」：几何数据丢给临时变量，需要 warp 数据的 GA_Climb 会再探一次
-	// （参数同一份，同一帧同一位置，结果必然一致）
-	FGeClimbLedgeInfo Ignored;
-	return GeClimb::ProbeClimb(
-		GetWorld(), GeClimb::MakeProbeInput(*this), GetClimbProbeParams(), this, Ignored);
+	if (!OwnerCMC) return false;
+	if (OwnerCMC->IsFalling()) return false;
+	if (!OwnerCMC->TraceClimbableSurfaces()) return false;
+	if (!OwnerCMC->TraceFromEyeHeight(100.f).bBlockingHit) return false;
+
+	return true;
 }
 
 void ASdCharacterBase::BeginPlay()

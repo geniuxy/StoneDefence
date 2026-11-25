@@ -189,8 +189,7 @@ void ASdCharacterHeroBase::HandleJumpInput()
 	// 攀爬优先：门控先探一次，能爬就交给 GA_Climb（能力里两端会各探一次来算 warp 数据）。
 	// 注意 TryActivateAbilitiesByTag 的返回值只是「有没有激活到能力」，不代表爬成功 ——
 	// 探不到墙时能力会在 PrepareActivation 里返回 false 并自行结束，所以这里直接 return。
-	if (CanStartClimb() && AbilitySystemComp &&
-		AbilitySystemComp->TryActivateAbilitiesByTag(
+	if (CanStartClimb() && AbilitySystemComp && AbilitySystemComp->TryActivateAbilitiesByTag(
 			FGameplayTagContainer(AbilityTags::Ge_Ability_Climb_Start)))
 	{
 		return;

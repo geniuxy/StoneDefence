@@ -165,13 +165,6 @@ void UGeLocomotionComponent::RestoreSurfaceBuoyancy()
 		OwnerMovementComp->Buoyancy = CachedSurfaceBuoyancy;
 	}
 }
-/**********************************************************************/
-/*                               Climb                                */
-/**********************************************************************/
-const FGeClimbProbeParams& UGeLocomotionComponent::GetClimbProbeParams() const
-{
-	return ClimbProbeParams;
-}
 
 /**********************************************************************/
 /*                               Mode                                 */

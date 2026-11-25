@@ -58,4 +58,7 @@ public:
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Foot IK")
 	bool bCanFootIK = true;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Foot IK")
+	bool bCanClimbIK = true;
 };

@@ -5,9 +5,8 @@
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Animation/AnimMontage.h"
-#include "Interfaces/GeClimbProvider.h"
-#include "MotionWarpingComponent.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/GeStateEvaluator.h"
 #include "Tags/AbilityTags.h"
 #include "Tags/EventTags.h"
 #include "Tags/StatsTags.h"
@@ -41,20 +40,15 @@ bool UGA_Climb::PrepareActivation()
 {
 	const AActor* Avatar = GetAvatarActorFromActorInfo();
 	const ACharacter* Character = Cast<ACharacter>(Avatar);
-	const IGeClimbProvider* ClimbProvider = Cast<IGeClimbProvider>(Avatar);
+	const IGeStateEvaluator* StateEvaluator = Cast<IGeStateEvaluator>(Avatar);
 
-	if (!Character || !ClimbProvider)
+	if (!Character || !StateEvaluator)
 	{
-		// Avatar 不是 ACharacter，或者没实现 IGeClimbProvider（拿不到探测参数）
 		return false;
 	}
 
-	// 参数从接口拿，和角色门控用的是同一份，所以两端、两处判定不会分歧
-	if (!GeClimb::ProbeClimb(
-		Avatar->GetWorld(), GeClimb::MakeProbeInput(*Character),
-		ClimbProvider->GetClimbProbeParams(), Avatar, CachedLedge))
+	if (!StateEvaluator->CanStartClimb())
 	{
-		// 门控已经拦过一次，走到这里说明两端几何有偏差（或参数被改过）
 		return false;
 	}
 
@@ -81,9 +75,6 @@ void UGA_Climb::OnActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	// 先把 warp 目标写好再播：ANS 在 notify 开始那一刻就要按名字读它
-	ApplyClimbWarpTarget();
-
 	// 起攀要让动画自带的 RootMotion 生效（MotionWarping 就是在它的基础上纠偏），
 	// 所以这里**不要**像 GA_Land 那样传 AnimRootMotionTranslationScale = 0。
 	UAbilityTask_PlayMontageAndWait* MontageTask =
@@ -101,26 +92,6 @@ void UGA_Climb::OnActivateAbility(
 	MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::HandleMontageEnded);
 	MontageTask->OnCancelled.AddDynamic(this, &ThisClass::HandleMontageEnded);
 	MontageTask->ReadyForActivation();
-}
-
-void UGA_Climb::ApplyClimbWarpTarget()
-{
-	AActor* Avatar = GetAvatarActorFromActorInfo();
-	if (!Avatar || !CachedLedge.IsValid())
-	{
-		return;
-	}
-
-	UMotionWarpingComponent* WarpingComp = Avatar->FindComponentByClass<UMotionWarpingComponent>();
-	if (!WarpingComp)
-	{
-		// 没有 MotionWarpingComponent 只是「不贴墙对齐」，动画照播，不影响流程
-		return;
-	}
-
-	WarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(
-		ClimbWarpTargetName, CachedLedge.LedgeLocation, CachedLedge.ClimbForward.Rotation()
-	);
 }
 
 void UGA_Climb::HandleMontageEnded()
