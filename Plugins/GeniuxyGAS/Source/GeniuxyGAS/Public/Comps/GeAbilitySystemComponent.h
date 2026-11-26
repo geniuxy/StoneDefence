@@ -116,6 +116,14 @@ private:
 	void HandleSwimmingTagChanged(const FGameplayTag Tag, int32 NewCount);
 
 	/**********************************************************************/
+	/*                               Climb                                */
+	/**********************************************************************/
+private:
+	FDelegateHandle ClimbingTagHandle;
+
+	void HandleClimbingTagChanged(const FGameplayTag Tag, int32 NewCount);
+	
+	/**********************************************************************/
 	/*                          Cached Animation                          */
 	/**********************************************************************/
 private:

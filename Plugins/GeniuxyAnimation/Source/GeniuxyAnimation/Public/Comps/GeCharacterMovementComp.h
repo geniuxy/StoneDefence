@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
+#include "Abilities/GameplayAbilityTypes.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GeCharacterMovementComp.generated.h"
 
+class UAbilitySystemComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class GENIUXYANIMATION_API UGeCharacterMovementComp : public UCharacterMovementComponent
@@ -17,10 +20,15 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	virtual void TickComponent(
 		float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction
 	) override;
+
+protected:
+	UPROPERTY()
+	ACharacter* OwnerCharacter;
 
 protected:
 	virtual void PhysCustom(float DeltaTime, int32 Iterations) override;
@@ -32,6 +40,20 @@ protected:
 
 	/** 攀爬前记下的胶囊半高（BeginPlay 里初始化；为 0 表示还没记过，退出攀爬时不要拿它恢复） */
 	float CachedCapsuleHalfHeight = 0.f;
+
+	/**********************************************************************/
+	/*                               GAS                                  */
+	/**********************************************************************/
+protected:
+	UPROPERTY()
+	UAbilitySystemComponent* OwnerASC;
+
+private:
+	void BindGASChangeDelegates();
+	void UnbindGASChangeDelegates();
+
+	FDelegateHandle ClimbEndEventHandle;
+	void HandleClimbEndEvent(FGameplayTag GameplayTag, const FGameplayEventData* GameplayEventData);
 
 	/**********************************************************************/
 	/*                          Speed / Accel                             */

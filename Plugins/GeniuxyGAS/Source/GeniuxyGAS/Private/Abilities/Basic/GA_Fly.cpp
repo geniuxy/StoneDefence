@@ -15,6 +15,7 @@
 UGA_Fly::UGA_Fly()
 {
 	ActivationOwnedTags.AddTag(StatsTags::Ge_Stats_Fly);
+	ActivationBlockedTags.AddTag(StatsTags::Ge_Stats_Climbing);
 
 	// 能力分组：本能力是「飞行」组的持有者。
 	// 注意 AbilityTags:: 指的是命名空间（UGameplayAbility 那个同名成员不能当限定名，两者不冲突）。

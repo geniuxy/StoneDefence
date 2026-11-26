@@ -12,6 +12,7 @@
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Tags/EventTags.h"
 #include "Tags/StatsTags.h"
 
 UGeCharacterMovementComp::UGeCharacterMovementComp()
@@ -22,6 +23,20 @@ UGeCharacterMovementComp::UGeCharacterMovementComp()
 void UGeCharacterMovementComp::BeginPlay()
 {
 	Super::BeginPlay();
+
+	OwnerCharacter = Cast<ACharacter>(GetOwner());
+	if (!OwnerCharacter) return;
+
+	OwnerASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OwnerCharacter);
+
+	BindGASChangeDelegates();
+}
+
+void UGeCharacterMovementComp::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UnbindGASChangeDelegates();
+	
+	Super::EndPlay(EndPlayReason);
 }
 
 
@@ -63,6 +78,37 @@ void UGeCharacterMovementComp::OnMovementModeChanged(EMovementMode PreviousMovem
 
 		CharacterOwner->GetCapsuleComponent()->SetCapsuleHalfHeight(CachedCapsuleHalfHeight);
 	}
+}
+
+/**********************************************************************/
+/*                               GAS                                  */
+/**********************************************************************/
+
+void UGeCharacterMovementComp::BindGASChangeDelegates()
+{
+	if (!OwnerASC) return;
+	
+	ClimbEndEventHandle = OwnerASC->AddGameplayEventTagContainerDelegate(
+		FGameplayTagContainer(EventTags::Ge_Event_Climb_End),
+		FGameplayEventTagMulticastDelegate::FDelegate::CreateUObject(
+			this, &ThisClass::HandleClimbEndEvent
+		)
+	);
+}
+
+void UGeCharacterMovementComp::UnbindGASChangeDelegates()
+{
+	if (IsValid(OwnerASC))
+	{
+		OwnerASC->RemoveGameplayEventTagContainerDelegate(
+			FGameplayTagContainer(EventTags::Ge_Event_Climb_End), ClimbEndEventHandle
+		);
+	}
+}
+
+void UGeCharacterMovementComp::HandleClimbEndEvent(FGameplayTag GameplayTag, const FGameplayEventData* GameplayEventData)
+{
+	StopClimbing();
 }
 
 /**********************************************************************/

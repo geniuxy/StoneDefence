@@ -12,4 +12,5 @@ namespace AbilityTags
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Ability_Group_Climb, "Ge.Ability.Group.Climb");
 
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Ability_Climb_Start, "Ge.Ability.Climb.Start");
+	UE_DEFINE_GAMEPLAY_TAG(Ge_Ability_Climb_End, "Ge.Ability.Climb.End");
 }

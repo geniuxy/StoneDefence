@@ -25,7 +25,7 @@ enum class EAbilityInputID : uint8
 	LockTarget UMETA(DisplayName="LockTarget"),
 	SummonMount UMETA(DisplayName="SummonMount"),
 	Tab UMETA(DisplayName="Tab"),
-	Fly UMETA(DisplayName="Fly"),
+	X UMETA(DisplayName="X"),
 	Ctrl UMETA(DisplayName="Ctrl"),
 	Dodge UMETA(DisplayName="Dodge"),
 };

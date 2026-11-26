@@ -18,13 +18,8 @@ namespace EventTags
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Event_DrawWeapon);
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Event_SheatheWeapon);
 
-	/** 飞行中撞到地面（由 ASdCharacterBase::MoveBlockedBy 发出，EventMagnitude = 撞击下坠速度） */
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Event_FlyLand);
 
-	/**
-	 * 开始攀爬（事件驱动的入口）。
-	 * 原地起攀走 TryActivateAbilitiesByTag；这个事件是给「跳起抓边」这类
-	 * 需要在空中某个时机触发、又要带上 ledge 数据的场景预留的统一入口。
-	 */
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Event_Climb_Start);
+	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Event_Climb_End);
 }

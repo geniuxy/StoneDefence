@@ -101,6 +101,10 @@ void UGeAbilitySystemComponent::BeginPlay()
 	SwimmingTagHandle = RegisterGameplayTagEvent(StatsTags::Ge_Stats_Swimming).AddUObject(
 		this, &ThisClass::HandleSwimmingTagChanged
 	);
+
+	ClimbingTagHandle = RegisterGameplayTagEvent(StatsTags::Ge_Stats_Climbing).AddUObject(
+		this, &ThisClass::HandleClimbingTagChanged
+	);
 }
 
 void UGeAbilitySystemComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -115,6 +119,12 @@ void UGeAbilitySystemComponent::EndPlay(const EEndPlayReason::Type EndPlayReason
 	{
 		UnregisterGameplayTagEvent(SwimmingTagHandle, StatsTags::Ge_Stats_Swimming);
 		SwimmingTagHandle.Reset();
+	}
+
+	if (ClimbingTagHandle.IsValid())
+	{
+		UnregisterGameplayTagEvent(ClimbingTagHandle, StatsTags::Ge_Stats_Climbing);
+		ClimbingTagHandle.Reset();
 	}
 
 	Super::EndPlay(EndPlayReason);
@@ -350,6 +360,17 @@ void UGeAbilitySystemComponent::HandleSwimmingTagChanged(const FGameplayTag Tag,
 	FGameplayTagContainer SwimAbilityTags;
 	SwimAbilityTags.AddTag(AbilityTags::Ge_Ability_Group_Swim);
 	CancelAbilities(&SwimAbilityTags);
+}
+
+void UGeAbilitySystemComponent::HandleClimbingTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	if (NewCount > 0)
+	{
+		FGameplayTagContainer CancelAbilityTags;
+		CancelAbilityTags.AddTag(AbilityTags::Ge_Ability_Group_Ground);
+		CancelAbilityTags.AddTag(AbilityTags::Ge_Ability_Group_Fly);
+		CancelAbilities(&CancelAbilityTags);
+	}
 }
 
 void UGeAbilitySystemComponent::UpdateMontageMap(FGameplayTag InTag, const TSoftObjectPtr<UAnimMontage>& InMontage)
