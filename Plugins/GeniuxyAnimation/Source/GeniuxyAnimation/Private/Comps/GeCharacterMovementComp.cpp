@@ -24,10 +24,9 @@ void UGeCharacterMovementComp::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OwnerCharacter = Cast<ACharacter>(GetOwner());
-	if (!OwnerCharacter) return;
+	if (!CharacterOwner) return;
 
-	OwnerASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OwnerCharacter);
+	OwnerASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(CharacterOwner);
 
 	BindGASChangeDelegates();
 }
@@ -185,11 +184,18 @@ void UGeCharacterMovementComp::PhysClimb(float DeltaTime, int32 Iterations)
 
 	/* Snap(吸附) movement to climbable surfaces */
 	SnapMovementToClimbableSurfaces(DeltaTime);
-	//
-	// if (CheckHasReachedLedge())
-	// {
-	// 	PlayClimbMontage(ClimbToTopMontage);
-	// }
+	
+	if (CheckHasReachedLedge() && OwnerASC && !OwnerASC->HasMatchingGameplayTag(StatsTags::Ge_Stats_ClimbingToTop))
+	{
+		if (CharacterOwner && CharacterOwner->HasAuthority())
+		{
+			FGameplayEventData Data;
+			Data.EventTag = EventTags::Ge_Event_Climb_ToTop;
+			Data.Instigator = CharacterOwner;
+			Data.Target = CharacterOwner;
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(CharacterOwner, Data.EventTag, Data);
+		}
+	}
 }
 
 bool UGeCharacterMovementComp::TraceClimbableSurfaces()
@@ -334,6 +340,29 @@ void UGeCharacterMovementComp::SnapMovementToClimbableSurfaces(float DeltaTime)
 		UpdatedComponent->GetComponentQuat(),
 		true
 	);
+}
+
+bool UGeCharacterMovementComp::CheckHasReachedLedge()
+{
+	FHitResult LedgetHitResult = TraceFromEyeHeight(100.f, 50.f);
+
+	if (!LedgetHitResult.bBlockingHit)
+	{
+		const FVector WalkableSurfaceTraceStart = LedgetHitResult.TraceEnd;
+
+		const FVector DownVector = -UpdatedComponent->GetUpVector();
+		const FVector WalkableSurfaceTraceEnd = WalkableSurfaceTraceStart + DownVector * 100.f;
+
+		FHitResult WalkableSurfaceHitResult =
+			DoLineTraceSingleByObject(WalkableSurfaceTraceStart, WalkableSurfaceTraceEnd);
+
+		if (WalkableSurfaceHitResult.bBlockingHit && GetUnRotatedClimbVelocity().Z > 10.f)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 TArray<FHitResult> UGeCharacterMovementComp::DoCapsuleTraceMultiByObject(

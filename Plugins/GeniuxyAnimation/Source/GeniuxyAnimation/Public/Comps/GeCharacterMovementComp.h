@@ -27,10 +27,6 @@ protected:
 	) override;
 
 protected:
-	UPROPERTY()
-	ACharacter* OwnerCharacter;
-
-protected:
 	virtual void PhysCustom(float DeltaTime, int32 Iterations) override;
 
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
@@ -104,6 +100,8 @@ protected:
 	FVector GetUnRotatedClimbVelocity() const;
 
 	void SnapMovementToClimbableSurfaces(float DeltaTime);
+
+	bool CheckHasReachedLedge();
 
 	TArray<FHitResult> DoCapsuleTraceMultiByObject(
 		const FVector& Start,

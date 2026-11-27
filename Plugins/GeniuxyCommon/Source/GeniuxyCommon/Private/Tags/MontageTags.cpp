@@ -25,4 +25,5 @@ namespace MontageTags
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Montage_Fly_Land_Soft, "Ge.Montage.Fly.Land.Soft");
 
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Montage_Climb_Start, "Ge.Montage.Climb.Start");
+	UE_DEFINE_GAMEPLAY_TAG(Ge_Montage_Climb_ToTop, "Ge.Montage.Climb.ToTop");
 }

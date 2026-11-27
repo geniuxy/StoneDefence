@@ -12,4 +12,5 @@ namespace EventTags
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Event_FlyLand, "Ge.Event.FlyLand");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Event_Climb_Start, "Ge.Event.Climb.Start");
 	UE_DEFINE_GAMEPLAY_TAG(Ge_Event_Climb_End, "Ge.Event.Climb.End");
+	UE_DEFINE_GAMEPLAY_TAG(Ge_Event_Climb_ToTop, "Ge.Event.Climb.ToTop");
 }

@@ -61,8 +61,6 @@ bool UGA_Climb::PreLoadMontage()
 
 	if (!ClimbStartMontage)
 	{
-		// 起攀这一整段全靠这段蒙太奇：AN 加 tag、ANS 做对齐。
-		// 没配好就没有「爬」可言，所以这里是直接不激活，而不是 GA_Fly 那种「只告警、照样飞」。
 		return false;
 	}
 

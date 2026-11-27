@@ -33,9 +33,6 @@ namespace MontageTags
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Montage_Fly_Land_Hard);
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Montage_Fly_Land_Soft);
 
-	/*
-	 * 攀爬起手（贴墙对齐 → 抓上去那一段）。
-	 * 循环攀爬不做成蒙太奇轮播，由 Ge.Stats.Climb 驱动 AnimBP 状态 + PhysCustom 接管。
-	 */
 	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Montage_Climb_Start);
+	GENIUXYCOMMON_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ge_Montage_Climb_ToTop);
 }
